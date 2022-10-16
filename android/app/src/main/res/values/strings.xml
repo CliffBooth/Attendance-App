@@ -22,8 +22,9 @@
     <string name="saved_second_name">second_name</string>
     <string name="check_string">Check</string>
     <string name="professor_log_in">Enter your email</string>
-    <string name="email_hint">emial</string>
+    <string name="email_hint">email</string>
     <string name="professor_log_in_button">Log in</string>
     <string name="email_error_text">Please, enter valid email address</string>
     <string name="saved_email">email</string>
+    <string name="permissions_error">Permissions not granted by the user.</string>
 </resources>

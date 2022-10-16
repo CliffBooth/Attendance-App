@@ -24,6 +24,12 @@ class MainActivity: AppCompatActivity() {
             finish()
         }
 
+        if (sharedPreferences.contains(getString(R.string.saved_email))) {
+            val intent = Intent(this, CameraActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
