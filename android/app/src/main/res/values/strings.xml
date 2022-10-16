@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">Attendance</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_home">Home</string>
+    <string name="menu_gallery">Gallery</string>
+    <string name="menu_slideshow">Slideshow</string>
+    <string name="log_in_as_a_professor">Log in as a professor</string>
+    <string name="log_in_as_a_student">Log in as a student</string>
+    <string name="enter_your_name">Enter your name</string>
+    <string name="first_name_hint">First name</string>
+    <string name="second_name_hint">Second name</string>
+    <string name="log_in">Log in</string>
+    <string name="name_should_not_be_empty">Name should not be empty!</string>
+    <string name="preference_file_key">com.vystotsky.name</string>
+    <string name="saved_first_name">first_name</string>
+    <string name="saved_second_name">second_name</string>
+    <string name="check_string">Check</string>
+    <string name="professor_log_in">Enter your email</string>
+    <string name="email_hint">emial</string>
+    <string name="professor_log_in_button">Log in</string>
+    <string name="email_error_text">Please, enter valid email address</string>
+    <string name="saved_email">email</string>
+</resources>
