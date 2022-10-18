@@ -16,7 +16,7 @@ import androidmads.library.qrgenearator.QRGEncoder
 //add image dynamically or use preset?
 //maybe save image to the memory?
 //when return is pressed, quit the application (toast: click again to quit)
-class QRCodeActivity : AppCompatActivity() {
+class QRCodeActivity : MenuActivity() {
     private lateinit var binding: ActivityQrcodeBinding
     private lateinit var sharedPreferences: SharedPreferences
     private var dimen = 0

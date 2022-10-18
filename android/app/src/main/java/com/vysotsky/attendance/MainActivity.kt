@@ -1,7 +1,10 @@
 package com.vysotsky.attendance
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.vysotsky.attendance.databinding.ActivityMainBinding
 
@@ -33,14 +36,25 @@ class MainActivity: AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val studentLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { res ->
+            if (res.resultCode == Activity.RESULT_OK ) {
+                Log.d(T, "MainActivity GOT RESULT!")
+                finish()
+            }
+        }
+
+        val professorLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { res ->
+            if (res.resultCode == Activity.RESULT_OK ) {
+                finish()
+            }
+        }
+
         binding.studentButton.setOnClickListener {
-            val intent = Intent(this, StudentLogInActivity::class.java)
-            startActivity(intent)
+            studentLauncher.launch(Intent(this, StudentLogInActivity::class.java))
         }
 
         binding.professorButton.setOnClickListener {
-            val intent = Intent(this, ProfessorLogInActivity::class.java)
-            startActivity(intent)
+            professorLauncher.launch(Intent(this, ProfessorLogInActivity::class.java))
         }
     }
 }

@@ -1,9 +1,14 @@
 package com.vysotsky.attendance
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.snackbar.Snackbar
 import com.vysotsky.attendance.databinding.ActivityStudentBinding
 
@@ -18,6 +23,13 @@ class StudentLogInActivity : AppCompatActivity() {
         setContentView(binding.root)
         sharedPreferences = getSharedPreferences(getString(R.string.preference_file_key), MODE_PRIVATE)
 
+//        val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { res ->
+//            if (res.resultCode == Activity.RESULT_OK ) {
+//                setResult(Activity.RESULT_OK)
+//                finish()
+//            }
+//        }
+
         binding.logInButton.setOnClickListener {
             //save name in persistent memory
             //launch next activity
@@ -25,6 +37,8 @@ class StudentLogInActivity : AppCompatActivity() {
             val secondName = binding.secondNameEditText.text?.toString() ?: ""
 
             if (firstName.isBlank() || secondName.isBlank()) {
+                //TODO: close keyboard for snackbar to be seen!
+                //or display snackbar over the keyboard!
                 Snackbar.make(it, getString(R.string.name_should_not_be_empty), Snackbar.LENGTH_LONG)
                     .show()
             } else {
@@ -33,8 +47,10 @@ class StudentLogInActivity : AppCompatActivity() {
                     putString(getString(R.string.saved_second_name), secondName)
                     apply()
                 }
-                val intent = Intent(this, QRCodeActivity::class.java)
-                startActivity(intent)
+                startActivity(Intent(this, QRCodeActivity::class.java))
+                Log.d(T, "StudentLogIn before setResult")
+                setResult(Activity.RESULT_OK)
+                finish()
             }
 
         }
