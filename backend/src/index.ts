@@ -37,18 +37,6 @@ const PORT = parseInt(process.env.PORT);
 const app = express();
 app.use(express.json());
 
-// /**
-//  * @param data = "${firstName}:${seconNmae}:${id}"
-//  * @returns true if any session contains this data, otherwise false
-//  */
-// function checkIfScanned(data: string): boolean {
-//     for (let email in sessions) {
-//         if (sessions[email].contains(data))
-//             return true
-//     }
-//     return false
-// }
-
 /**
  * chekc if there is a session this phone as currentId
  * @param data = "${firstName}:${seconNmae}:${id}"
