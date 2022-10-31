@@ -4,14 +4,18 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.vysotsky.attendance.camera.CameraActivity
 import com.vysotsky.attendance.databinding.ActivityMainBinding
 
 //TODO: if there is a persistent state, go to that activity right away
 //check how to bypass activity
 
 const val T = "myTag"
+var debug = false
 
 class MainActivity: AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -57,4 +61,33 @@ class MainActivity: AppCompatActivity() {
             professorLauncher.launch(Intent(this, ProfessorLogInActivity::class.java))
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        binding.serverAddressText.text = API_URL
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.ip, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_ip -> {
+                startActivity(Intent(this, ChangeIPActivity::class.java))
+                true
+            }
+
+            R.id.action_debug -> {
+                item.isChecked = !item.isChecked
+                debug = item.isChecked
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
 }

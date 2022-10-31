@@ -1,14 +1,13 @@
-package com.vysotsky.attendance
+package com.vysotsky.attendance.camera
 
-import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
+import com.vysotsky.attendance.MenuActivity
+import com.vysotsky.attendance.R
+import com.vysotsky.attendance.T
 import com.vysotsky.attendance.databinding.ActivityCameraBinding
 
 //rename to something like ProfessorActivity

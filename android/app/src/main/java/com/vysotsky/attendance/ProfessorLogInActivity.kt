@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
+import com.vysotsky.attendance.camera.CameraActivity
 import com.vysotsky.attendance.databinding.ActivityProfessorBinding
 
 class ProfessorLogInActivity : AppCompatActivity() {

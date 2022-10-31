@@ -7,6 +7,7 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.snackbar.Snackbar
@@ -23,18 +24,16 @@ class StudentLogInActivity : AppCompatActivity() {
         setContentView(binding.root)
         sharedPreferences = getSharedPreferences(getString(R.string.preference_file_key), MODE_PRIVATE)
 
-//        val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { res ->
-//            if (res.resultCode == Activity.RESULT_OK ) {
-//                setResult(Activity.RESULT_OK)
-//                finish()
-//            }
-//        }
+        if (!debug) {
+            binding.androidIdText.visibility = View.GONE
+        }
 
         binding.logInButton.setOnClickListener {
             //save name in persistent memory
             //launch next activity
             val firstName = binding.firstNameEditText.text?.toString() ?: ""
             val secondName = binding.secondNameEditText.text?.toString() ?: ""
+            val id = binding.androidIdText.text?.toString() ?: ""
 
             if (firstName.isBlank() || secondName.isBlank()) {
                 //TODO: close keyboard for snackbar to be seen!
@@ -47,7 +46,11 @@ class StudentLogInActivity : AppCompatActivity() {
                     putString(getString(R.string.saved_second_name), secondName)
                     apply()
                 }
-                startActivity(Intent(this, QRCodeActivity::class.java))
+                val intent = Intent(this, QRCodeActivity::class.java)
+                if (debug) {
+                    intent.putExtra("id", id)
+                }
+                startActivity(intent)
                 Log.d(T, "StudentLogIn before setResult")
                 setResult(Activity.RESULT_OK)
                 finish()

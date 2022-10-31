@@ -31,4 +31,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="start_session">start session</string>
     <string name="logout_menu">log out</string>
+    <string name="can_t_create_session">Can\'t create session on the server</string>
+    <string name="attendees_list">Attendees list:</string>
+    <string name="view_list_button">view list</string>
 </resources>

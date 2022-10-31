@@ -4,18 +4,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    tools:context=".ProfessorLogInActivity">
+    tools:context=".ChangeIPActivity">
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/ip_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/professor_log_in"
+        android:text="enter new ip"
         app:layout_constraintBottom_toTopOf="@+id/IP_textInputLayout"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginVertical="15dp"
         app:layout_constraintVertical_bias=".2"
         app:layout_constraintVertical_chainStyle="packed" />
 
@@ -23,32 +24,28 @@
         android:id="@+id/IP_textInputLayout"
         android:layout_width="409dp"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="15dp"
-        app:layout_constraintBottom_toTopOf="@+id/button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3">
+        android:layout_marginVertical="15dp"
+        app:layout_constraintTop_toBottomOf="@+id/ip_textView">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/email_edit_text"
+            android:id="@+id/ip_text_edit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/email_hint"
-            android:inputType="textEmailAddress" />
+            android:hint="192.168.0.106[:PORT]"
+            android:inputType="textPersonName|textCapWords" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/ip_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/professor_log_in_button"
+        android:text="set"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="40dp"
-        app:layout_constraintTop_toBottomOf="@id/IP_textInputLayout"
-        app:layout_constraintStart_toStartOf="parent" />
-
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/IP_textInputLayout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
