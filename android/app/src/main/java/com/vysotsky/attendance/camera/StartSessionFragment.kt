@@ -1,6 +1,8 @@
 package com.vysotsky.attendance.camera
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.vysotsky.attendance.API_URL
 import com.vysotsky.attendance.R
@@ -21,12 +24,14 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.IOException
 
 class StartSessionFragment : Fragment() {
     private var _binding: FragmentStartSessionBinding? = null
     private val binding
         get() = _binding!!
     private lateinit var email: String
+    private val viewModel: StartSessionViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +52,10 @@ class StartSessionFragment : Fragment() {
             registerSession()
         }
         Log.d(T, "StartSessionFragment onCreateView()")
+        viewModel.spinnerVisibility.observe(requireActivity()) {
+            Log.d(T, "StartSessionFragment: observer!")
+            binding.spinner.visibility = it
+        }
         return binding.root
     }
 
@@ -54,6 +63,16 @@ class StartSessionFragment : Fragment() {
      * Makes API call to register new session.
      */
     private fun registerSession() {
+        val errorToast = Toast.makeText(
+            context,
+            "Internet error",
+            Toast.LENGTH_SHORT
+        )
+        val cantCrateSessionToast = Toast.makeText(
+            requireContext(),
+            getString(R.string.can_t_create_session),
+            Toast.LENGTH_SHORT
+        )
         lifecycleScope.launch(Dispatchers.IO) {
             val client = OkHttpClient()
             val json = "{\"email\": \"$email\"}"
@@ -63,21 +82,30 @@ class StartSessionFragment : Fragment() {
                 .post(body)
                 .build()
 
-            client.newCall(request).execute().use { res ->
-                if (res.isSuccessful) {
-                    parentFragmentManager.commit {
-                        add<CameraFragment>(R.id.fragment_container_view)
-                        setReorderingAllowed(true)
-                        addToBackStack("CameraFragment")
+            try {
+                requireActivity().runOnUiThread {
+                    viewModel.spinnerVisibility.value = View.VISIBLE
+                }
+                client.newCall(request).execute().use { res ->
+                    Handler(Looper.getMainLooper()).post {
+                        viewModel.spinnerVisibility.value = View.GONE
                     }
-                } else {
-                    requireActivity().runOnUiThread {
-                        Toast.makeText(
-                            requireContext(),
-                            getString(R.string.can_t_create_session),
-                            Toast.LENGTH_SHORT
-                        ).show()
+                    if (res.isSuccessful) {
+                        parentFragmentManager.commit {
+                            add<CameraFragment>(R.id.fragment_container_view)
+                            setReorderingAllowed(true)
+                            addToBackStack("CameraFragment")
+                        }
+                    } else {
+                        Handler(Looper.getMainLooper()).post {
+                            cantCrateSessionToast.show()
+                        }
                     }
+                }
+            } catch (e: IOException) {
+                Handler(Looper.getMainLooper()).post {
+                    viewModel.spinnerVisibility.value = View.GONE
+                    errorToast.show()
                 }
             }
 

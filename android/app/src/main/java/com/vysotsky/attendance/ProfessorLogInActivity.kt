@@ -1,5 +1,6 @@
 package com.vysotsky.attendance
 
+import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
@@ -32,6 +33,8 @@ class ProfessorLogInActivity : AppCompatActivity() {
                 }
                 val intent = Intent(this, CameraActivity::class.java)
                 startActivity(intent)
+                setResult(Activity.RESULT_OK)
+                finish()
             }
         }
     }

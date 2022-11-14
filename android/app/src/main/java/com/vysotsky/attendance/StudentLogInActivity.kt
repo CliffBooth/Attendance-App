@@ -1,16 +1,14 @@
 package com.vysotsky.attendance
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import androidx.activity.result.contract.ActivityResultContract
-import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.snackbar.Snackbar
+import com.vysotsky.attendance.QRCode.QRCodeActivity
 import com.vysotsky.attendance.databinding.ActivityStudentBinding
 
 //TODO: when exit, clear app preferences (delete name from the storage)

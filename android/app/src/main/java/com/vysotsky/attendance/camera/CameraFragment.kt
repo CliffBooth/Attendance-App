@@ -17,19 +17,19 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.lifecycle.lifecycleScope
 import com.squareup.moshi.JsonClass
 import com.vysotsky.attendance.API_URL
-import com.vysotsky.attendance.AttendeesListFragment
 import com.vysotsky.attendance.R
 import com.vysotsky.attendance.T
 import com.vysotsky.attendance.databinding.FragmentCameraBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -41,8 +41,9 @@ class CameraFragment : Fragment() {
     private val binding
         get() = _binding!!
     private lateinit var email: String
-    private val attendees = mutableListOf("test1", "test2")
+    private val attendees = mutableListOf<String>()
     private val englishQRRegex = Regex("^[A-Za-z]+:\\w+:[\\w]+\$")
+    private lateinit var drawerLayout: DrawerLayout
 
     @Volatile
     private var lastSent: String? = null
@@ -75,7 +76,7 @@ class CameraFragment : Fragment() {
                 addToBackStack("AttendeesList Fragment")
             }
         }
-        binding.nextButton.visibility = View.GONE
+        //binding.nextButton.visibility = View.GONE
 //        binding.nextButton.setOnClickListener {
 //            qrCodeSent = null
 //            lastSent = null
@@ -213,7 +214,7 @@ class CameraFragment : Fragment() {
             ContextCompat.getMainExecutor(requireContext()), //TODO: should this be the main executor?
             QRCodeImageAnalyzer(listener)
         )
-        cameraProvider.bindToLifecycle(this, cameraSelector, imageAnalysis, preview)
+        cameraProvider.bindToLifecycle(viewLifecycleOwner, cameraSelector, imageAnalysis, preview)
     }
 
     private val listener = object: QRCodeImageAnalyzer.QRCodeListener {
@@ -227,6 +228,9 @@ class CameraFragment : Fragment() {
                 // trying to send anything camera sees, sending only if it matches expected pattern
                 if (string.matches(englishQRRegex)) {
                     sendScan(string)
+                } else {
+                    val currentThread = Thread.currentThread()
+                    binding.debugText.text = "QR Code doesn't look like student's name"
                 }
             } else {
                 // looking at the token

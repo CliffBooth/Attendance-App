@@ -8,14 +8,10 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.vysotsky.attendance.QRCode.QRCodeActivity
 import com.vysotsky.attendance.camera.CameraActivity
 import com.vysotsky.attendance.databinding.ActivityMainBinding
 
-//TODO: if there is a persistent state, go to that activity right away
-//check how to bypass activity
-
-const val T = "myTag"
-var debug = false
 
 class MainActivity: AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -62,10 +58,6 @@ class MainActivity: AppCompatActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        binding.serverAddressText.text = API_URL
-    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -88,6 +80,38 @@ class MainActivity: AppCompatActivity() {
 
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+
+    override fun onPause() {
+        super.onPause()
+        Log.d(T, "onPause")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(T, "onResume")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d(T, "onStop")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d(T, "onStart")
+        binding.serverAddressText.text = API_URL
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        Log.d(T, "onRestart")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(T, "Main Activity: onDestroy")
     }
 
 }

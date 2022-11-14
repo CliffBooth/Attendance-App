@@ -1,4 +1,4 @@
-package com.vysotsky.attendance
+package com.vysotsky.attendance.camera
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment

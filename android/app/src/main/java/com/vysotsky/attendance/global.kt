@@ -1,10 +1,11 @@
 package com.vysotsky.attendance
 
 import java.io.InputStream
-import java.net.HttpURLConnection
 
 var PORT = 7000
 var API_URL = "http://192.168.0.106:${PORT}"
+const val T = "myTag"
+var debug = false
 
 fun getResponse(inputStream: InputStream): String {
     val br = inputStream.bufferedReader()

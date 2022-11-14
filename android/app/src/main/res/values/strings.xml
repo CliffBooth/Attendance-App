@@ -34,4 +34,6 @@
     <string name="can_t_create_session">Can\'t create session on the server</string>
     <string name="attendees_list">Attendees list:</string>
     <string name="view_list_button">view list</string>
+    <string name="nav_open">Open</string>
+    <string name="nav_close">Close</string>
 </resources>

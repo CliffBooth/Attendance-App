@@ -31,7 +31,7 @@
             android:name=".camera.CameraActivity"
             android:exported="false" />
         <activity
-            android:name=".QRCodeActivity"
+            android:name=".QRCode.QRCodeActivity"
             android:exported="false" />
         <activity
             android:name=".StudentLogInActivity"
