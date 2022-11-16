@@ -3,11 +3,7 @@ package com.vysotsky.attendance.QRCode
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.Point
-import android.graphics.drawable.AnimationDrawable
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.TransitionDrawable
 import android.os.Bundle
 import android.provider.Settings
 import android.util.JsonReader
@@ -19,14 +15,15 @@ import androidmads.library.qrgenearator.QRGContents
 import com.vysotsky.attendance.databinding.ActivityQrcodeBinding
 import androidmads.library.qrgenearator.QRGEncoder
 import androidx.activity.viewModels
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import com.vysotsky.attendance.API_URL
 import com.vysotsky.attendance.MenuActivity
 import com.vysotsky.attendance.R
 import com.vysotsky.attendance.T
+import com.vysotsky.attendance.polling
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -42,11 +39,11 @@ class QRCodeActivity : MenuActivity() {
     private lateinit var binding: ActivityQrcodeBinding
     private lateinit var sharedPreferences: SharedPreferences
     private var dimen = 0
+
     //private var token: String? = null
     private lateinit var stringToQR: String
     private val viewModel: QRCodeViewModel by viewModels()
 
-    //TODO: save image as state to not recreate when screen flipped
     @SuppressLint("HardwareIds")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,7 +60,7 @@ class QRCodeActivity : MenuActivity() {
         val firstName = sharedPreferences.getString(
             getString(R.string.saved_first_name),
             null
-        ) //TODO think about this null
+        ) //TODO think about this null (send to login Activity)
         val secondName = sharedPreferences.getString(getString(R.string.saved_second_name), null)
         Log.d(T, "qrcodeActivity: first name = $firstName second name = $secondName")
 
@@ -79,13 +76,30 @@ class QRCodeActivity : MenuActivity() {
         display.getSize(point)
         dimen = if (point.x < point.y) point.x * 3 / 4 else point.y * 3 / 4
 
-        binding.checkButton.setOnClickListener {
-            Log.d(T, "api call")
-            sendStudent()
+        if (polling) {
+            binding.checkButton.visibility = View.GONE
+            binding.tryAgainButton.setOnClickListener {
+                runPolling()
+                viewModel.tryAgainButtonVisibility.value = View.GONE
+            }
+            //to only run polling once
+            if (!viewModel.isRunningPolling) {
+                viewModel.isRunningPolling = true
+                runPolling()
+            }
+        } else {
+            binding.checkButton.setOnClickListener {
+                Log.d(T, "api call")
+                sendStudent()
+            }
         }
 
         viewModel.spinnerVisibility.observe(this) {
             binding.spinner.visibility = it
+        }
+
+        viewModel.tryAgainButtonVisibility.observe(this) {
+            binding.tryAgainButton.visibility = it
         }
 
         viewModel.token.observe(this) {
@@ -100,6 +114,59 @@ class QRCodeActivity : MenuActivity() {
         }
     }
 
+    private fun runPolling() {
+        viewModel.viewModelScope.launch(Dispatchers.IO) {
+            val client = OkHttpClient()
+            val json = "{\"data\":\"$stringToQR\"}"
+            val body = json.toRequestBody("application/json".toMediaTypeOrNull())
+            val request = Request.Builder()
+                .url("$API_URL/student")
+                .post(body)
+                .build()
+
+            try {
+                var i = 0;
+                var gotResult = false
+                while (!gotResult) {
+                    Log.d(T, "making polling request... ${++i}")
+                    client.newCall(request).execute().use { res ->
+                        when (res.code) {
+                            200 -> {
+                                //token = adapter.fromJson(res.body!!.source())!!.token
+                                Log.i(T, "QRCodeActivity: inside 200")
+                                val reader = JsonReader(InputStreamReader(res.body!!.byteStream()))
+                                //reader.isLenient = true
+                                Log.i(T, "1")
+                                try {
+                                    reader.beginObject()
+                                    reader.nextName()
+                                    val token = reader.nextString()
+                                    Log.d(T, "read token: $token")
+                                    runOnUiThread {
+                                        viewModel.token.value = token
+                                    }
+                                } catch (e: Exception) {
+                                    Log.e(T, "exception: $e")
+                                }
+                                gotResult = true
+                            }
+                            else -> {delay(1000)}
+                        }
+                    }
+                }
+            } catch (e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(
+                        applicationContext,
+                        "Internet error",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    viewModel.tryAgainButtonVisibility.value = View.VISIBLE
+                }
+            }
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         Log.d(T, "inside on resume")
@@ -110,20 +177,22 @@ class QRCodeActivity : MenuActivity() {
         } else {
             setImage(stringToQR)
         }
+        if (viewModel.pollingEnabled) {
+            binding.checkButton.visibility = View.GONE
+        }
     }
 
     private fun sendStudent() {
-        lifecycleScope.launch(Dispatchers.IO) {
+        viewModel.viewModelScope.launch(Dispatchers.IO) {
             Log.i(T, "QRCodeActivity: enter coroutine")
             val client = OkHttpClient()
-            //val moshi = Moshi.Builder().build()
-            //val adapter = moshi.adapter(Data::class.java)
             val json = "{\"data\":\"$stringToQR\"}"
             val body = json.toRequestBody("application/json".toMediaTypeOrNull())
             val request = Request.Builder()
                 .url("$API_URL/student")
                 .post(body)
                 .build()
+
             Log.i(T, "QRCodeActivity: request built")
 
             try {

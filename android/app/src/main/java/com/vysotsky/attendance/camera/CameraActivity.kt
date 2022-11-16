@@ -4,10 +4,13 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import androidx.activity.addCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
+import androidx.fragment.app.replace
 import com.vysotsky.attendance.MenuActivity
 import com.vysotsky.attendance.R
 import com.vysotsky.attendance.T
@@ -40,40 +43,56 @@ class CameraActivity : MenuActivity() {
             }
         }
 
-//        drawerLayout = binding.drawerLayout
-//        actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.nav_open, R.string.nav_close )
-//        drawerLayout.addDrawerListener(actionBarDrawerToggle)
-//        actionBarDrawerToggle.syncState()
-//        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        drawerLayout = binding.drawerLayout
+        actionBarDrawerToggle =
+            ActionBarDrawerToggle(this, drawerLayout, R.string.nav_open, R.string.nav_close)
+        drawerLayout.addDrawerListener(actionBarDrawerToggle)
+        actionBarDrawerToggle.syncState()
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        val navView = binding.navView
+        navView.setNavigationItemSelectedListener {
+            drawerLayout.close()
+            when (it.itemId) {
+                R.id.nav_scan_qr_code -> {
+                    supportFragmentManager.commit {
+                        replace<CameraFragment>(R.id.fragment_container_view)
+                    }
+                    true
+                }
+
+                R.id.nav_attendees_list -> {
+                    supportFragmentManager.commit {
+                        replace<AttendeesListFragment>(R.id.fragment_container_view)
+                    }
+                    true
+                }
+
+                R.id.nav_stop_session -> {
+                    supportFragmentManager.commit {
+                        replace<StartSessionFragment>(R.id.fragment_container_view)
+                    }
+                    true
+                }
+
+                else -> false
+            }
+        }
+        onBackPressedDispatcher.addCallback(this) {
+            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                drawerLayout.closeDrawer(GravityCompat.START)
+            } else {
+                finish()
+            }
+        }
     }
 
 
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        Log.d(T, "Camera Activity: item selected: ${item}")
-//        return if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
-//            true
-//        } else {
-//            return when (item.itemId) {
-//                R.id.nav_scan_qr_code -> {
-//                    supportFragmentManager.commit {
-//                        add<CameraFragment>(R.id.fragment_container_view)
-//                    }
-//                    true
-//                }
-//                R.id.nav_attendees_list -> {
-//                    supportFragmentManager.commit {
-//                        add<AttendeesListFragment>(R.id.fragment_container_view)
-//                    }
-//                    true
-//                }
-//                R.id.nav_stop_session -> {
-//                    supportFragmentManager.commit {
-//                        add<StartSessionFragment>(R.id.fragment_container_view)
-//                    }
-//                    true
-//                }
-//                else -> return super.onOptionsItemSelected(item)
-//            }
-//        }
-//    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        Log.d(T, "Camera Activity: item selected: ${item}")
+        return if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+            true
+        } else {
+            return super.onOptionsItemSelected(item)
+        }
+    }
 }

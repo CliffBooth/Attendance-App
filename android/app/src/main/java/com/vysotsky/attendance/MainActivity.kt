@@ -1,27 +1,34 @@
 package com.vysotsky.attendance
 
 import android.app.Activity
+import android.app.Dialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentManager
 import com.vysotsky.attendance.QRCode.QRCodeActivity
 import com.vysotsky.attendance.camera.CameraActivity
 import com.vysotsky.attendance.databinding.ActivityMainBinding
 
 
-class MainActivity: AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //check if already logged in
-        val sharedPreferences = getSharedPreferences(getString(R.string.preference_file_key), MODE_PRIVATE)
+        val sharedPreferences =
+            getSharedPreferences(getString(R.string.preference_file_key), MODE_PRIVATE)
         if (sharedPreferences.contains(getString(R.string.saved_first_name)) &&
-                sharedPreferences.contains(getString(R.string.saved_second_name))) {
+            sharedPreferences.contains(getString(R.string.saved_second_name))
+        ) {
             val intent = Intent(this, QRCodeActivity::class.java)
             startActivity(intent)
             finish()
@@ -36,18 +43,20 @@ class MainActivity: AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val studentLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { res ->
-            if (res.resultCode == Activity.RESULT_OK ) {
-                Log.d(T, "MainActivity GOT RESULT!")
-                finish()
+        val studentLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { res ->
+                if (res.resultCode == Activity.RESULT_OK) {
+                    Log.d(T, "MainActivity GOT RESULT!")
+                    finish()
+                }
             }
-        }
 
-        val professorLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { res ->
-            if (res.resultCode == Activity.RESULT_OK ) {
-                finish()
+        val professorLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { res ->
+                if (res.resultCode == Activity.RESULT_OK) {
+                    finish()
+                }
             }
-        }
 
         binding.studentButton.setOnClickListener {
             studentLauncher.launch(Intent(this, StudentLogInActivity::class.java))
@@ -72,13 +81,32 @@ class MainActivity: AppCompatActivity() {
                 true
             }
 
-            R.id.action_debug -> {
-                item.isChecked = !item.isChecked
-                debug = item.isChecked
+            R.id.action_openOptionsDialog -> {
+                OptionsDialog.show(supportFragmentManager, "options")
                 true
             }
 
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    object OptionsDialog : DialogFragment() {
+        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+            val checkedItems = arrayOf(debug, polling).toBooleanArray()
+            return AlertDialog.Builder(this.requireContext())
+                .setMultiChoiceItems(
+                    arrayOf("debug", "student polling"),
+                    checkedItems
+                ) { _: DialogInterface, which: Int, isChecked: Boolean ->
+                    Log.d(T, "which: $which")
+                    when (which) {
+                        0 -> debug = isChecked
+                        1 -> polling = isChecked
+                    }
+                    Log.d(T, "debug = ${debug}, polling = ${polling}")
+                }
+                .setPositiveButton("OK") { _, _ -> }
+                .create()
         }
     }
 

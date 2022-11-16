@@ -8,13 +8,10 @@
         android:title="change api"
         app:showAsAction="never" />
 
-    <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/action_debug"
-            android:checkable="true"
-            android:orderInCategory="2"
-            android:title="debug" />
-    </group>
+    <item
+        android:id="@+id/action_openOptionsDialog"
+        android:orderInCategory="3"
+        android:title="options" />
 
 
 </menu>

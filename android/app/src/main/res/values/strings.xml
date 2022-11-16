@@ -36,4 +36,5 @@
     <string name="view_list_button">view list</string>
     <string name="nav_open">Open</string>
     <string name="nav_close">Close</string>
+    <string name="use_geolocation_data">Use geolocation data</string>
 </resources>

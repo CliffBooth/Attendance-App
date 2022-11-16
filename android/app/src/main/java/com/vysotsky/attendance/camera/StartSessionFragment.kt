@@ -10,10 +10,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.add
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.replace
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import com.vysotsky.attendance.API_URL
 import com.vysotsky.attendance.R
 import com.vysotsky.attendance.T
@@ -31,7 +32,7 @@ class StartSessionFragment : Fragment() {
     private val binding
         get() = _binding!!
     private lateinit var email: String
-    private val viewModel: StartSessionViewModel by viewModels()
+    private val viewModel: CameraViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,8 +50,14 @@ class StartSessionFragment : Fragment() {
     ): View {
         _binding = FragmentStartSessionBinding.inflate(inflater, container, false)
         binding.startButton.setOnClickListener {
+            if (binding.geolocationCheckbox.isChecked)
+                viewModel.usingGeolocation = true
             registerSession()
         }
+        binding.geolocationCheckbox.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.isUsingGeodata = isChecked
+        }
+
         Log.d(T, "StartSessionFragment onCreateView()")
         viewModel.spinnerVisibility.observe(requireActivity()) {
             Log.d(T, "StartSessionFragment: observer!")
@@ -73,7 +80,7 @@ class StartSessionFragment : Fragment() {
             getString(R.string.can_t_create_session),
             Toast.LENGTH_SHORT
         )
-        lifecycleScope.launch(Dispatchers.IO) {
+        viewModel.viewModelScope.launch(Dispatchers.IO) {
             val client = OkHttpClient()
             val json = "{\"email\": \"$email\"}"
             val body = json.toRequestBody("application/json".toMediaTypeOrNull())
@@ -92,9 +99,9 @@ class StartSessionFragment : Fragment() {
                     }
                     if (res.isSuccessful) {
                         parentFragmentManager.commit {
-                            add<CameraFragment>(R.id.fragment_container_view)
+                            replace<CameraFragment>(R.id.fragment_container_view)
                             setReorderingAllowed(true)
-                            addToBackStack("CameraFragment")
+                            //addToBackStack("CameraFragment")
                         }
                     } else {
                         Handler(Looper.getMainLooper()).post {
