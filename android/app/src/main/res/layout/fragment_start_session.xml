@@ -40,7 +40,7 @@
         android:visibility="gone"/>
 
     <CheckBox
-        android:id="@+id/geolocation_checkbox"
+        android:id="@+id/location_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/use_geolocation_data"

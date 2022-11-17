@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.location.LocationRequest
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -29,6 +30,10 @@ import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.CancellationToken
+import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.android.gms.tasks.OnTokenCanceledListener
 import com.squareup.moshi.JsonClass
 import com.vysotsky.attendance.API_URL
 import com.vysotsky.attendance.R
@@ -49,10 +54,11 @@ class CameraFragment : Fragment() {
     private val binding
         get() = _binding!!
     private lateinit var email: String
-    private val attendees = mutableListOf<String>()
-    private val englishQRRegex = Regex("^[A-Za-z]+:\\w+:[\\w]+\$")
+    private val attendees = mutableListOf<Attendee>()
+    private val englishQRRegex = Regex("^[A-Za-z]+:[A-Za-z]+:\\w+:((-?[\\w\\.]+---?[\\w\\.]+)|null)\$")
     private lateinit var drawerLayout: DrawerLayout
     private val viewModel: CameraViewModel by activityViewModels()
+    private var locatonOfCurrentAttendee: GeoLocation? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,24 +78,25 @@ class CameraFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         checkPermission()
-        _binding = FragmentCameraBinding.inflate(inflater, container, false)
-        binding.listButton.setOnClickListener {
-            parentFragmentManager.commit {
-                val bundle = Bundle()
-                bundle.putStringArray("list", attendees.toTypedArray())
-                replace<AttendeesListFragment>(R.id.fragment_container_view, null, bundle)
-                setReorderingAllowed(true)
-                addToBackStack("AttendeesList Fragment")
+        if (viewModel.isUsingGeodata && viewModel.ownLocation == null) {
+            Log.d(T, "CameraFragment: asking for location permission")
+            val permitted = checkLocationPermission()
+            if (permitted) {
+                Log.d(T, "CameraFragment: permission granted")
+                updateLocation()
             }
         }
-        //binding.nextButton.visibility = View.GONE
-//        binding.nextButton.setOnClickListener {
-//            qrCodeSent = null
-//            lastSent = null
-//            gotToken = false
-//            binding.nextButton.visibility = View.GONE
+        _binding = FragmentCameraBinding.inflate(inflater, container, false)
+//        binding.listButton.setOnClickListener {
+//            parentFragmentManager.commit {
+//                val bundle = Bundle()
+//                bundle.putStringArray("list", attendees.toTypedArray())
+//                replace<AttendeesListFragment>(R.id.fragment_container_view, null, bundle)
+//                setReorderingAllowed(true)
+//                addToBackStack("AttendeesList Fragment")
+//            }
 //        }
         viewModel.status.observe(viewLifecycleOwner) {
             binding.debugText.text = it
@@ -100,9 +107,82 @@ class CameraFragment : Fragment() {
         return binding.root
     }
 
+    private fun updateLocation() {
+        try {
+            val priority = if (android.os.Build.VERSION.SDK_INT >= 31)
+                LocationRequest.QUALITY_HIGH_ACCURACY
+            else
+                100
+
+            val fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
+            fusedLocationClient.getCurrentLocation(
+                priority,
+                object : CancellationToken() {
+                    override fun onCanceledRequested(p0: OnTokenCanceledListener) =
+                        CancellationTokenSource().token
+
+                    override fun isCancellationRequested() = false
+                }).addOnSuccessListener { location ->
+                //get latitude and longitude and then use Location.distance() - on Professor
+                val lon = location.longitude
+                val lat = location.latitude
+                Log.d(T, "inside updateLocation: longitude = $lon, latitude = $lat")
+                viewModel.ownLocation = GeoLocation(lon, lat)
+            }
+        } catch (e: SecurityException) {
+            Log.d(T, e.toString())
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         Log.d(T, "CameraFragment onDestroy()")
+    }
+
+    private fun checkLocationPermission(): Boolean {
+        val check =
+            ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+        if (check == PackageManager.PERMISSION_GRANTED) {
+            return true
+        } else {
+            var res = false
+            Log.d(T, "QRCodeActivity: asking for location permission")
+            val reqPermission =
+                registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+                    when {
+                        it.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
+                            Log.d(T, "location permissions granted")
+                            res = true
+                        }
+
+                        it.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
+                            Log.d(T, "Only coarse location permission!")
+                            //TODO make different notification
+                            Toast.makeText(
+                                requireContext(),
+                                getString(R.string.permissions_error),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                        else -> {
+                            Log.d(T, "No location permission!")
+                            Toast.makeText(
+                                requireContext(),
+                                getString(R.string.permissions_error),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+            reqPermission.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            )
+            return res
+        }
     }
 
     private fun checkPermission() {
@@ -196,8 +276,18 @@ class CameraFragment : Fragment() {
             if (!viewModel.nameSent) {
                 // trying to send anything camera sees, sending only if it matches expected pattern
                 if (string.matches(englishQRRegex)) {
+                    if (viewModel.isUsingGeodata) {
+                        val subStr = string.substringAfterLast(":")
+                        if (subStr != "null") {
+                            val lonLat = subStr.split("--")
+                            val lon = lonLat[0].toDouble()
+                            val lat = lonLat[1].toDouble()
+                            locatonOfCurrentAttendee = GeoLocation(lon, lat)
+                        }
+                    }
                     runBlocking {
-                        sendScan(string)
+                        Log.e(T, "going to send : ${string.substringBeforeLast(":")}")
+                        sendScan(string.substringBeforeLast(":"))
                     }
                 } else {
                     val currentThread = Thread.currentThread()
@@ -297,10 +387,8 @@ class CameraFragment : Fragment() {
                             val firstName = reader.nextString()
                             reader.nextName()
                             val secondName = reader.nextString()
-//                        val student = adapter.fromJson(res.body!!.source())!!
-//                        attendees += "${student.firstName} ${student.secondName}"
-//                        attendees += "${firstName} ${secondName}"
-                            viewModel.attendeesList += "${firstName} ${secondName}"
+
+                            viewModel.attendeesList += Attendee(firstName, secondName, locatonOfCurrentAttendee)
                             viewModel.nameSent = false
                             requireActivity().runOnUiThread {
                                 viewModel.status.value = "Student accounted"

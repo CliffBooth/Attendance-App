@@ -4,6 +4,7 @@ import java.io.InputStream
 
 var PORT = 7000
 var API_URL = "http://192.168.0.106:${PORT}"
+var randomLocation = false
 const val T = "myTag"
 var debug = false
 var polling = false

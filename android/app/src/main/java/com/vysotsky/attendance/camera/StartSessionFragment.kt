@@ -50,11 +50,11 @@ class StartSessionFragment : Fragment() {
     ): View {
         _binding = FragmentStartSessionBinding.inflate(inflater, container, false)
         binding.startButton.setOnClickListener {
-            if (binding.geolocationCheckbox.isChecked)
+            if (binding.locationCheckbox.isChecked)
                 viewModel.usingGeolocation = true
             registerSession()
         }
-        binding.geolocationCheckbox.setOnCheckedChangeListener { _, isChecked ->
+        binding.locationCheckbox.setOnCheckedChangeListener { _, isChecked ->
             viewModel.isUsingGeodata = isChecked
         }
 

@@ -1,9 +1,14 @@
 package com.vysotsky.attendance.QRCode
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Point
+import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings
 import android.util.JsonReader
@@ -14,7 +19,9 @@ import android.widget.Toast
 import androidmads.library.qrgenearator.QRGContents
 import com.vysotsky.attendance.databinding.ActivityQrcodeBinding
 import androidmads.library.qrgenearator.QRGEncoder
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewModelScope
 import com.vysotsky.attendance.API_URL
 import com.vysotsky.attendance.MenuActivity
@@ -38,43 +45,51 @@ import java.io.InputStreamReader
 class QRCodeActivity : MenuActivity() {
     private lateinit var binding: ActivityQrcodeBinding
     private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var firstName: String
+    private lateinit var secondName: String
+    private lateinit var androidID: String
     private var dimen = 0
 
     //private var token: String? = null
     private lateinit var stringToQR: String
     private val viewModel: QRCodeViewModel by viewModels()
 
+    /**
+     * this is needed, because callback from before recreate() may try to repaint the qr code.
+     */
+    private var isDisplayingQRCode = false
+
     @SuppressLint("HardwareIds")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        checkPermission()
         binding = ActivityQrcodeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         window.setFlags(
             WindowManager.LayoutParams.FLAG_SECURE,
             WindowManager.LayoutParams.FLAG_SECURE
         );
-        sharedPreferences =
-            getSharedPreferences(getString(R.string.preference_file_key), MODE_PRIVATE)
-        //if file is empty do something (maybe send back?)
-        //...
-        val firstName = sharedPreferences.getString(
-            getString(R.string.saved_first_name),
-            null
-        ) //TODO think about this null (send to login Activity)
-        val secondName = sharedPreferences.getString(getString(R.string.saved_second_name), null)
-        Log.d(T, "qrcodeActivity: first name = $firstName second name = $secondName")
 
-        val androidId = intent.extras?.getString("id") ?: Settings.Secure.getString(
-            applicationContext.contentResolver,
-            Settings.Secure.ANDROID_ID
-        )
-
-        stringToQR = "$firstName:$secondName:$androidId"
         val manager = getSystemService(WINDOW_SERVICE) as WindowManager
         val display = manager.defaultDisplay
         val point = Point()
         display.getSize(point)
         dimen = if (point.x < point.y) point.x * 3 / 4 else point.y * 3 / 4
+        sharedPreferences =
+            getSharedPreferences(getString(R.string.preference_file_key), MODE_PRIVATE)
+        //if file is empty do something (maybe send back?)
+        //...
+        firstName = sharedPreferences.getString(
+            getString(R.string.saved_first_name),
+            null
+        ).toString() //TODO think about this null (send to login Activity)
+        secondName = sharedPreferences.getString(getString(R.string.saved_second_name), null).toString()
+        Log.d(T, "qrcodeActivity: first name = $firstName second name = $secondName")
+        androidID = intent.extras?.getString("id") ?: Settings.Secure.getString(
+            applicationContext.contentResolver,
+            Settings.Secure.ANDROID_ID
+        )
+        stringToQR = "$firstName:$secondName:$androidID:${viewModel.locationString.value}"
 
         if (polling) {
             binding.checkButton.visibility = View.GONE
@@ -94,6 +109,29 @@ class QRCodeActivity : MenuActivity() {
             }
         }
 
+        binding.locationCheckbox.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (!buttonView.isPressed)
+                return@setOnCheckedChangeListener
+            viewModel.isCheckBoxEnabled.value = false //this should be on top
+            Log.d(T, "clickable disabled: ${binding.locationCheckbox.isEnabled}")
+            if (!isChecked) {
+                viewModel.updateLocation(this, false);
+            } else {
+                val permitted =
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                if (permitted)
+                    viewModel.updateLocation(this, true)
+                else {
+                    Log.d(T, "No location permission!")
+                    Toast.makeText(
+                        this,
+                        getString(R.string.permissions_error),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
         viewModel.spinnerVisibility.observe(this) {
             binding.spinner.visibility = it
         }
@@ -109,15 +147,79 @@ class QRCodeActivity : MenuActivity() {
             } else {
                 setImage(it)
                 binding.statusText.text = "TOKEN"
-
             }
+        }
+
+        viewModel.locationString.observe(this) { location ->
+            Log.d(T, "inside observer!")
+            stringToQR = "$firstName:$secondName:$androidID:$location"
+            setImage(stringToQR)
+//            isDisplayingQRCode = true
+//            viewModel.isCheckBoxEnabled.value = true //TODO because of this when you rotate the screen it doesn't stay disabled!
+            Log.d(T, "clickable enabled: ${binding.locationCheckbox.isEnabled}")
+        }
+
+        viewModel.isCheckBoxEnabled.observe(this) {
+            if (it == null)
+                return@observe
+            Log.i(T, "inside isCheckBoxEnabled.observe(), ${it}")
+            binding.locationCheckbox.isEnabled = it
+            Log.i(T,"locationCheckBox.isEnabled = ${binding.locationCheckbox.isEnabled}")
+        }
+    }
+
+    //TODO make a a global function to enable permissions
+    private fun checkPermission(): Boolean {
+        val check =
+            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        if (check == PackageManager.PERMISSION_GRANTED) {
+            return true
+        } else {
+            var res = false
+            Log.d(T, "QRCodeActivity: asking for location permission")
+            val reqPermission =
+                registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+                    when {
+                        it.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
+                            Log.d(T, "location permissions granted")
+                            res = true
+                        }
+
+                        it.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
+                            Log.d(T, "Only coarse location permission!")
+                            //TODO make different notification
+                            Toast.makeText(
+                                this,
+                                getString(R.string.permissions_error),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                        else -> {
+                            Log.d(T, "No location permission!")
+                            Toast.makeText(
+                                this,
+                                getString(R.string.permissions_error),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+            reqPermission.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            )
+            return res
         }
     }
 
     private fun runPolling() {
         viewModel.viewModelScope.launch(Dispatchers.IO) {
             val client = OkHttpClient()
-            val json = "{\"data\":\"$stringToQR\"}"
+            val stringToSend = "$firstName:$secondName:$androidID"
+            val json = "{\"data\":\"$stringToSend\"}"
             val body = json.toRequestBody("application/json".toMediaTypeOrNull())
             val request = Request.Builder()
                 .url("$API_URL/student")
@@ -150,7 +252,10 @@ class QRCodeActivity : MenuActivity() {
                                 }
                                 gotResult = true
                             }
-                            else -> {delay(1000)}
+
+                            else -> {
+                                delay(1000)
+                            }
                         }
                     }
                 }
@@ -172,10 +277,8 @@ class QRCodeActivity : MenuActivity() {
         Log.d(T, "inside on resume")
         if (viewModel.token.value != null) {
             Log.d(T, "inside value != null")
-            setImage(viewModel.token.value!!) //TODO: handle null
+            //setImage(viewModel.token.value!!) //TODO: handle null
             binding.statusText.text = "TOKEN"
-        } else {
-            setImage(stringToQR)
         }
         if (viewModel.pollingEnabled) {
             binding.checkButton.visibility = View.GONE
@@ -186,7 +289,9 @@ class QRCodeActivity : MenuActivity() {
         viewModel.viewModelScope.launch(Dispatchers.IO) {
             Log.i(T, "QRCodeActivity: enter coroutine")
             val client = OkHttpClient()
-            val json = "{\"data\":\"$stringToQR\"}"
+            val stringToSend = "$firstName:$secondName:$androidID"
+            Log.e(T, "sending data: $stringToSend")
+            val json = "{\"data\":\"$stringToSend\"}"
             val body = json.toRequestBody("application/json".toMediaTypeOrNull())
             val request = Request.Builder()
                 .url("$API_URL/student")
@@ -244,7 +349,7 @@ class QRCodeActivity : MenuActivity() {
                     Toast.makeText(
                         applicationContext,
                         "can't get token",
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_LONG
                     ).show()
                 }
                 Log.d(T, "the phone hasn't been scanned, doing nothing")
@@ -271,6 +376,7 @@ class QRCodeActivity : MenuActivity() {
             Log.d(T, "QR Code image is null!")
         } else {
             binding.qrCodeImage.setImageBitmap(tokenBitmap)
+            binding.qrCodeText.text = str
             //binding.root.setBackgroundColor(resources.getColor(R.color.green))
         }
     }
@@ -279,8 +385,8 @@ class QRCodeActivity : MenuActivity() {
         QRGEncoder(string, null, QRGContents.Type.TEXT, dimen).bitmap
 
     companion object {
-        const val TOKEN_KEY = "token_key"
-        const val SPINNER_KEY = "spinner_visibility"
+        const val MENU_ITEM_ID = 1
+        const val GROUP_ITEM_ID = 1
     }
 }
 

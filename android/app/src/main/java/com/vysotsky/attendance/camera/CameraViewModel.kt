@@ -9,7 +9,8 @@ class CameraViewModel: ViewModel() {
     var intnetErrorMessageVisibility = MutableLiveData(View.GONE)
     var sessionStarted = false
     var usingGeolocation = false
-    val attendeesList = mutableListOf<String>()
+    var ownLocation: GeoLocation? = null
+    val attendeesList = mutableListOf<Attendee>()
     @Volatile
     var lastSent: String? = null
     @Volatile

@@ -24,7 +24,10 @@ class StudentLogInActivity : AppCompatActivity() {
 
         if (!debug) {
             binding.androidIdText.visibility = View.GONE
+            binding.randomLocatoinCheckbox.visibility = View.GONE
         }
+
+        binding.randomLocatoinCheckbox.isChecked = true
 
         binding.logInButton.setOnClickListener {
             //save name in persistent memory
@@ -53,7 +56,12 @@ class StudentLogInActivity : AppCompatActivity() {
                 setResult(Activity.RESULT_OK)
                 finish()
             }
+        }
 
+        binding.randomLocatoinCheckbox.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (buttonView.isPressed)
+                return@setOnCheckedChangeListener
+            randomLocation = isChecked
         }
     }
 }
