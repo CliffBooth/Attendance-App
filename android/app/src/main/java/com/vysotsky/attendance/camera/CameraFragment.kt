@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.location.Location
 import android.location.LocationRequest
 import android.os.Bundle
 import android.os.Handler
@@ -48,6 +49,9 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import java.io.InputStreamReader
+
+//TODO: move to constants
+const val allowedDistance = 100 //100 meters
 
 class CameraFragment : Fragment() {
     private var _binding: FragmentCameraBinding? = null
@@ -124,10 +128,17 @@ class CameraFragment : Fragment() {
                     override fun isCancellationRequested() = false
                 }).addOnSuccessListener { location ->
                 //get latitude and longitude and then use Location.distance() - on Professor
-                val lon = location.longitude
-                val lat = location.latitude
-                Log.d(T, "inside updateLocation: longitude = $lon, latitude = $lat")
-                viewModel.ownLocation = GeoLocation(lon, lat)
+                if (location == null) {
+                    //gps was turned off
+                    Log.d(T, "QRCodeViewModel displaying toast...")
+                    Toast.makeText(context, "can't retrieve location data!", Toast.LENGTH_LONG)
+                        .show()
+                } else {
+                    val lon = location.longitude
+                    val lat = location.latitude
+                    Log.d(T, "inside updateLocation: longitude = $lon, latitude = $lat")
+                    viewModel.ownLocation = GeoLocation(lon, lat)
+                }
             }
         } catch (e: SecurityException) {
             Log.d(T, e.toString())
@@ -388,7 +399,7 @@ class CameraFragment : Fragment() {
                             reader.nextName()
                             val secondName = reader.nextString()
 
-                            viewModel.attendeesList += Attendee(firstName, secondName, locatonOfCurrentAttendee)
+                            viewModel.attendeesList += getAttendee(firstName, secondName, locatonOfCurrentAttendee)
                             viewModel.nameSent = false
                             requireActivity().runOnUiThread {
                                 viewModel.status.value = "Student accounted"
@@ -404,6 +415,32 @@ class CameraFragment : Fragment() {
                 }
             }
         }
+    }
+
+    /**
+     * calculates distance and sets status
+     */
+    private fun getAttendee(firstName: String, secondName: String, attendeeLocation: GeoLocation?): Attendee {
+        var status = Status.OK
+        if (viewModel.isUsingGeodata) {
+            if (attendeeLocation == null) {
+                status = Status.NO_DATA
+            } else {
+                val results = FloatArray(3)
+                Location.distanceBetween(
+                    attendeeLocation.latitude,
+                    attendeeLocation.longitude,
+                    viewModel.ownLocation?.latitude ?: 0.0,
+                    viewModel.ownLocation?.longitude ?: 0.0,
+                    results
+                )
+                Log.d(T, "$firstName distance = ${results[0]}")
+                if (results[0] > allowedDistance) {
+                    status = Status.OUT_OF_RANGE
+                }
+            }
+        }
+        return Attendee(firstName, secondName, status)
     }
 
     /**

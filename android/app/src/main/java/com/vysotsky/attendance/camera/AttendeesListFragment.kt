@@ -12,8 +12,6 @@ import androidx.fragment.app.activityViewModels
 import com.vysotsky.attendance.T
 import com.vysotsky.attendance.databinding.FragmentAttendeesListBinding
 
-const val allowedDistance = 100 //100 meters
-
 class AttendeesListFragment : Fragment() {
     private val viewModel: CameraViewModel by activityViewModels()
 
@@ -24,40 +22,16 @@ class AttendeesListFragment : Fragment() {
     ): View {
         //val bundle = arguments
         //val list = bundle?.getStringArray("list") ?: arrayOf<String>()
-        val list = getStringList(viewModel.attendeesList)
         val binding = FragmentAttendeesListBinding.inflate(inflater)
         //TODO: how to change color?
-        binding.list.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, list)
-        return binding.root
-    }
-
-    //TODO: represent not just like string, but like View
-    private fun getStringList(attendees: List<Attendee>): List<String> {
-        val res = mutableListOf<String>()
-        for (attendee in attendees) {
-            Log.d(T, "attendee = $attendee")
-            val sb = StringBuilder()
-            sb.append("${attendee.firstName} ${attendee.secondName}")
-            if (viewModel.isUsingGeodata) {
-                if (attendee.geoLocation !== null) {
-                    val results = FloatArray(3)
-                    Location.distanceBetween(
-                        attendee.geoLocation.latitude,
-                        attendee.geoLocation.longitude,
-                        viewModel.ownLocation?.latitude ?: 0.0,
-                        viewModel.ownLocation?.longitude ?: 0.0,
-                        results
-                    )
-                    Log.d(T, "${attendee.firstName} distance = ${results[0]}")
-                    if (results[0] > allowedDistance) {
-                        sb.append(" - out of distance range!")
-                    }
-                } else {
-                    sb.append(" - no location data!")
-                }
-            }
-            res += sb.toString()
+        val adapter = AttendeeAdapter(requireContext(), viewModel.attendeesList)
+        binding.list.adapter = adapter
+        binding.fab.setOnClickListener {
+            //call dialog to type first and second name, then create Attendee with Status.OK
+            val mock = Attendee("Example", "Example", Status.OK)
+            viewModel.attendeesList += mock
+            adapter.notifyDataSetChanged()
         }
-        return res
+        return binding.root
     }
 }

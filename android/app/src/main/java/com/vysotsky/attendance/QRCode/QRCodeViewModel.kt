@@ -1,10 +1,11 @@
 package com.vysotsky.attendance.QRCode
 
+import android.app.Activity
 import android.content.Context
-import android.location.LocationManager
 import android.location.LocationRequest
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -54,6 +55,7 @@ class QRCodeViewModel : ViewModel() {
             val lon = random.nextDouble()
             val lat = random.nextDouble()
             _locationString.value = "$lon--$lat"
+            isCheckBoxEnabled.value = true
             return
         }
 
@@ -72,11 +74,19 @@ class QRCodeViewModel : ViewModel() {
 
                     override fun isCancellationRequested() = false
                 }).addOnSuccessListener { location ->
-                //get latitude and longitude and then use Location.distance() - on Professor
-                val lon = location.longitude
-                val lat = location.latitude
-                Log.d(T, "inside callback: longitude = $lon, latitude = $lat")
-                _locationString.value = "$lon--$lat"
+                //TODO: bug: if no gps then location == 0. Notify user and cancel this operation
+                if (location == null) {
+                    //gps was turned off
+                    Log.d(T, "QRCodeViewModel displaying toast...")
+                    Toast.makeText(context, "can't retrieve location data!", Toast.LENGTH_LONG)
+                        .show()
+                    //_locationString.value = "null"
+                } else {
+                    val lon = location.longitude
+                    val lat = location.latitude
+                    Log.d(T, "inside callback: longitude = $lon, latitude = $lat")
+                    _locationString.value = "$lon--$lat"
+                }
                 isCheckBoxEnabled.value = true
             }
         } catch (e: SecurityException) {

@@ -49,6 +49,8 @@ class QRCodeActivity : MenuActivity() {
     private lateinit var secondName: String
     private lateinit var androidID: String
     private var dimen = 0
+    //request that will be made with and without polling
+    private lateinit var request: Request
 
     //private var token: String? = null
     private lateinit var stringToQR: String
@@ -59,6 +61,7 @@ class QRCodeActivity : MenuActivity() {
      */
     private var isDisplayingQRCode = false
 
+    //TODO: maybe move request, stringToQR to ViewModel (init{}) since there is no need to recreate them on every rotation?
     @SuppressLint("HardwareIds")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,6 +93,13 @@ class QRCodeActivity : MenuActivity() {
             Settings.Secure.ANDROID_ID
         )
         stringToQR = "$firstName:$secondName:$androidID:${viewModel.locationString.value}"
+        val stringToSend = "$firstName:$secondName:$androidID"
+        val json = "{\"data\":\"$stringToSend\"}"
+        val body = json.toRequestBody("application/json".toMediaTypeOrNull())
+        request = Request.Builder()
+            .url("$API_URL/student")
+            .post(body)
+            .build()
 
         if (polling) {
             binding.checkButton.visibility = View.GONE
@@ -146,6 +156,7 @@ class QRCodeActivity : MenuActivity() {
                 binding.statusText.text = "QR CODE"
             } else {
                 setImage(it)
+                binding.locationCheckbox.visibility = View.GONE
                 binding.statusText.text = "TOKEN"
             }
         }
@@ -154,8 +165,6 @@ class QRCodeActivity : MenuActivity() {
             Log.d(T, "inside observer!")
             stringToQR = "$firstName:$secondName:$androidID:$location"
             setImage(stringToQR)
-//            isDisplayingQRCode = true
-//            viewModel.isCheckBoxEnabled.value = true //TODO because of this when you rotate the screen it doesn't stay disabled!
             Log.d(T, "clickable enabled: ${binding.locationCheckbox.isEnabled}")
         }
 
@@ -218,14 +227,6 @@ class QRCodeActivity : MenuActivity() {
     private fun runPolling() {
         viewModel.viewModelScope.launch(Dispatchers.IO) {
             val client = OkHttpClient()
-            val stringToSend = "$firstName:$secondName:$androidID"
-            val json = "{\"data\":\"$stringToSend\"}"
-            val body = json.toRequestBody("application/json".toMediaTypeOrNull())
-            val request = Request.Builder()
-                .url("$API_URL/student")
-                .post(body)
-                .build()
-
             try {
                 var i = 0;
                 var gotResult = false
@@ -272,34 +273,10 @@ class QRCodeActivity : MenuActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        Log.d(T, "inside on resume")
-        if (viewModel.token.value != null) {
-            Log.d(T, "inside value != null")
-            //setImage(viewModel.token.value!!) //TODO: handle null
-            binding.statusText.text = "TOKEN"
-        }
-        if (viewModel.pollingEnabled) {
-            binding.checkButton.visibility = View.GONE
-        }
-    }
-
     private fun sendStudent() {
         viewModel.viewModelScope.launch(Dispatchers.IO) {
             Log.i(T, "QRCodeActivity: enter coroutine")
             val client = OkHttpClient()
-            val stringToSend = "$firstName:$secondName:$androidID"
-            Log.e(T, "sending data: $stringToSend")
-            val json = "{\"data\":\"$stringToSend\"}"
-            val body = json.toRequestBody("application/json".toMediaTypeOrNull())
-            val request = Request.Builder()
-                .url("$API_URL/student")
-                .post(body)
-                .build()
-
-            Log.i(T, "QRCodeActivity: request built")
-
             try {
                 runOnUiThread {
                     viewModel.spinnerVisibility.value = View.VISIBLE
@@ -372,7 +349,6 @@ class QRCodeActivity : MenuActivity() {
         val tokenBitmap = getBitMap(str)
         if (tokenBitmap == null) {
             //TODO: HANDLE ERROR
-            //...
             Log.d(T, "QR Code image is null!")
         } else {
             binding.qrCodeImage.setImageBitmap(tokenBitmap)

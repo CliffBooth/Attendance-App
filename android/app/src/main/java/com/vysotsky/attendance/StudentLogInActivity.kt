@@ -59,9 +59,10 @@ class StudentLogInActivity : AppCompatActivity() {
         }
 
         binding.randomLocatoinCheckbox.setOnCheckedChangeListener { buttonView, isChecked ->
-            if (buttonView.isPressed)
+            if (!buttonView.isPressed)
                 return@setOnCheckedChangeListener
             randomLocation = isChecked
+            Log.d(T, "StudentLogIn: randomLocation = $randomLocation")
         }
     }
 }
