@@ -5,21 +5,21 @@
     android:id="@+id/mobile_navigation"
     app:startDestination="@+id/nav_home">
 
-    <fragment
-        android:id="@+id/nav_home"
-        android:name="com.vysotsky.attendance.camera.StartSessionFragment"
-        android:label="@string/menu_home"
-        tools:layout="@layout/fragment_start_session" />
+<!--    <fragment-->
+<!--        android:id="@+id/nav_home"-->
+<!--        android:name="com.vysotsky.attendance.professor.StartSessionFragment"-->
+<!--        android:label="@string/menu_home"-->
+<!--        tools:layout="@layout/fragment_start_session" />-->
 
     <fragment
         android:id="@+id/nav_gallery"
-        android:name="com.vysotsky.attendance.camera.CameraFragment"
+        android:name="com.vysotsky.attendance.professor.camera.CameraFragment"
         android:label="@string/menu_gallery"
         tools:layout="@layout/fragment_camera" />
 
     <fragment
         android:id="@+id/nav_slideshow"
-        android:name="com.vysotsky.attendance.camera.AttendeesListFragment"
+        android:name="com.vysotsky.attendance.professor.AttendeesListFragment"
         android:label="@string/menu_slideshow"
         tools:layout="@layout/fragment_attendees_list" />
 </navigation>

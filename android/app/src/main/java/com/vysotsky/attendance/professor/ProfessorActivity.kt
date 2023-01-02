@@ -1,10 +1,11 @@
-package com.vysotsky.attendance.camera
+package com.vysotsky.attendance.professor
 
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import androidx.activity.addCallback
+import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -15,13 +16,15 @@ import com.vysotsky.attendance.MenuActivity
 import com.vysotsky.attendance.R
 import com.vysotsky.attendance.T
 import com.vysotsky.attendance.databinding.ActivityCameraBinding
+import com.vysotsky.attendance.professor.camera.CameraFragment
 
 //rename to something like ProfessorActivity
-class CameraActivity : MenuActivity() {
+class ProfessorActivity : MenuActivity() {
     private lateinit var binding: ActivityCameraBinding
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
+    private val viewModel: ProfessorViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,11 +36,14 @@ class CameraActivity : MenuActivity() {
         binding = ActivityCameraBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        viewModel.isUsingGeodata = intent.extras?.getBoolean(getString(R.string.geolocation_bundle_key)) ?: false
+        Log.d(T, "Camera activity: using geodata = ${viewModel.isUsingGeodata}")
+
         //check what will happen if not do that
         if (savedInstanceState == null) {
             supportFragmentManager.commit {
                 setReorderingAllowed(true)
-                add<StartSessionFragment>(R.id.fragment_container_view)
+                add<CameraFragment>(R.id.fragment_container_view)
                 //addToBackStack("starSessionFragment")
                 Log.d(T, "Camera activity after add()")
             }
@@ -69,7 +75,7 @@ class CameraActivity : MenuActivity() {
 
                 R.id.nav_stop_session -> {
                     supportFragmentManager.commit {
-                        replace<StartSessionFragment>(R.id.fragment_container_view)
+                        replace<StopSessionFragment>(R.id.fragment_container_view)
                     }
                     true
                 }
@@ -88,7 +94,7 @@ class CameraActivity : MenuActivity() {
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        Log.d(T, "Camera Activity: item selected: ${item}")
+        Log.d(T, "Camera Activity: item selected: $item")
         return if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
             true
         } else {

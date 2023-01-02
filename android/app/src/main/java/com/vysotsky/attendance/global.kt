@@ -7,7 +7,7 @@ var API_URL = "http://192.168.0.106:${PORT}"
 var randomLocation = false
 const val T = "myTag"
 var debug = false
-var polling = false
+var polling = true
 
 fun getResponse(inputStream: InputStream): String {
     val br = inputStream.bufferedReader()

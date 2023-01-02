@@ -5,24 +5,53 @@ import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.activityViewModels
 import com.vysotsky.attendance.QRCode.QRCodeActivity
-import com.vysotsky.attendance.camera.CameraActivity
+import com.vysotsky.attendance.professor.ProfessorActivity
 import com.vysotsky.attendance.databinding.ActivityMainBinding
+import com.vysotsky.attendance.professor.StartSessionActivity
 
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private val viewModel: MainViewModel by viewModels()
+
+    private val APP_PACKAGE_DOT_COUNT = 2
+    private val DUAL_APP_ID_999 = "999"
+    private val DOT = '.'
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //check if the app is cloned
+        val dataDir = applicationInfo.dataDir
+        val sourceDir = applicationInfo.sourceDir
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding.infoText.text = "dataDir = $dataDir, sourceDir = $sourceDir"
+        Log.d(T, "dataDir = $dataDir, sourceDir = $sourceDir")
+        if (dataDir.contains(DUAL_APP_ID_999) || dataDir.count { c -> c == DOT } != APP_PACKAGE_DOT_COUNT) {
+            Toast.makeText(this, "You can't open a clone of the app!", Toast.LENGTH_LONG).show()
+            Log.d(T, "toast made, finishing...")
+            finish()
+            //android.os.Process.killProcess(android.os.Process.myPid())
+        }
+        val deviceID = intent.extras?.getString("id") ?: Settings.Secure.getString(
+            applicationContext.contentResolver,
+            Settings.Secure.ANDROID_ID
+        )
+        Log.d(T, "MainActivity: deviceID = $deviceID")
+
         //check if already logged in
         val sharedPreferences =
             getSharedPreferences(getString(R.string.preference_file_key), MODE_PRIVATE)
@@ -35,12 +64,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (sharedPreferences.contains(getString(R.string.saved_email))) {
-            val intent = Intent(this, CameraActivity::class.java)
+            val intent = Intent(this, StartSessionActivity::class.java)
             startActivity(intent)
             finish()
         }
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         val studentLauncher =
@@ -64,6 +92,18 @@ class MainActivity : AppCompatActivity() {
 
         binding.professorButton.setOnClickListener {
             professorLauncher.launch(Intent(this, ProfessorLogInActivity::class.java))
+        }
+
+        viewModel.debug.observe(this) {
+            debug = it
+            if (it) {
+                binding.serverAddressText.text = API_URL
+                binding.serverAddressText.visibility = View.VISIBLE
+                binding.infoText.visibility = View.VISIBLE
+            } else {
+                binding.serverAddressText.visibility = View.GONE
+                binding.infoText.visibility = View.GONE
+            }
         }
     }
 
@@ -91,6 +131,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     object OptionsDialog : DialogFragment() {
+        private val viewModel: MainViewModel by activityViewModels()
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             val checkedItems = arrayOf(debug, polling).toBooleanArray()
             return AlertDialog.Builder(this.requireContext())
@@ -100,7 +141,7 @@ class MainActivity : AppCompatActivity() {
                 ) { _: DialogInterface, which: Int, isChecked: Boolean ->
                     Log.d(T, "which: $which")
                     when (which) {
-                        0 -> debug = isChecked
+                        0 -> viewModel.debug.value = isChecked
                         1 -> polling = isChecked
                     }
                     Log.d(T, "debug = ${debug}, polling = ${polling}")
@@ -129,7 +170,6 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         Log.d(T, "onStart")
-        binding.serverAddressText.text = API_URL
     }
 
     override fun onRestart() {

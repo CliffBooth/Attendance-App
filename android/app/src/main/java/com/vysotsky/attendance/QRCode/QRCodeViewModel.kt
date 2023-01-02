@@ -52,8 +52,8 @@ class QRCodeViewModel : ViewModel() {
 
         if (debug && randomLocation) {
             val random = Random()
-            val lon = random.nextDouble()
-            val lat = random.nextDouble()
+            val lon = random.nextDouble() * 1000
+            val lat = random.nextDouble() * 1000
             _locationString.value = "$lon--$lat"
             isCheckBoxEnabled.value = true
             return

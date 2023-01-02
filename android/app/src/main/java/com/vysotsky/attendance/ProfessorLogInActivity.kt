@@ -6,8 +6,9 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
-import com.vysotsky.attendance.camera.CameraActivity
+import com.vysotsky.attendance.professor.ProfessorActivity
 import com.vysotsky.attendance.databinding.ActivityProfessorBinding
+import com.vysotsky.attendance.professor.StartSessionActivity
 
 class ProfessorLogInActivity : AppCompatActivity() {
     private lateinit var binding: ActivityProfessorBinding
@@ -31,7 +32,7 @@ class ProfessorLogInActivity : AppCompatActivity() {
                     putString(getString(R.string.saved_email), email)
                     apply()
                 }
-                val intent = Intent(this, CameraActivity::class.java)
+                val intent = Intent(this, StartSessionActivity::class.java)
                 startActivity(intent)
                 setResult(Activity.RESULT_OK)
                 finish()

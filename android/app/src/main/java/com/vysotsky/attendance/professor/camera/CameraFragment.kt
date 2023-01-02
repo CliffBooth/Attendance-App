@@ -1,9 +1,8 @@
-package com.vysotsky.attendance.camera
+package com.vysotsky.attendance.professor.camera
 
 import android.Manifest
 import android.app.AlertDialog
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.location.Location
 import android.location.LocationRequest
 import android.os.Bundle
@@ -25,11 +24,7 @@ import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.add
 import androidx.fragment.app.commit
-import androidx.fragment.app.replace
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.CancellationToken
@@ -40,6 +35,10 @@ import com.vysotsky.attendance.API_URL
 import com.vysotsky.attendance.R
 import com.vysotsky.attendance.T
 import com.vysotsky.attendance.databinding.FragmentCameraBinding
+import com.vysotsky.attendance.professor.Attendee
+import com.vysotsky.attendance.professor.GeoLocation
+import com.vysotsky.attendance.professor.ProfessorViewModel
+import com.vysotsky.attendance.professor.Status
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -61,7 +60,7 @@ class CameraFragment : Fragment() {
     private val attendees = mutableListOf<Attendee>()
     private val englishQRRegex = Regex("^[A-Za-z]+:[A-Za-z]+:\\w+:((-?[\\w\\.]+---?[\\w\\.]+)|null)\$")
     private lateinit var drawerLayout: DrawerLayout
-    private val viewModel: CameraViewModel by activityViewModels()
+    private val viewModel: ProfessorViewModel by activityViewModels()
     private var locatonOfCurrentAttendee: GeoLocation? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,7 +84,6 @@ class CameraFragment : Fragment() {
     ): View {
         checkPermission()
         if (viewModel.isUsingGeodata && viewModel.ownLocation == null) {
-            Log.d(T, "CameraFragment: asking for location permission")
             val permitted = checkLocationPermission()
             if (permitted) {
                 Log.d(T, "CameraFragment: permission granted")
@@ -145,6 +143,11 @@ class CameraFragment : Fragment() {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         Log.d(T, "CameraFragment onDestroy()")
@@ -157,7 +160,7 @@ class CameraFragment : Fragment() {
             return true
         } else {
             var res = false
-            Log.d(T, "QRCodeActivity: asking for location permission")
+            Log.d(T, "CameraFragment: asking for location permission")
             val reqPermission =
                 registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
                     when {
@@ -171,7 +174,7 @@ class CameraFragment : Fragment() {
                             //TODO make different notification
                             Toast.makeText(
                                 requireContext(),
-                                getString(R.string.permissions_error),
+                                getString(R.string.location_permissions_error),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -180,7 +183,7 @@ class CameraFragment : Fragment() {
                             Log.d(T, "No location permission!")
                             Toast.makeText(
                                 requireContext(),
-                                getString(R.string.permissions_error),
+                                getString(R.string.location_permissions_error),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -205,8 +208,8 @@ class CameraFragment : Fragment() {
 
             shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> {
                 showRationaleDialog(
-                    "TITLE",
-                    "MESSAGE",
+                    "Camera Access",
+                    "Allow camera access in order to use camera",
                     Manifest.permission.CAMERA,
                     REQUEST_CODE_PERMISSIONS
                 )
@@ -222,7 +225,7 @@ class CameraFragment : Fragment() {
                             Log.d(T, "No permission!")
                             Toast.makeText(
                                 requireContext(),
-                                getString(R.string.permissions_error),
+                                getString(R.string.camera_permissions_error),
                                 Toast.LENGTH_SHORT
                             ).show()
                             //TODO: don't finish but show activity with error message, or previous activity
@@ -500,7 +503,7 @@ class CameraFragment : Fragment() {
             } else {
                 Toast.makeText(
                     requireContext(),
-                    getString(R.string.permissions_error),
+                    getString(R.string.camera_permissions_error),
                     Toast.LENGTH_SHORT
                 ).show()
                 //TODO: don't finish but show activity with error message, or previous activity

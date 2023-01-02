@@ -7,17 +7,16 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Point
-import android.location.Location
-import android.location.LocationManager
 import android.os.Bundle
+import android.os.Process
 import android.provider.Settings
+import android.telephony.TelephonyManager
 import android.util.JsonReader
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import androidmads.library.qrgenearator.QRGContents
-import com.vysotsky.attendance.databinding.ActivityQrcodeBinding
 import androidmads.library.qrgenearator.QRGEncoder
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -27,6 +26,7 @@ import com.vysotsky.attendance.API_URL
 import com.vysotsky.attendance.MenuActivity
 import com.vysotsky.attendance.R
 import com.vysotsky.attendance.T
+import com.vysotsky.attendance.databinding.ActivityQrcodeBinding
 import com.vysotsky.attendance.polling
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -47,8 +47,9 @@ class QRCodeActivity : MenuActivity() {
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var firstName: String
     private lateinit var secondName: String
-    private lateinit var androidID: String
+    private lateinit var deviceID: String
     private var dimen = 0
+
     //request that will be made with and without polling
     private lateinit var request: Request
 
@@ -86,14 +87,24 @@ class QRCodeActivity : MenuActivity() {
             getString(R.string.saved_first_name),
             null
         ).toString() //TODO think about this null (send to login Activity)
-        secondName = sharedPreferences.getString(getString(R.string.saved_second_name), null).toString()
+        secondName =
+            sharedPreferences.getString(getString(R.string.saved_second_name), null).toString()
         Log.d(T, "qrcodeActivity: first name = $firstName second name = $secondName")
-        androidID = intent.extras?.getString("id") ?: Settings.Secure.getString(
+        deviceID = intent.extras?.getString("id") ?: Settings.Secure.getString(
             applicationContext.contentResolver,
             Settings.Secure.ANDROID_ID
         )
-        stringToQR = "$firstName:$secondName:$androidID:${viewModel.locationString.value}"
-        val stringToSend = "$firstName:$secondName:$androidID"
+        //TODO: permission to read state
+//        deviceID = if (checkImeiPermission()) {
+//            Log.i(T, "getting imei")
+//            (getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager).imei
+//        } else {
+//            //TODO some flag or something.
+//            " "
+//        }
+        Log.d(T, "QRCodeActivity, deviceID: $deviceID")
+        stringToQR = "$firstName:$secondName:$deviceID:${viewModel.locationString.value}"
+        val stringToSend = "$firstName:$secondName:$deviceID"
         val json = "{\"data\":\"$stringToSend\"}"
         val body = json.toRequestBody("application/json".toMediaTypeOrNull())
         request = Request.Builder()
@@ -128,14 +139,17 @@ class QRCodeActivity : MenuActivity() {
                 viewModel.updateLocation(this, false);
             } else {
                 val permitted =
-                    ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
                 if (permitted)
                     viewModel.updateLocation(this, true)
                 else {
                     Log.d(T, "No location permission!")
                     Toast.makeText(
                         this,
-                        getString(R.string.permissions_error),
+                        getString(R.string.location_permissions_error),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -163,7 +177,7 @@ class QRCodeActivity : MenuActivity() {
 
         viewModel.locationString.observe(this) { location ->
             Log.d(T, "inside observer!")
-            stringToQR = "$firstName:$secondName:$androidID:$location"
+            stringToQR = "$firstName:$secondName:$deviceID:$location"
             setImage(stringToQR)
             Log.d(T, "clickable enabled: ${binding.locationCheckbox.isEnabled}")
         }
@@ -173,9 +187,40 @@ class QRCodeActivity : MenuActivity() {
                 return@observe
             Log.i(T, "inside isCheckBoxEnabled.observe(), ${it}")
             binding.locationCheckbox.isEnabled = it
-            Log.i(T,"locationCheckBox.isEnabled = ${binding.locationCheckbox.isEnabled}")
+            Log.i(T, "locationCheckBox.isEnabled = ${binding.locationCheckbox.isEnabled}")
         }
     }
+
+//    private fun checkImeiPermission(): Boolean {
+//        val check =
+//            ContextCompat.checkSelfPermission(this, Manifest.permission.USE_ICC_AUTH_WITH_DEVICE_IDENTIFIER)
+//        if (check == PackageManager.PERMISSION_GRANTED) {
+//            return true
+//        } else {
+//            var res = false
+//            Log.d(T, "QRCodeActivity: asking for location permission")
+//            val reqPermission =
+//                registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+//                    when {
+//                        it -> {
+//                            Log.d(T, "imei permissions granted")
+//                            res = true
+//                        }
+//
+//                        else -> {
+//                            Log.d(T, "no imei permission!")
+//                            Toast.makeText(
+//                                this,
+//                                getString(R.string.permissions_error),
+//                                Toast.LENGTH_SHORT
+//                            ).show()
+//                        }
+//                    }
+//                }
+//            reqPermission.launch(Manifest.permission.USE_ICC_AUTH_WITH_DEVICE_IDENTIFIER)
+//            return res
+//        }
+//    }
 
     //TODO make a a global function to enable permissions
     private fun checkPermission(): Boolean {
@@ -199,7 +244,7 @@ class QRCodeActivity : MenuActivity() {
                             //TODO make different notification
                             Toast.makeText(
                                 this,
-                                getString(R.string.permissions_error),
+                                getString(R.string.location_permissions_error),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -208,7 +253,7 @@ class QRCodeActivity : MenuActivity() {
                             Log.d(T, "No location permission!")
                             Toast.makeText(
                                 this,
-                                getString(R.string.permissions_error),
+                                getString(R.string.location_permissions_error),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -228,7 +273,7 @@ class QRCodeActivity : MenuActivity() {
         viewModel.viewModelScope.launch(Dispatchers.IO) {
             val client = OkHttpClient()
             try {
-                var i = 0;
+                var i = 0
                 var gotResult = false
                 while (!gotResult) {
                     Log.d(T, "making polling request... ${++i}")
@@ -285,6 +330,7 @@ class QRCodeActivity : MenuActivity() {
                     requestResultHandler(res)
                 }
             } catch (e: IOException) {
+                Log.e(T, "exception = ${e.printStackTrace()}")
                 runOnUiThread {
                     viewModel.spinnerVisibility.value = View.GONE
                     Toast.makeText(

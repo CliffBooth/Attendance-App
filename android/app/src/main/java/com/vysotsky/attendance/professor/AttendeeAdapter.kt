@@ -1,4 +1,4 @@
-package com.vysotsky.attendance.camera
+package com.vysotsky.attendance.professor
 
 import android.content.Context
 import android.util.Log
@@ -32,9 +32,8 @@ class AttendeeAdapter(context: Context, private val data: MutableList<Attendee>)
         result.findViewById<TextView>(R.id.first_name).text = attendee.firstName
         result.findViewById<TextView>(R.id.second_name).text = attendee.secondName
         val statusText = result.findViewById<TextView>(R.id.attendee_status_text)
-        //gone == 8, visible == 0
-        Log.e(T, "statusText.visibility = ${statusText.visibility}")
 
+        result.findViewById<TextView>(R.id.counter_text).text = (position + 1).toString()
 
         when (attendee.status) {
             Status.OK -> {
@@ -44,12 +43,17 @@ class AttendeeAdapter(context: Context, private val data: MutableList<Attendee>)
             Status.NO_DATA -> {
                 result.background = AppCompatResources.getDrawable(context, R.drawable.item_background_error)
                 statusText.text = context.getString(R.string.no_location_data)
+                statusText.visibility = View.VISIBLE
             }
             Status.OUT_OF_RANGE -> {
                 result.background = AppCompatResources.getDrawable(context, R.drawable.item_background_error)
                 statusText.text = context.getString(R.string.location_out_of_range)
+                statusText.visibility = View.VISIBLE
             }
         }
+
+        //gone == 8, visible == 0
+        Log.e(T, "statusText.visibility = ${statusText.visibility}")
 
         return result
     }

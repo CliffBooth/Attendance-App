@@ -1,4 +1,4 @@
-package com.vysotsky.attendance.camera
+package com.vysotsky.attendance.professor.camera
 
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy

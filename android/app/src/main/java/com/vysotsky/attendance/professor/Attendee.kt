@@ -1,4 +1,4 @@
-package com.vysotsky.attendance.camera
+package com.vysotsky.attendance.professor
 
 data class Attendee(
     val firstName: String,

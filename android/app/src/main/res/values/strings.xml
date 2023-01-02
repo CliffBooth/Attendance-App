@@ -26,7 +26,8 @@
     <string name="professor_log_in_button">Log in</string>
     <string name="email_error_text">Please, enter valid email address</string>
     <string name="saved_email">email</string>
-    <string name="permissions_error">Permissions not granted by the user.</string>
+    <string name="camera_permissions_error">Camera permission is not granted by the user!</string>
+    <string name="location_permissions_error">Location permission is not granted by the user!</string>
     <string name="start_session">start session</string>
     <string name="logout_menu">log out</string>
     <string name="can_t_create_session">Can\'t create session on the server</string>
@@ -39,4 +40,10 @@
     <!--no data location string in -->
     <string name="no_location_data"><u>NO LOCATION DATA</u></string>
     <string name="location_out_of_range"><u>Further than 100 meters away!</u></string>
+    <string name="stop_session">stop session</string>
+    <string name="send_email">send email</string>
+    <string name="save_file_to_local_storage">save file to local storage</string>
+    <string name="geolocation_bundle_key">geolocation_key</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
