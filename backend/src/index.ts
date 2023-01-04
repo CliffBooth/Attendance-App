@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import { Session } from './Session';
+import * as nodemailer from 'nodemailer'
 
 dotenv.config();
 
@@ -36,6 +37,30 @@ if (!process.env.PORT) {
 const PORT = parseInt(process.env.PORT);
 const app = express();
 app.use(express.json());
+const logger = (req: Request, res: Response, next: NextFunction): void => {
+    for (const header in req.headers) {
+    console.log(`${header}=${req.headers[header]}`);
+    }
+    next()
+}
+
+let transporter: nodemailer.Transporter
+initTransporter().catch(e => console.error(e))
+//app.use(logger)
+
+async function initTransporter() {
+    //const testAccount = await nodemailer.createTestAccount()
+    transporter = nodemailer.createTransport({
+        // host: "smtp.ethereal.email",
+        host: "smtp.google.com",
+        port: 465,
+        secure: true, // true for 465, false for other ports
+        auth: {
+          user: process.env.email_address, // generated ethereal user
+          pass: process.env.email_password, // generated ethereal password
+        },
+      });
+}
 
 /**
  * chekc if there is a session this phone as currentId
@@ -150,5 +175,19 @@ app.post('/verify', (req, res) => {
         res.sendStatus(401)
     }
 });
+
+
+app.post('/email', async (req, res) => {
+    let info = await transporter.sendMail({
+        from: `"Fred Foo 👻" <${process.env.email_address}>`, // sender address
+        to: "feraljerboa@gmail.com", // list of receivers
+        subject: "Hello ✔", // Subject line
+        text: "Hello world?", // plain text body
+        html: "<b>Hello world?</b>", // html body
+      });
+      console.log(`Message sent: ${info.messageId}`);
+      console.log(`Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
+      res.status(200).end()
+})
 
 app.listen(PORT, () => console.log(`started on port ${PORT}`));
