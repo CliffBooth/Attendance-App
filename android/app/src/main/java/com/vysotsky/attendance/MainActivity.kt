@@ -17,10 +17,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import com.vysotsky.attendance.QRCode.QRCodeActivity
-import com.vysotsky.attendance.professor.ProfessorActivity
+import com.vysotsky.attendance.student.QRCode.QRCodeActivity
 import com.vysotsky.attendance.databinding.ActivityMainBinding
 import com.vysotsky.attendance.professor.StartSessionActivity
+import com.vysotsky.attendance.student.StudentActivity
 
 
 class MainActivity : AppCompatActivity() {
@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
 
     private val APP_PACKAGE_DOT_COUNT = 2
-    private val DUAL_APP_ID_999 = "999"
+    private val DUAL_APP_ID_999 = "999" //will not work in dual space
     private val DOT = '.'
 
 
@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
         if (sharedPreferences.contains(getString(R.string.saved_first_name)) &&
             sharedPreferences.contains(getString(R.string.saved_second_name))
         ) {
-            val intent = Intent(this, QRCodeActivity::class.java)
+            val intent = Intent(this, StudentActivity::class.java)
             startActivity(intent)
             finish()
         }

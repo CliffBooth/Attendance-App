@@ -6,18 +6,17 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
-import com.vysotsky.attendance.professor.ProfessorActivity
-import com.vysotsky.attendance.databinding.ActivityProfessorBinding
+import com.vysotsky.attendance.databinding.ActivityProfessorLoginBinding
 import com.vysotsky.attendance.professor.StartSessionActivity
 
 class ProfessorLogInActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityProfessorBinding
+    private lateinit var binding: ActivityProfessorLoginBinding
     private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityProfessorBinding.inflate(layoutInflater)
+        binding = ActivityProfessorLoginBinding.inflate(layoutInflater)
         sharedPreferences = getSharedPreferences(getString(R.string.preference_file_key), MODE_PRIVATE)
         setContentView(binding.root)
 

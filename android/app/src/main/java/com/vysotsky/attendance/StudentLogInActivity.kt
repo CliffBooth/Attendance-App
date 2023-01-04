@@ -8,17 +8,18 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import com.google.android.material.snackbar.Snackbar
-import com.vysotsky.attendance.QRCode.QRCodeActivity
-import com.vysotsky.attendance.databinding.ActivityStudentBinding
+import com.vysotsky.attendance.student.QRCode.QRCodeActivity
+import com.vysotsky.attendance.databinding.ActivityStudentLoginBinding
+import com.vysotsky.attendance.student.StudentActivity
 
 //TODO: when exit, clear app preferences (delete name from the storage)
 class StudentLogInActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityStudentBinding
+    private lateinit var binding: ActivityStudentLoginBinding
     private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityStudentBinding.inflate(layoutInflater)
+        binding = ActivityStudentLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
         sharedPreferences = getSharedPreferences(getString(R.string.preference_file_key), MODE_PRIVATE)
 
@@ -47,7 +48,7 @@ class StudentLogInActivity : AppCompatActivity() {
                     putString(getString(R.string.saved_second_name), secondName)
                     apply()
                 }
-                val intent = Intent(this, QRCodeActivity::class.java)
+                val intent = Intent(this, StudentActivity::class.java)
                 if (debug) {
                     intent.putExtra("id", id)
                 }

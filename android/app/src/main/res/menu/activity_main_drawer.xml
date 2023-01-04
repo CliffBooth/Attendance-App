@@ -9,6 +9,10 @@
             android:icon="@drawable/ic_scan"
             android:title="Scan QR Code" />
         <item
+            android:id="@+id/nav_bluetooth"
+            android:icon="@drawable/ic_bluetooth"
+            android:title="Bluetooth" />
+        <item
             android:id="@+id/nav_attendees_list"
             android:icon="@drawable/ic_list"
             android:title="Attendees list" />

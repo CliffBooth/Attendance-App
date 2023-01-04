@@ -1,4 +1,4 @@
-package com.vysotsky.attendance.QRCode
+package com.vysotsky.attendance.student.QRCode
 
 import android.Manifest
 import android.annotation.SuppressLint

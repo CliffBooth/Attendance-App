@@ -1,4 +1,4 @@
-package com.vysotsky.attendance.QRCode
+package com.vysotsky.attendance.student.QRCode
 
 import android.app.Activity
 import android.content.Context

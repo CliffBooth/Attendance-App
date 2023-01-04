@@ -1,10 +1,9 @@
 package com.vysotsky.attendance.professor
 
+import android.bluetooth.BluetoothAdapter
 import android.view.View
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.vysotsky.attendance.professor.Attendee
-import com.vysotsky.attendance.professor.GeoLocation
 
 class ProfessorViewModel: ViewModel() {
     var intnetErrorMessageVisibility = MutableLiveData(View.GONE)
@@ -17,4 +16,8 @@ class ProfessorViewModel: ViewModel() {
     @Volatile
     var nameSent = false
     val status = MutableLiveData("Nothing")
+
+    //bluetooth
+    val scanMode = MutableLiveData(BluetoothAdapter.SCAN_MODE_NONE)
+    var bluetoothPermission = false
 }

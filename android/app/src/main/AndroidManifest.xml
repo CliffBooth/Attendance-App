@@ -15,7 +15,19 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-<!--    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />-->
+
+    <uses-permission
+        android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN"
+        android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation"
+        tools:targetApi="s" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
     <application
         android:allowBackup="true"
@@ -29,15 +41,19 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".student.StudentActivity"
+            android:exported="false" />
+        <activity
             android:name=".ChangeIPActivity"
             android:exported="false" />
-        <activity android:name=".professor.StartSessionActivity"
+        <activity
+            android:name=".professor.StartSessionActivity"
             android:exported="false" />
         <activity
             android:name=".professor.ProfessorActivity"
             android:exported="false" />
         <activity
-            android:name=".QRCode.QRCodeActivity"
+            android:name=".student.QRCode.QRCodeActivity"
             android:exported="false" />
         <activity
             android:name=".StudentLogInActivity"
@@ -58,6 +74,3 @@
     </application>
 
 </manifest>
-
-<!--inside .MainActivity:-->
-<!--    android:theme="@style/Theme.Attendance.NoActionBar"-->

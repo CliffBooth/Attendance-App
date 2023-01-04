@@ -23,8 +23,10 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 
-//intermediate activity between MainActivity and ProfessorActivity
-//it goes like this: MainActivity -> StartSessionActivity -> ProfessorActivity(where all the fragments are)
+/**
+ * intermediate activity between MainActivity and ProfessorActivity
+ * it goes like this: MainActivity -> StartSessionActivity -> ProfessorActivity(where all the fragments are)
+*/
 
 class StartSessionActivity: MenuActivity() {
 
