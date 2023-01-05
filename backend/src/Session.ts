@@ -27,6 +27,15 @@ export class Session {
         this.idToName[id] = { firstName, secondName };
     }
 
+    //called from /bluetooth endpoint to not set currentId and not generate toekn
+    saveName(str: string) {
+        let params = str.split(':');
+        if (params.length !== 3) throw Error('Wrong string structure');
+
+        let [firstName, secondName, id] = params;
+        this.idToName[id] = { firstName, secondName }
+    }
+
     /**
      * @param str = "${firstName}:${seconNmae}:${id}"
      * @throws Error if string has wrong structure

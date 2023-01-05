@@ -133,6 +133,7 @@ app.post('/student', (req, res) => {
  * return statuses:
  * 200 - student is accounted, returns name
  * 401 - token is incorrect!
+ * 406 - request message error
  */
 app.post('/verify', (req, res) => {
     console.log('/verify')
@@ -152,3 +153,34 @@ app.post('/verify', (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`started on port ${PORT}`));
+
+/**
+ * return statuses:
+ * 200 - student is accounted, returns name
+ * 202 - id has already been scanned (kind of an error)
+ * 406 - request message error
+ */
+//it doesn't change current Id in session to allow bluetooth and qrcode work in parallel
+app.post('/bluetooth', (req, res) => {
+    console.log("/bluetooth")
+    if (!req.body.email || !req.body.data) {
+        res.status(406).send('wrong data format');
+        return;
+    }
+    let email = req.body.email;
+    if (!sessions[email]) {
+        res.sendStatus(401);
+    } else {
+        try {
+            let session = sessions[email]
+            if (session.contains(req.body.data)) {
+                res.status(202).send('id has already been scanned');
+            } else {
+                session.saveName(req.body.data);
+                res.sendStatus(200)
+            }
+        } catch (e) {
+            res.status(406).send('wrong data format')
+        }
+    }
+})
