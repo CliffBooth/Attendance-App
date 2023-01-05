@@ -2,6 +2,7 @@ package com.vysotsky.attendance.professor.bluetooth
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothServerSocket
@@ -13,22 +14,43 @@ import android.content.IntentFilter
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.viewModelScope
+import com.vysotsky.attendance.API_URL
 import com.vysotsky.attendance.BLUETOOTH_UUID
 import com.vysotsky.attendance.R
 import com.vysotsky.attendance.T
 import com.vysotsky.attendance.databinding.FragmentProfessorBluetoothBinding
+import com.vysotsky.attendance.debug
+import com.vysotsky.attendance.englishQRRegex
+import com.vysotsky.attendance.professor.Attendee
 import com.vysotsky.attendance.professor.ProfessorViewModel
+import com.vysotsky.attendance.professor.Status
 import com.vysotsky.attendance.util.ConnectedThread
+import com.vysotsky.attendance.util.MESSAGE_READ
+import com.vysotsky.attendance.util.MESSAGE_TOAST
+import com.vysotsky.attendance.util.MESSAGE_WRITE
+import com.vysotsky.attendance.util.ThreadHandler
 import com.vysotsky.attendance.util.checkPermissions
+import com.vysotsky.attendance.util.fromByteArray
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 
 class ProfessorBluetoothFragment : Fragment() {
@@ -39,12 +61,17 @@ class ProfessorBluetoothFragment : Fragment() {
     private var bluetoothAdapter: BluetoothAdapter? = null
     private val viewModel: ProfessorViewModel by activityViewModels()
     private lateinit var previousName: String
-    private lateinit var acceptThread: AcceptThread
-    private val connectedThreads = mutableListOf<ConnectedThread>()
+    private lateinit var email: String
 
+    @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        val c = requireContext()
+        val sharedPreferences = c.getSharedPreferences(
+            getString(R.string.preference_file_key),
+            AppCompatActivity.MODE_PRIVATE
+        )
+        email = sharedPreferences.getString(c.getString(R.string.saved_email), "error") ?: "error"
         val bluetoothManager: BluetoothManager =
             requireActivity().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothAdapter = bluetoothManager.adapter
@@ -92,7 +119,89 @@ class ProfessorBluetoothFragment : Fragment() {
     private val launcher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             Log.d(T, "ProfessorBluetoothFragment: launcher result: ${result.resultCode}")
+            if (result.resultCode != Activity.RESULT_CANCELED) {
+                viewModel.runServer(AcceptThread())
+            }
         }
+
+    inner class ProfessorHandler : ThreadHandler() {
+
+        override fun handleMessage(msg: Message) {
+            when (msg.what) {
+                MESSAGE_READ -> {
+                    val message = String.fromByteArray(msg.obj as ByteArray, msg.arg1)
+//                    if (debug) {
+                    viewModel.message.value = message
+//                    }
+//                    thisThread.write("Echo hello!".toByteArray())
+                    handle(message, thisThread)
+                }
+
+                MESSAGE_WRITE -> {
+                    Log.d(T, "Handler: MESSAGE_WRITE")
+                }
+
+                MESSAGE_TOAST -> {
+
+                }
+            }
+        }
+    }
+
+    private fun handle(message: String, thread: ConnectedThread) {
+        //send to the server
+        if ("$message:null".matches(englishQRRegex)) {
+            viewModel.viewModelScope.launch(Dispatchers.IO) {
+                val client = OkHttpClient()
+                val json = "{\"email\":\"$email\", \"data\":\"$message\"}"
+                val (firstName, secondName, _) = message.split(":")
+                val body = json.toRequestBody("application/json".toMediaTypeOrNull())
+                val request = Request.Builder()
+                    .url("$API_URL/bluetooth")
+                    .post(body)
+                    .build()
+                try {
+                    client.newCall(request).execute().use { res ->
+                        when (res.code) {
+                            200 -> {
+                                thread.write("200".toByteArray())
+                                viewModel.attendeesList += Attendee(
+                                    firstName,
+                                    secondName,
+                                    Status.OK
+                                )
+                                Handler(Looper.getMainLooper()).post {
+                                    viewModel.attendeesList.notifyDataSetChanged()
+                                    viewModel.studentsNumber.value =
+                                        viewModel.studentsNumber.value!! + 1
+                                }
+                            }
+
+                            202 -> {
+                                thread.write("202".toByteArray())
+                            }
+
+                            406 -> {
+                                thread.write("406".toByteArray())
+                            }
+
+                            else -> Unit
+                        }
+                    }
+                } catch (e: IOException) {
+                    //network error
+                    //TODO handle network error, something like "send again button"
+                    Handler(Looper.getMainLooper()).post {
+                        viewModel.intnetErrorMessageVisibility.value = View.VISIBLE
+                    }
+                }
+            }
+        } else {
+            Log.d(T, "ProfessorBluetoothFragment: ERROR! data doesn't match regex: ${message}")
+            Log.d(T, "ProfessorBluetoothFragment: message.length = ${message.length}")
+            thread.write("406".toByteArray())
+        }
+    }
 
     @SuppressLint("MissingPermission")
     override fun onCreateView(
@@ -102,7 +211,7 @@ class ProfessorBluetoothFragment : Fragment() {
         _binding = FragmentProfessorBluetoothBinding.inflate(layoutInflater, container, false)
 
         val discoverableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE).apply {
-            putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 3000)
+            putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 600)
         }
 
         requireActivity().registerReceiver(
@@ -128,25 +237,11 @@ class ProfessorBluetoothFragment : Fragment() {
         return binding.root
     }
 
-    //TODO attach thread to viewModel
-    override fun onStart() {
-        super.onStart()
-        acceptThread = AcceptThread()
-        acceptThread.start()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        acceptThread.cancel()
-        connectedThreads.forEach {
-            it.cancel()
-        }
-    }
-
     //make object?
     @SuppressLint("MissingPermission")
-    private inner class AcceptThread : Thread() {
+    inner class AcceptThread : Thread() {
         private val NAME = "Attendance app"
+
         @Volatile
         private var shouldAccept = true
         private val mmServerSocket: BluetoothServerSocket? by lazy(LazyThreadSafetyMode.NONE) {
@@ -164,14 +259,8 @@ class ProfessorBluetoothFragment : Fragment() {
                     shouldAccept = false
                 }
                 if (socket != null) {
-                    val connectedThread = ConnectedThread(socket) { message ->
-                        Log.d(T, "ProfessorBluetoothFragment: received message: $message")
-                        requireActivity().runOnUiThread {
-                            binding.messageTextView.text = message
-                        }
-                    }
-                    connectedThreads += connectedThread
-                    connectedThread.start()
+                    val connectedThread = ConnectedThread(socket, ProfessorHandler())
+                    viewModel.runConnectedThread(connectedThread)
                 }
             }
         }
@@ -201,10 +290,26 @@ class ProfessorBluetoothFragment : Fragment() {
                     binding.modeText.text = "Device is not visible =("
                     binding.modeText.setTextColor(Color.RED)
                     binding.makeDiscoverableButton.isVisible = true
-                    if (viewModel.bluetoothPermission)
+                    if (viewModel.bluetoothPermission) {
                         bluetoothAdapter?.name = previousName
+                    }
+                    viewModel.stopServer()
                 }
             }
+        }
+        viewModel.intnetErrorMessageVisibility.observe(viewLifecycleOwner) {
+            when (it) {
+                View.VISIBLE -> {
+                    Toast.makeText(requireContext(), "Internet error!", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+        viewModel.studentsNumber.observe(viewLifecycleOwner) {
+            //TODO use pattern string
+            binding.studentNumber.text = it.toString()
+        }
+        viewModel.message.observe(viewLifecycleOwner) {
+            binding.messageTextView.text = it
         }
     }
 

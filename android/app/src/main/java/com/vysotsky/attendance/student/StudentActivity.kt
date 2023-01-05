@@ -14,7 +14,7 @@ import com.vysotsky.attendance.student.bluetooth.StudentBluetoothFragment
 /**
  * Activity, responsible for switching between student's fragments
  */
-
+//TODO add global viewModel and save
 class StudentActivity : MenuActivity() {
 
     private lateinit var binding: ActivityStudentBinding

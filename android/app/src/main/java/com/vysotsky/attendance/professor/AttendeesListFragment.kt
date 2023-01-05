@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import androidx.fragment.app.activityViewModels
 import com.vysotsky.attendance.databinding.FragmentAttendeesListBinding
 
@@ -21,6 +22,7 @@ class AttendeesListFragment : Fragment() {
         val binding = FragmentAttendeesListBinding.inflate(inflater)
         //TODO: how to change color?
         val adapter = AttendeeAdapter(requireContext(), viewModel.attendeesList)
+        viewModel.attendeesList.adapter = adapter
         binding.list.adapter = adapter
         binding.fab.setOnClickListener {
             //call dialog to type first and second name, then create Attendee with Status.OK
@@ -29,5 +31,16 @@ class AttendeesListFragment : Fragment() {
             adapter.notifyDataSetChanged()
         }
         return binding.root
+    }
+}
+
+/**
+ * list, which can notify adapter that dataset changed
+ //TODO maybe just move adapter to viewModel...
+ */
+class AdapterList<T> : MutableList<T> by mutableListOf() {
+    var adapter: ArrayAdapter<T>? = null
+    fun notifyDataSetChanged() {
+        adapter?.notifyDataSetChanged()
     }
 }

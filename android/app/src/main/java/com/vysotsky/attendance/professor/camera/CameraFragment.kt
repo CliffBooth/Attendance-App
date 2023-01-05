@@ -35,6 +35,7 @@ import com.vysotsky.attendance.API_URL
 import com.vysotsky.attendance.R
 import com.vysotsky.attendance.T
 import com.vysotsky.attendance.databinding.FragmentCameraBinding
+import com.vysotsky.attendance.englishQRRegex
 import com.vysotsky.attendance.professor.Attendee
 import com.vysotsky.attendance.professor.GeoLocation
 import com.vysotsky.attendance.professor.ProfessorViewModel
@@ -58,7 +59,6 @@ class CameraFragment : Fragment() {
         get() = _binding!!
     private lateinit var email: String
     private val attendees = mutableListOf<Attendee>()
-    private val englishQRRegex = Regex("^[A-Za-z]+:[A-Za-z]+:\\w+:((-?[\\w\\.]+---?[\\w\\.]+)|null)\$")
     private lateinit var drawerLayout: DrawerLayout
     private val viewModel: ProfessorViewModel by activityViewModels()
     private var locatonOfCurrentAttendee: GeoLocation? = null

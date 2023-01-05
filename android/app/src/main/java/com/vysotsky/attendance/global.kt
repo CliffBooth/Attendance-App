@@ -9,6 +9,7 @@ var randomLocation = false
 const val T = "myTag"
 var debug = false
 var polling = true
+val englishQRRegex = Regex("^[A-Za-z]+:[A-Za-z]+:\\w+:((-?[\\w\\.]+---?[\\w\\.]+)|null)\$")
 
 val BLUETOOTH_UUID = UUID.fromString("e26963a7-c58d-448d-a9ab-3b33bc4a9c0e")
 
