@@ -19,11 +19,11 @@ import com.vysotsky.attendance.randomLocation
 import java.util.Random
 
 class QRCodeViewModel : ViewModel() {
-    val spinnerVisibility = MutableLiveData(View.GONE)
+    val spinnerVisibility = MutableLiveData(false)
     val token = MutableLiveData<String>()
-    var pollingEnabled = false
-    var tryAgainButtonVisibility = MutableLiveData(View.GONE)
-    var isUsingLocation = false
+//    var pollingEnabled = false
+    var tryAgainButtonVisibility = MutableLiveData(false)
+//    var isUsingLocation = false
 
     // var stringToQR = MutableLiveData<String>()
     private val _locationString = MutableLiveData<String>("null")
@@ -35,7 +35,7 @@ class QRCodeViewModel : ViewModel() {
      * this is needed for polling not be run every time screen is rotated (Activity recreated)
      * when created first time, QRCodeActivity runs polling and sets this to true.
      */
-    var isRunningPolling = false
+    var isRunningPolling = false //TODO crate separate viewModel for that?
 
     /**
      * because there is some logic after update, you can't simply assign value to locationString,

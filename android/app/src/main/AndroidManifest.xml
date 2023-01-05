@@ -52,9 +52,9 @@
         <activity
             android:name=".professor.ProfessorActivity"
             android:exported="false" />
-        <activity
-            android:name=".student.QRCode.QRCodeActivity"
-            android:exported="false" />
+<!--        <activity-->
+<!--            android:name=".student.QRCode.QRCodeActivity"-->
+<!--            android:exported="false" />-->
         <activity
             android:name=".StudentLogInActivity"
             android:exported="false" />

@@ -10,6 +10,8 @@ import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.vysotsky.attendance.T
+import kotlinx.coroutines.CoroutineScope
+import okhttp3.Request
 import java.io.IOException
 import java.nio.charset.Charset
 

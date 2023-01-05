@@ -32,11 +32,16 @@ class AttendeesListFragment : Fragment() {
         }
         return binding.root
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        //to avoid memory leaks viewModel must not hold reference to context
+        viewModel.attendeesList.adapter = null
+    }
 }
 
 /**
  * list, which can notify adapter that dataset changed
- //TODO maybe just move adapter to viewModel...
  */
 class AdapterList<T> : MutableList<T> by mutableListOf() {
     var adapter: ArrayAdapter<T>? = null

@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import com.google.android.material.snackbar.Snackbar
-import com.vysotsky.attendance.student.QRCode.QRCodeActivity
 import com.vysotsky.attendance.databinding.ActivityStudentLoginBinding
 import com.vysotsky.attendance.student.StudentActivity
 

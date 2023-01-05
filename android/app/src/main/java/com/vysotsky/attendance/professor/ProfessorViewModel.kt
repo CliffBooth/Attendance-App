@@ -20,6 +20,7 @@ class ProfessorViewModel: ViewModel() {
     var isUsingGeodata = false
     var ownLocation: GeoLocation? = null
     val attendeesList = AdapterList<Attendee>()
+//    val attendeesList = mutableListOf<Attendee>()
     @Volatile
     var lastSent: String? = null
     @Volatile

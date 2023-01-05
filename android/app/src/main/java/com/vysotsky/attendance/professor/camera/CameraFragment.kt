@@ -36,6 +36,7 @@ import com.vysotsky.attendance.R
 import com.vysotsky.attendance.T
 import com.vysotsky.attendance.databinding.FragmentCameraBinding
 import com.vysotsky.attendance.englishQRRegex
+import com.vysotsky.attendance.httpClient
 import com.vysotsky.attendance.professor.Attendee
 import com.vysotsky.attendance.professor.GeoLocation
 import com.vysotsky.attendance.professor.ProfessorViewModel
@@ -323,7 +324,7 @@ class CameraFragment : Fragment() {
 
     private fun sendScan(data: String) {
         viewModel.viewModelScope.launch(Dispatchers.IO) {
-            val client = OkHttpClient()
+//            val client = OkHttpClient()
             val json = "{\"email\":\"$email\", \"data\":\"$data\"}"
             val body = json.toRequestBody("application/json".toMediaTypeOrNull())
             val request = Request.Builder()
@@ -331,7 +332,7 @@ class CameraFragment : Fragment() {
                 .post(body)
                 .build()
             tryCatchNetworkError {
-                client.newCall(request).execute().use { res ->
+                httpClient.newCall(request).execute().use { res ->
                     when (res.code) {
                         201 -> {
                             requireActivity().runOnUiThread {
@@ -380,7 +381,7 @@ class CameraFragment : Fragment() {
 
     private fun sendVerify(data: String) {
         viewModel.viewModelScope.launch(Dispatchers.IO) {
-            val client = OkHttpClient()
+//            val client = OkHttpClient()
 //            val moshi = Moshi.Builder().build()
 //            val adapter = moshi.adapter(Student::class.java)
 
@@ -392,7 +393,7 @@ class CameraFragment : Fragment() {
                 .post(body)
                 .build()
             tryCatchNetworkError {
-                client.newCall(request).execute().use { res ->
+                httpClient.newCall(request).execute().use { res ->
                     when (res.code) {
                         200 -> {
                             val reader = JsonReader(InputStreamReader(res.body!!.byteStream()))

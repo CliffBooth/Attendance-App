@@ -17,7 +17,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import com.vysotsky.attendance.student.QRCode.QRCodeActivity
 import com.vysotsky.attendance.databinding.ActivityMainBinding
 import com.vysotsky.attendance.professor.StartSessionActivity
 import com.vysotsky.attendance.student.StudentActivity

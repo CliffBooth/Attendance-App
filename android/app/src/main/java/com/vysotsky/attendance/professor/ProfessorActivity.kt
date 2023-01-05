@@ -105,7 +105,7 @@ class ProfessorActivity : MenuActivity() {
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        Log.d(T, "Camera Activity: item selected: $item")
+        Log.d(T, "ProfessorActivity: item selected: $item")
         return if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
             true
         } else {

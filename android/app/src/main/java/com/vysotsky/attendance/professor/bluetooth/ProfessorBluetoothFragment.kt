@@ -35,6 +35,7 @@ import com.vysotsky.attendance.T
 import com.vysotsky.attendance.databinding.FragmentProfessorBluetoothBinding
 import com.vysotsky.attendance.debug
 import com.vysotsky.attendance.englishQRRegex
+import com.vysotsky.attendance.httpClient
 import com.vysotsky.attendance.professor.Attendee
 import com.vysotsky.attendance.professor.ProfessorViewModel
 import com.vysotsky.attendance.professor.Status
@@ -152,7 +153,7 @@ class ProfessorBluetoothFragment : Fragment() {
         //send to the server
         if ("$message:null".matches(englishQRRegex)) {
             viewModel.viewModelScope.launch(Dispatchers.IO) {
-                val client = OkHttpClient()
+//                val client = OkHttpClient()
                 val json = "{\"email\":\"$email\", \"data\":\"$message\"}"
                 val (firstName, secondName, _) = message.split(":")
                 val body = json.toRequestBody("application/json".toMediaTypeOrNull())
@@ -161,7 +162,7 @@ class ProfessorBluetoothFragment : Fragment() {
                     .post(body)
                     .build()
                 try {
-                    client.newCall(request).execute().use { res ->
+                    httpClient.newCall(request).execute().use { res ->
                         when (res.code) {
                             200 -> {
                                 thread.write("200".toByteArray())

@@ -55,4 +55,5 @@
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="bluetooth_name">ATTENDANCE APP</string>
+    <string name="internet_error">Internet error</string>
 </resources>

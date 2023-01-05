@@ -15,6 +15,8 @@ import android.content.IntentSender
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.Message
 import android.provider.Settings
 import android.util.Log
@@ -48,7 +50,6 @@ import com.vysotsky.attendance.util.checkPermissions
 import com.vysotsky.attendance.util.fromByteArray
 import java.io.IOException
 import java.lang.NullPointerException
-import java.util.UUID
 
 //shouldn't perform discovery while connected
 class StudentBluetoothFragment : Fragment() {
@@ -135,10 +136,7 @@ class StudentBluetoothFragment : Fragment() {
                         }
                     }
                     //all is done, cancel connection
-                    connectThread?.cancel()
-                    connectThread = null
-                    connectedThread?.cancel()
-                    connectedThread = null
+                    disconnect()
                 }
 
                 MESSAGE_WRITE -> {
@@ -151,11 +149,7 @@ class StudentBluetoothFragment : Fragment() {
                 }
 
                 MESSAGE_CLOSE -> {
-                    connectThread?.cancel()
-                    connectThread = null
-
-                    connectedThread?.cancel()
-                    connectedThread = null
+                    disconnect()
 
                     //this may happen when closing the fragment,
                     //received message when binding is already null
@@ -328,6 +322,10 @@ class StudentBluetoothFragment : Fragment() {
                     sendData(mmSocket!!)
                 } catch (e: IOException) {
                     Log.d(T, "ConnectThread: error trying to connect", e)
+                    disconnect()
+                    Handler(Looper.getMainLooper()).post {
+                        binding.statusText1.text = "Disconnected"
+                    }
                 }
             }
         }
@@ -349,6 +347,13 @@ class StudentBluetoothFragment : Fragment() {
         connectedThread!!.write(stringToSend.toByteArray())
         //        socket.outputStream.write("Hello".toByteArray())
 //        socket.close()
+    }
+
+    private fun disconnect() {
+        connectThread?.cancel()
+        connectThread = null
+        connectedThread?.cancel()
+        connectedThread = null
     }
 
 

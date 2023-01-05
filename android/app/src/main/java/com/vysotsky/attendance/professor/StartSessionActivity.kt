@@ -15,6 +15,7 @@ import com.vysotsky.attendance.MenuActivity
 import com.vysotsky.attendance.R
 import com.vysotsky.attendance.T
 import com.vysotsky.attendance.databinding.ActivityStartSessionBinding
+import com.vysotsky.attendance.httpClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -73,7 +74,7 @@ class StartSessionActivity: MenuActivity() {
             Toast.LENGTH_SHORT
         )
         viewModel.viewModelScope.launch(Dispatchers.IO) {
-            val client = OkHttpClient()
+//            val client = OkHttpClient()
             val json = "{\"email\": \"$email\"}"
             val body = json.toRequestBody("application/json".toMediaTypeOrNull())
             val request = Request.Builder()
@@ -85,7 +86,7 @@ class StartSessionActivity: MenuActivity() {
                 runOnUiThread {
                     viewModel.spinnerVisibility.value = true
                 }
-                client.newCall(request).execute().use { res ->
+                httpClient.newCall(request).execute().use { res ->
                     Handler(Looper.getMainLooper()).post {
                         viewModel.spinnerVisibility.value = false
                     }
