@@ -46,6 +46,7 @@ class StartSessionActivity: MenuActivity() {
         setContentView(binding.root)
 
         binding.startButton.setOnClickListener {
+            binding.startButton.isEnabled = false
             registerSession()
         }
 
@@ -102,12 +103,14 @@ class StartSessionActivity: MenuActivity() {
                         finish()
                     } else {
                         Handler(Looper.getMainLooper()).post {
+                            binding.startButton.isEnabled = true
                             cantCrateSessionToast.show()
                         }
                     }
                 }
             } catch (e: IOException) {
                 Handler(Looper.getMainLooper()).post {
+                    binding.startButton.isEnabled = true
                     viewModel.spinnerVisibility.value = false
                     errorToast.show()
                 }
