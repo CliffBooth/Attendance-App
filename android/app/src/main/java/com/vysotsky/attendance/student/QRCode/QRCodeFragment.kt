@@ -20,7 +20,12 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.whenResumed
+import androidx.lifecycle.whenStarted
 import com.vysotsky.attendance.API_URL
 import com.vysotsky.attendance.R
 import com.vysotsky.attendance.T
@@ -30,8 +35,11 @@ import com.vysotsky.attendance.polling
 import com.vysotsky.attendance.student.StudentViewModel
 import com.vysotsky.attendance.util.checkPermissions
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -49,6 +57,7 @@ class QRCodeFragment : Fragment() {
     private var dimen = 0
     private lateinit var stringToQR: String
     private lateinit var stringToSend: String
+    private lateinit var pollingJob: Job
 
     //request that will be made with and without polling
     private lateinit var request: Request
@@ -68,7 +77,8 @@ class QRCodeFragment : Fragment() {
             ).show()
         }
 
-        val manager = requireActivity().getSystemService(AppCompatActivity.WINDOW_SERVICE) as WindowManager
+        val manager =
+            requireActivity().getSystemService(AppCompatActivity.WINDOW_SERVICE) as WindowManager
         val display = manager.defaultDisplay
 
         val point = Point()
@@ -104,6 +114,7 @@ class QRCodeFragment : Fragment() {
                 fragmentViewModel.isRunningPolling = true
                 runPolling()
             }
+            Log.d(T, "QRCodeFragment calling runPolling()")
         } else {
             binding.checkButton.setOnClickListener {
                 Log.d(T, "QRCodeFragment: api call")
@@ -136,19 +147,43 @@ class QRCodeFragment : Fragment() {
         return binding.root
     }
 
+    override fun onStart() {
+        super.onStart()
+        Log.d(T, "QRCodeFragment: onStart()")
+        fragmentViewModel.isPollingActive = true
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d(T, "QRCodeFragment: onStop()")
+        fragmentViewModel.isPollingActive = false
+    }
+
+    //when rotate screen should continue -> hence using viewModelScope
+    //when close fragment, should stop -> doesn't work
+    //TODO how to stop coroutine when close the app?
     private fun runPolling() {
-        fragmentViewModel.viewModelScope.launch(Dispatchers.IO) {
+        pollingJob = fragmentViewModel.viewModelScope.launch(Dispatchers.IO) {
+//        viewLifecycleOwner.lifecycleScope.launch {
+//            viewLifecycleOwner.whenStarted {
+//                Log.d(T, "QRCodeFragment inside whenStarted{")
+//                withContext(Dispatchers.IO) {
             try {
                 var i = 0
                 var gotResult = false
                 while (!gotResult) {
+                    if (!fragmentViewModel.isPollingActive) {
+                        delay(1000)
+                        continue
+                    }
                     Log.d(T, "making polling request... ${++i}")
                     httpClient.newCall(request).execute().use { res ->
                         when (res.code) {
                             200 -> {
                                 //token = adapter.fromJson(res.body!!.source())!!.token
                                 Log.i(T, "QRCodeActivity: inside 200")
-                                val reader = JsonReader(InputStreamReader(res.body!!.byteStream()))
+                                val reader =
+                                    JsonReader(InputStreamReader(res.body!!.byteStream()))
                                 //reader.isLenient = true
                                 Log.i(T, "1")
                                 try {
@@ -164,6 +199,7 @@ class QRCodeFragment : Fragment() {
                                 }
                                 gotResult = true
                             }
+
                             else -> {
                                 delay(1000)
                             }
@@ -172,11 +208,17 @@ class QRCodeFragment : Fragment() {
                 }
             } catch (e: IOException) {
                 Handler(Looper.getMainLooper()).post {
-                    Toast.makeText(requireContext(), getString(R.string.internet_error), Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.internet_error),
+                        Toast.LENGTH_LONG
+                    ).show()
                     fragmentViewModel.tryAgainButtonVisibility.value = true
                 }
             }
         }
+//            }
+//        }
     }
 
     private fun sendStudent() {
@@ -184,7 +226,7 @@ class QRCodeFragment : Fragment() {
         fragmentViewModel.viewModelScope.launch(Dispatchers.IO) {
             Log.i(T, "QRCodeFragment: enter coroutine")
             try {
-                httpClient.newCall(request).execute().use {res ->
+                httpClient.newCall(request).execute().use { res ->
                     Handler(Looper.getMainLooper()).post {
                         fragmentViewModel.spinnerVisibility.value = false
                     }
@@ -233,11 +275,15 @@ class QRCodeFragment : Fragment() {
                         else -> Unit
                     }
                 }
-            } catch(e: IOException) {
+            } catch (e: IOException) {
                 Log.e(T, "QRCodeFragment: sendStudent() error", e)
                 Handler(Looper.getMainLooper()).post {
                     fragmentViewModel.spinnerVisibility.value = false
-                    Toast.makeText(requireContext(), getString(R.string.internet_error), Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.internet_error),
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }
@@ -281,7 +327,8 @@ class QRCodeFragment : Fragment() {
 
         fragmentViewModel.locationString.observe(viewLifecycleOwner) { location ->
             Log.d(T, "inside observer!")
-            stringToQR = "${activityViewModel.firstName}:${activityViewModel.secondName}:${activityViewModel.deviceID}:${location}"
+            stringToQR =
+                "${activityViewModel.firstName}:${activityViewModel.secondName}:${activityViewModel.deviceID}:${location}"
             setImage(stringToQR)
             Log.d(T, "clickable enabled: ${binding.locationCheckbox.isEnabled}")
         }

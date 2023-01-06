@@ -33,10 +33,6 @@ class StudentActivity : MenuActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        binding = ActivityStudentBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
         val sharedPreferences =
             getSharedPreferences(getString(R.string.preference_file_key), MODE_PRIVATE)
         viewModel.firstName =
@@ -47,6 +43,10 @@ class StudentActivity : MenuActivity() {
             applicationContext.contentResolver,
             Settings.Secure.ANDROID_ID
         )
+
+        binding = ActivityStudentBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         Log.d(
             T,
             "StudentActivity: first name = ${viewModel.firstName} second name = ${viewModel.secondName} id = ${viewModel.deviceID}"
@@ -55,7 +55,7 @@ class StudentActivity : MenuActivity() {
         if (savedInstanceState == null) {
             supportFragmentManager.commit {
                 setReorderingAllowed(true)
-                add<StudentBluetoothFragment>(R.id.fragment_container_view)
+                add<QRCodeFragment>(R.id.fragment_container_view)
                 //addToBackStack("starSessionFragment")
                 Log.d(T, "StudentActivity after add()")
             }

@@ -18,7 +18,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
-import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -28,6 +27,8 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
@@ -40,6 +41,7 @@ import com.vysotsky.attendance.BLUETOOTH_UUID
 import com.vysotsky.attendance.R
 import com.vysotsky.attendance.T
 import com.vysotsky.attendance.databinding.FragmentStudentBluetoothBinding
+import com.vysotsky.attendance.student.StudentViewModel
 import com.vysotsky.attendance.util.ConnectedThread
 import com.vysotsky.attendance.util.MESSAGE_CLOSE
 import com.vysotsky.attendance.util.MESSAGE_READ
@@ -51,25 +53,20 @@ import com.vysotsky.attendance.util.fromByteArray
 import java.io.IOException
 import java.lang.NullPointerException
 
-//shouldn't perform discovery while connected
 class StudentBluetoothFragment : Fragment() {
     private var _binding: FragmentStudentBluetoothBinding? = null
     private val binding: FragmentStudentBluetoothBinding
         get() = _binding!!
 
     private var bluetoothAdapter: BluetoothAdapter? = null
-    private val devicesList = mutableListOf<String>()
-    private lateinit var listViewAdapter: ArrayAdapter<String>
+//    private val devicesList = mutableListOf<BluetoothDevice>()
+    private lateinit var listViewAdapter: DevicesListAdapter
+    private val fragmentViewModel: BluetoothViewModel by viewModels()
+    private val activityViewModel: StudentViewModel by activityViewModels()
 
-    //TODO won't work if multiple devices named ATTENDANCE APP, better implement adapter
-    //or better yet simply use ArrayAdapter of Pair<> and pass list.map { pair -> "${pair.first} -- ${pair.second}" }
-    private lateinit var professorDevice: BluetoothDevice
     private var connectThread: ConnectThread? = null
     private var connectedThread: ConnectedThread? = null
 
-    private lateinit var firstName: String
-    private lateinit var secondName: String
-    private lateinit var deviceID: String
     private lateinit var stringToSend: String
 
     //put devicesList and status text in the viewModel
@@ -92,47 +89,46 @@ class StudentBluetoothFragment : Fragment() {
                     if (device != null) {
                         Log.d(T, "device = $device")
                         if (device.name == getString(R.string.bluetooth_name)) {
-                            devicesList += "${device.name} --- ${device.address}"
-                            professorDevice = device
+                            if (fragmentViewModel.devicesList.all { d -> d.address != device.address }) {
+                                fragmentViewModel.devicesList += device
+                                listViewAdapter.notifyDataSetChanged()
+                            }
                         }
-                        listViewAdapter.notifyDataSetChanged()
                     }
                 }
 
                 BluetoothAdapter.ACTION_DISCOVERY_STARTED -> {
                     Log.d(T, "StudentBluetoothFragment: ACTION_DISCOVERY_STARTED")
-                    binding.statusText1.text = "Searching for ATTENDANCE APP..."
+                    fragmentViewModel.connectionStatus.value = ConnectionStatus.SEARCHING
                 }
 
                 BluetoothAdapter.ACTION_DISCOVERY_FINISHED -> {
                     Log.d(T, "StudentBluetoothFragment: ACTION_DISCOVERY_FINISHED")
-                    if (binding.statusText1.text == "Searching for ATTENDANCE APP...")
-                        binding.statusText1.text = "search is done"
+                    //when you click on a device, status should say "Connecting", not "search is done"
+                    if (fragmentViewModel.connectionStatus.value == ConnectionStatus.SEARCHING)
+                        fragmentViewModel.connectionStatus.value = ConnectionStatus.SEARCH_DONE
                 }
             }
         }
     }
 
     inner class StudentHandler : ThreadHandler() {
-
         override fun handleMessage(msg: Message) {
             when (msg.what) {
                 MESSAGE_READ -> {
                     val message = String.fromByteArray(msg.obj as ByteArray, msg.arg1)
-                    binding.statusText1.text = "response: $message"
+                    //binding.statusText1.text = "response: $message"
+                    fragmentViewModel.connectionStatus.value = ConnectionStatus.GOT_RESPONSE
                     Log.d(T, "Response: $message")
                     when (message) {
                         "200" -> {
-                            binding.accountedStatus.text = "Accounted!"
-                            binding.accountedStatus.setTextColor(Color.GREEN)
+                            fragmentViewModel.accountedStatus.value = AccountedStatus.OK
                         }
                         "202" -> {
-                            binding.accountedStatus.setTextColor(Color.RED)
-                            binding.accountedStatus.text = "You have already been scanned!"
+                            fragmentViewModel.accountedStatus.value = AccountedStatus.ALREADY_SCANNED
                         }
                         "406" -> {
-                            binding.accountedStatus.setTextColor(Color.RED)
-                            binding.accountedStatus.text = "Some kind of an error has occurred..."
+                            fragmentViewModel.accountedStatus.value = AccountedStatus.ERROR
                         }
                     }
                     //all is done, cancel connection
@@ -140,7 +136,7 @@ class StudentBluetoothFragment : Fragment() {
                 }
 
                 MESSAGE_WRITE -> {
-                    binding.statusText1.text = "message sent"
+                    fragmentViewModel.connectionStatus.value = ConnectionStatus.MESSAGE_SENT
                     Log.d(T, "Handler: MESSAGE_WRITE")
                 }
 
@@ -154,11 +150,11 @@ class StudentBluetoothFragment : Fragment() {
                     //this may happen when closing the fragment,
                     //received message when binding is already null
                     try {
-                        binding.statusText1.text = "Disconnected"
+                        fragmentViewModel.connectionStatus.value = ConnectionStatus.DISCONNECTED
                     } catch (_: NullPointerException) {
                     }
 
-                    devicesList.clear()
+                    fragmentViewModel.devicesList.clear()
                     listViewAdapter.notifyDataSetChanged()
                 }
             }
@@ -184,13 +180,7 @@ class StudentBluetoothFragment : Fragment() {
             getString(R.string.preference_file_key),
             AppCompatActivity.MODE_PRIVATE
         )
-        firstName = sharedPreferences.getString(getString(R.string.saved_first_name), null).toString()
-        secondName = sharedPreferences.getString(getString(R.string.saved_second_name), null).toString()
-        deviceID = requireActivity().intent.extras?.getString("id") ?: Settings.Secure.getString(
-            requireActivity().applicationContext.contentResolver,
-            Settings.Secure.ANDROID_ID
-        )
-        stringToSend = "$firstName:$secondName:$deviceID"
+        stringToSend = "${activityViewModel.firstName}:${activityViewModel.secondName}:${activityViewModel.deviceID}"
 
     }
 
@@ -259,41 +249,43 @@ class StudentBluetoothFragment : Fragment() {
         }
         enableGPS()
         //setup list
-        listViewAdapter = ArrayAdapter(
+        listViewAdapter = DevicesListAdapter(
             requireContext(),
-            android.R.layout.simple_list_item_1,
-            devicesList
-        ) //* can use pair list
-        binding.list.adapter = listViewAdapter
-        //TODO list length
+            fragmentViewModel.devicesList
+        )
+//        val testList = mutableListOf<String>()
+//        val testAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_list_item_1, testList)
 //        repeat(20) {
-//            devicesList += "test"
+//            testList += "test"
 //        }
+        binding.list.adapter = listViewAdapter
         listViewAdapter.notifyDataSetChanged()
         binding.list.setOnItemClickListener { parent, view, position, id ->
-            binding.statusText1.text = "Connecting..."
-            connect()
+            fragmentViewModel.connectionStatus.value = ConnectionStatus.CONNECTING
+            Log.d(T, "StudentBluetoothFragment: position = $position")
+            connect(fragmentViewModel.devicesList[position])
         }
 
         binding.discoverButton.setOnClickListener {
             enableGPS()
             doDiscovery()
         }
+        subscribe()
         return binding.root
     }
 
     @SuppressLint("MissingPermission")
-    private fun connect() {
+    private fun connect(device: BluetoothDevice) {
         if (connectThread != null) {
             //TODO implement state in viewModel and set the status according to state
-            binding.statusText1.text = "Already connected"
+            fragmentViewModel.connectionStatus.value = ConnectionStatus.ALREADY_CONNECTED
             return //??? should i do this?
         }
         val adapter = bluetoothAdapter!!
         listViewAdapter.notifyDataSetChanged()
         adapter.cancelDiscovery()
         connectThread?.cancel()
-        connectThread = ConnectThread().apply {
+        connectThread = ConnectThread(device).apply {
             start()
         }
     }
@@ -305,7 +297,7 @@ class StudentBluetoothFragment : Fragment() {
     }
 
     @SuppressLint("MissingPermission")
-    private inner class ConnectThread : Thread() {
+    private inner class ConnectThread(private val professorDevice: BluetoothDevice) : Thread() {
         private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
 //            professorDevice.createRfcommSocketToServiceRecord(uuid)
             professorDevice.createInsecureRfcommSocketToServiceRecord(BLUETOOTH_UUID)
@@ -314,7 +306,6 @@ class StudentBluetoothFragment : Fragment() {
         override fun run() {
             bluetoothAdapter?.cancelDiscovery()
             Log.d(T, "StudentBluetoothFragment: background thread: ${currentThread().name}")
-            Log.d(T, "StudentBluetoothFragment: socket = ${mmSocket}")
             Log.d(T, "StudentBluetoothFragment: address = ${professorDevice.address}")
             if (mmSocket != null) {
                 try {
@@ -324,7 +315,7 @@ class StudentBluetoothFragment : Fragment() {
                     Log.d(T, "ConnectThread: error trying to connect", e)
                     disconnect()
                     Handler(Looper.getMainLooper()).post {
-                        binding.statusText1.text = "Disconnected"
+                        fragmentViewModel.connectionStatus.value = ConnectionStatus.DISCONNECTED
                     }
                 }
             }
@@ -358,7 +349,6 @@ class StudentBluetoothFragment : Fragment() {
 
 
     private fun enableGPS() {
-        val REQUEST_CHECK_SETTINGS = 1
         val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000L)
             .setMinUpdateIntervalMillis(5000)
             .build()
@@ -379,7 +369,7 @@ class StudentBluetoothFragment : Fragment() {
                     // and check the result in onActivityResult().
                     exception.startResolutionForResult(
                         requireActivity(),
-                        REQUEST_CHECK_SETTINGS
+                        1
                     )
                 } catch (sendEx: IntentSender.SendIntentException) {
                     // Ignore the error.
@@ -391,7 +381,7 @@ class StudentBluetoothFragment : Fragment() {
     @SuppressLint("MissingPermission")
     private fun doDiscovery() {
         val adapter = bluetoothAdapter!!
-        devicesList.clear()
+        fragmentViewModel.devicesList.clear()
         listViewAdapter.notifyDataSetChanged()
         if (adapter.isDiscovering) {
             adapter.cancelDiscovery()
@@ -404,6 +394,58 @@ class StudentBluetoothFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun subscribe() {
+        fragmentViewModel.connectionStatus.observe(viewLifecycleOwner) {
+            when(it) {
+                ConnectionStatus.NONE -> {
+                    binding.statusText1.text = ""
+                }
+                ConnectionStatus.SEARCHING -> {
+                    binding.statusText1.text = "Searching for ATTENDANCE APP..."
+                }
+                ConnectionStatus.SEARCH_DONE -> {
+                    binding.statusText1.text = "Search is done"
+                }
+                ConnectionStatus.CONNECTING -> {
+                    binding.statusText1.text = "Connecting..."
+                }
+                ConnectionStatus.ALREADY_CONNECTED -> {
+                    binding.statusText1.text = "Already connected"
+                }
+                ConnectionStatus.GOT_RESPONSE -> {
+                    binding.statusText1.text = "Received response..."
+                }
+                ConnectionStatus.DISCONNECTED -> {
+                    binding.statusText1.text = "Disconnected"
+                }
+                ConnectionStatus.MESSAGE_SENT -> {
+                    binding.statusText1.text = "message sent"
+                }
+            }
+        }
+
+        fragmentViewModel.accountedStatus.observe(viewLifecycleOwner) {
+            when (it) {
+                AccountedStatus.NONE -> {
+                    binding.accountedStatus.text = ""
+                }
+                AccountedStatus.OK -> {
+                    binding.accountedStatus.text = "Accounted!"
+                    binding.accountedStatus.setTextColor(Color.GREEN)
+                }
+                AccountedStatus.ALREADY_SCANNED -> {
+                    binding.accountedStatus.setTextColor(Color.YELLOW)
+                    binding.accountedStatus.text = "You have already been scanned!"
+                }
+                AccountedStatus.ERROR -> {
+                    binding.accountedStatus.setTextColor(Color.RED)
+                    binding.accountedStatus.text = "Error occurred, try again"
+                }
+                else -> Unit //to get rid of warning
+            }
+        }
     }
 
     override fun onDestroy() {

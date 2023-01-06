@@ -37,6 +37,8 @@ class QRCodeViewModel : ViewModel() {
      */
     var isRunningPolling = false //TODO crate separate viewModel for that?
 
+    var isPollingActive = false
+
     /**
      * because there is some logic after update, you can't simply assign value to locationString,
      * you always need to call updateLocation

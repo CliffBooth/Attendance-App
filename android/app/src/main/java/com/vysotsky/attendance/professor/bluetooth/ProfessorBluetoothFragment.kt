@@ -40,6 +40,7 @@ import com.vysotsky.attendance.professor.Attendee
 import com.vysotsky.attendance.professor.ProfessorViewModel
 import com.vysotsky.attendance.professor.Status
 import com.vysotsky.attendance.util.ConnectedThread
+import com.vysotsky.attendance.util.MESSAGE_CLOSE
 import com.vysotsky.attendance.util.MESSAGE_READ
 import com.vysotsky.attendance.util.MESSAGE_TOAST
 import com.vysotsky.attendance.util.MESSAGE_WRITE
@@ -131,9 +132,9 @@ class ProfessorBluetoothFragment : Fragment() {
             when (msg.what) {
                 MESSAGE_READ -> {
                     val message = String.fromByteArray(msg.obj as ByteArray, msg.arg1)
-//                    if (debug) {
-                    viewModel.message.value = message
-//                    }
+                    if (debug) {
+                        viewModel.message.value = message
+                    }
 //                    thisThread.write("Echo hello!".toByteArray())
                     handle(message, thisThread)
                 }
@@ -143,6 +144,9 @@ class ProfessorBluetoothFragment : Fragment() {
                 }
 
                 MESSAGE_TOAST -> {
+
+                }
+                MESSAGE_CLOSE -> {
 
                 }
             }

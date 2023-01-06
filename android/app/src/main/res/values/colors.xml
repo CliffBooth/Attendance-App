@@ -9,4 +9,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="green">#FF00CC00</color>
     <color name="error_red">#FFFF0000</color>
+    <color name="device_list_background">#595858</color>
 </resources>

@@ -31,7 +31,7 @@ class ProfessorViewModel: ViewModel() {
     val scanMode = MutableLiveData(BluetoothAdapter.SCAN_MODE_NONE)
     var bluetoothPermission = false
     private var acceptThread: ProfessorBluetoothFragment.AcceptThread? = null
-    private var connectedThreads = mutableListOf<ConnectedThread>()
+    private var connectedThreads = mutableListOf<ConnectedThread>() //TODO list of threads is never cleared!
     val studentsNumber = MutableLiveData(0)
     val message = MutableLiveData("")
 
@@ -48,6 +48,10 @@ class ProfessorViewModel: ViewModel() {
     fun runConnectedThread(t: ConnectedThread) {
         connectedThreads += t
         t.start()
+    }
+
+    fun stopConnection(t: ConnectedThread) {
+
     }
 
     fun stopServer() {
