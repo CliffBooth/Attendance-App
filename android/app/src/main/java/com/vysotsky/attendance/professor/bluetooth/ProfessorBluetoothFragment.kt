@@ -60,9 +60,9 @@ class ProfessorBluetoothFragment : Fragment() {
     private val binding: FragmentProfessorBluetoothBinding
         get() = _binding!!
 
-    private var bluetoothAdapter: BluetoothAdapter? = null
+//    private var bluetoothAdapter: BluetoothAdapter? = null
     private val viewModel: ProfessorViewModel by activityViewModels()
-    private lateinit var previousName: String
+//    private lateinit var previousName: String
     private lateinit var email: String
 
     @SuppressLint("MissingPermission")
@@ -76,7 +76,7 @@ class ProfessorBluetoothFragment : Fragment() {
         email = sharedPreferences.getString(c.getString(R.string.saved_email), "error") ?: "error"
         val bluetoothManager: BluetoothManager =
             requireActivity().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        bluetoothAdapter = bluetoothManager.adapter
+        viewModel.bluetoothAdapter = bluetoothManager.adapter
         viewModel.bluetoothPermission = if (Build.VERSION.SDK_INT >= 31) {
             checkPermissions(
                 requireActivity(),
@@ -93,15 +93,12 @@ class ProfessorBluetoothFragment : Fragment() {
         } else {
             true
         }
-        if (bluetoothAdapter == null) {
+        if (viewModel.bluetoothAdapter == null) {
             Toast.makeText(
                 requireContext(),
                 getString(R.string.bluetooth_not_supported),
                 Toast.LENGTH_LONG
             ).show()
-        } else {
-            if (viewModel.bluetoothPermission)
-                previousName = bluetoothAdapter!!.name
         }
     }
 
@@ -233,8 +230,11 @@ class ProfessorBluetoothFragment : Fragment() {
             }
             if (viewModel.bluetoothPermission) {
 //                previousName = bluetoothAdapter!!.name
-                Log.d(T, "ProfessorBluetoothFragment previous name = ${previousName}")
-                bluetoothAdapter!!.name = getString(R.string.bluetooth_name)
+                if (viewModel.previousName == null) {
+                    viewModel.previousName = viewModel.bluetoothAdapter!!.name
+                    viewModel.bluetoothAdapter!!.name = getString(R.string.bluetooth_name)
+                }
+                Log.d(T, "ProfessorBluetoothFragment previous name = ${viewModel.previousName}")
                 launcher.launch(discoverableIntent)
             }
         }
@@ -250,7 +250,7 @@ class ProfessorBluetoothFragment : Fragment() {
         @Volatile
         private var shouldAccept = true
         private val mmServerSocket: BluetoothServerSocket? by lazy(LazyThreadSafetyMode.NONE) {
-            bluetoothAdapter?.listenUsingInsecureRfcommWithServiceRecord(NAME, BLUETOOTH_UUID)
+            viewModel.bluetoothAdapter?.listenUsingInsecureRfcommWithServiceRecord(NAME, BLUETOOTH_UUID)
         }
 
         override fun run() {
@@ -284,6 +284,7 @@ class ProfessorBluetoothFragment : Fragment() {
     @SuppressLint("MissingPermission")
     private fun subscribe() {
         viewModel.scanMode.observe(viewLifecycleOwner) {
+            Log.d(T, "ProfessorBluetoothFragment: observe: bluetoothAdapter.name=${viewModel.bluetoothAdapter?.name}")
             when (it) {
                 BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE -> {
                     binding.modeText.text = "Device is visible =)"
@@ -295,8 +296,12 @@ class ProfessorBluetoothFragment : Fragment() {
                     binding.modeText.text = "Device is not visible =("
                     binding.modeText.setTextColor(Color.RED)
                     binding.makeDiscoverableButton.isVisible = true
-                    if (viewModel.bluetoothPermission) {
-                        bluetoothAdapter?.name = previousName
+                    if (viewModel.bluetoothPermission && viewModel.bluetoothAdapter != null) {
+                        if (viewModel.previousName != null)
+                            viewModel.bluetoothAdapter?.name = viewModel.previousName
+                        //should we null previousName ?
+                        //if yes, then need to set it every time you click "Discover"
+                        //
                     }
                     viewModel.stopServer()
                 }
@@ -326,10 +331,6 @@ class ProfessorBluetoothFragment : Fragment() {
     @SuppressLint("MissingPermission")
     override fun onDestroy() {
         super.onDestroy()
-        if (viewModel.bluetoothPermission) {
-            Log.d(T, "ProfessorBluetoothFragment: onDestroy renaming to $previousName")
-            bluetoothAdapter!!.name = previousName
-        }
     }
 
 }

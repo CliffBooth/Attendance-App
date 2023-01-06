@@ -34,6 +34,13 @@ class ProfessorViewModel: ViewModel() {
     private var connectedThreads = mutableListOf<ConnectedThread>() //TODO list of threads is never cleared!
     val studentsNumber = MutableLiveData(0)
     val message = MutableLiveData("")
+    var previousName: String? = null
+        set(value) {
+            Log.i(T, "ProfessorViewModel: previousName = ${value}")
+            field = value
+        }
+    //TODO don't need bluetoothPermission variable, can just check if bluetoothAdapter is null or not
+    var bluetoothAdapter: BluetoothAdapter? = null
 
     fun runServer(acceptThread: ProfessorBluetoothFragment.AcceptThread) {
         if (this.acceptThread != null) {
@@ -63,9 +70,15 @@ class ProfessorViewModel: ViewModel() {
         this.acceptThread = null
     }
 
+    @SuppressLint("MissingPermission")
     override fun onCleared() {
         super.onCleared()
         Log.d(T, "ProfessorViewModel: onClear()")
+        if (bluetoothPermission) {
+            if (previousName != null)
+                bluetoothAdapter?.name = previousName
+            previousName = null
+        }
         stopServer()
     }
 }
