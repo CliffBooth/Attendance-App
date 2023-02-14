@@ -9,6 +9,8 @@
         android:name="android.hardware.camera.autofocus"
         android:required="false" />
 
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -24,6 +26,9 @@
         android:maxSdkVersion="30" />
     <uses-permission
         android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation"
+        tools:targetApi="s" />
+    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES"
         android:usesPermissionFlags="neverForLocation"
         tools:targetApi="s" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
@@ -52,9 +57,6 @@
         <activity
             android:name=".professor.ProfessorActivity"
             android:exported="false" />
-<!--        <activity-->
-<!--            android:name=".student.QRCode.QRCodeActivity"-->
-<!--            android:exported="false" />-->
         <activity
             android:name=".StudentLogInActivity"
             android:exported="false" />

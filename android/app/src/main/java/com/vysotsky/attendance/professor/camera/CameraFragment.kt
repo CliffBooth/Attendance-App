@@ -8,7 +8,6 @@ import android.location.LocationRequest
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.JsonReader
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -21,7 +20,6 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
@@ -30,26 +28,23 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.CancellationToken
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.OnTokenCanceledListener
-import com.squareup.moshi.JsonClass
 import com.vysotsky.attendance.API_URL
 import com.vysotsky.attendance.R
 import com.vysotsky.attendance.T
 import com.vysotsky.attendance.databinding.FragmentCameraBinding
 import com.vysotsky.attendance.englishQRRegex
 import com.vysotsky.attendance.httpClient
-import com.vysotsky.attendance.professor.Attendee
-import com.vysotsky.attendance.professor.GeoLocation
+import com.vysotsky.attendance.professor.attendeeList.Attendee
+import com.vysotsky.attendance.professor.attendeeList.GeoLocation
 import com.vysotsky.attendance.professor.ProfessorViewModel
-import com.vysotsky.attendance.professor.Status
+import com.vysotsky.attendance.professor.attendeeList.Status
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
-import java.io.InputStreamReader
 
 //TODO: move to constants
 const val allowedDistance = 100 //100 meters
@@ -59,10 +54,10 @@ class CameraFragment : Fragment() {
     private val binding
         get() = _binding!!
     private lateinit var email: String
-    private val attendees = mutableListOf<Attendee>()
-    private lateinit var drawerLayout: DrawerLayout
     private val viewModel: ProfessorViewModel by activityViewModels()
-    private var locatonOfCurrentAttendee: GeoLocation? = null
+    private var locationOfCurrentAttendee: GeoLocation? = null
+
+    private lateinit var currentAttendee: Attendee
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -297,15 +292,24 @@ class CameraFragment : Fragment() {
                             val lonLat = subStr.split("--")
                             val lon = lonLat[0].toDouble()
                             val lat = lonLat[1].toDouble()
-                            locatonOfCurrentAttendee = GeoLocation(lon, lat)
+                            locationOfCurrentAttendee = GeoLocation(lon, lat)
                         }
                     }
-                    runBlocking {
-                        Log.e(T, "going to send : ${string.substringBeforeLast(":")}")
-                        sendScan(string.substringBeforeLast(":"))
+                    runBlocking { //why is runBlocking here?
+                        val (firstName, secondName, id) = string.split(":")
+                        val student = Attendee(firstName, secondName, id)
+                        if (viewModel.notInTheList(student)) {
+                            currentAttendee = student
+                            Log.e(T, "going to send : ${string.substringBeforeLast(":")}")
+                            sendScan(string.substringBeforeLast(":"))
+                        }
+                        else {
+                            requireActivity().runOnUiThread {
+                                viewModel.status.value = "This phone has already been scanned!"
+                            }
+                        }
                     }
                 } else {
-                    val currentThread = Thread.currentThread()
                     viewModel.status.value = "QR Code doesn't look like student's name"
                 }
             } else {
@@ -324,7 +328,6 @@ class CameraFragment : Fragment() {
 
     private fun sendScan(data: String) {
         viewModel.viewModelScope.launch(Dispatchers.IO) {
-//            val client = OkHttpClient()
             val json = "{\"email\":\"$email\", \"data\":\"$data\"}"
             val body = json.toRequestBody("application/json".toMediaTypeOrNull())
             val request = Request.Builder()
@@ -376,8 +379,6 @@ class CameraFragment : Fragment() {
         Log.i(T, "after calling coroutine in mainThread")
     }
 
-    @JsonClass(generateAdapter = true)
-    data class Student(val firstName: String, val secondName: String)
 
     private fun sendVerify(data: String) {
         viewModel.viewModelScope.launch(Dispatchers.IO) {
@@ -396,14 +397,20 @@ class CameraFragment : Fragment() {
                 httpClient.newCall(request).execute().use { res ->
                     when (res.code) {
                         200 -> {
-                            val reader = JsonReader(InputStreamReader(res.body!!.byteStream()))
-                            reader.beginObject()
-                            reader.nextName()
-                            val firstName = reader.nextString()
-                            reader.nextName()
-                            val secondName = reader.nextString()
+//                            val reader = JsonReader(InputStreamReader(res.body!!.byteStream()))
+//                            reader.beginObject()
+//                            reader.nextName()
+//                            val firstName = reader.nextString()
+//                            reader.nextName()
+//                            val secondName = reader.nextString()
 
-                            viewModel.attendeesList += getAttendee(firstName, secondName, locatonOfCurrentAttendee)
+//                            viewModel.attendeesList += getAttendee(
+//                                currentStudent.firstName,
+//                                currentStudent.secondName,
+//                                locatonOfCurrentAttendee
+//                            )
+                            setStatus(currentAttendee, locationOfCurrentAttendee)
+                            viewModel.addAttendeeToList(currentAttendee)
                             viewModel.nameSent = false
                             requireActivity().runOnUiThread {
                                 viewModel.status.value = "Student accounted"
@@ -424,7 +431,7 @@ class CameraFragment : Fragment() {
     /**
      * calculates distance and sets status
      */
-    private fun getAttendee(firstName: String, secondName: String, attendeeLocation: GeoLocation?): Attendee {
+    private fun setStatus(attendee: Attendee, attendeeLocation: GeoLocation?) {
         var status = Status.OK
         if (viewModel.isUsingGeodata) {
             if (attendeeLocation == null) {
@@ -438,14 +445,36 @@ class CameraFragment : Fragment() {
                     viewModel.ownLocation?.longitude ?: 0.0,
                     results
                 )
-                Log.d(T, "$firstName distance = ${results[0]}")
+                Log.d(T, "${attendee.firstName} distance = ${results[0]}")
                 if (results[0] > allowedDistance) {
                     status = Status.OUT_OF_RANGE
                 }
             }
         }
-        return Attendee(firstName, secondName, status)
+        attendee.status = status
     }
+//    private fun getAttendee(firstName: String, secondName: String, attendeeLocation: GeoLocation?): Attendee {
+//        var status = Status.OK
+//        if (viewModel.isUsingGeodata) {
+//            if (attendeeLocation == null) {
+//                status = Status.NO_DATA
+//            } else {
+//                val results = FloatArray(3)
+//                Location.distanceBetween(
+//                    attendeeLocation.latitude,
+//                    attendeeLocation.longitude,
+//                    viewModel.ownLocation?.latitude ?: 0.0,
+//                    viewModel.ownLocation?.longitude ?: 0.0,
+//                    results
+//                )
+//                Log.d(T, "$firstName distance = ${results[0]}")
+//                if (results[0] > allowedDistance) {
+//                    status = Status.OUT_OF_RANGE
+//                }
+//            }
+//        }
+//        return Attendee(firstName, secondName, status)
+//    }
 
     /**
      * Utility function to run try catch on a network request

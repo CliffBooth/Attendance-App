@@ -16,8 +16,10 @@ import com.vysotsky.attendance.MenuActivity
 import com.vysotsky.attendance.R
 import com.vysotsky.attendance.T
 import com.vysotsky.attendance.databinding.ActivityProfessorBinding
+import com.vysotsky.attendance.professor.attendeeList.AttendeesListFragment
 import com.vysotsky.attendance.professor.bluetooth.ProfessorBluetoothFragment
 import com.vysotsky.attendance.professor.camera.CameraFragment
+import com.vysotsky.attendance.professor.proximity.ProfessorProximityFragment
 
 /**
  * Activity, responsible for switching between professor's fragments
@@ -73,6 +75,13 @@ class ProfessorActivity : MenuActivity() {
                 R.id.nav_bluetooth -> {
                     supportFragmentManager.commit {
                         replace<ProfessorBluetoothFragment>(R.id.fragment_container_view)
+                    }
+                    true
+                }
+
+                R.id.nav_prof_wifi -> {
+                    supportFragmentManager.commit {
+                        replace<ProfessorProximityFragment>(R.id.fragment_container_view)
                     }
                     true
                 }

@@ -9,7 +9,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
@@ -19,11 +18,11 @@ import com.vysotsky.attendance.T
 import com.vysotsky.attendance.databinding.ActivityStudentBinding
 import com.vysotsky.attendance.student.QRCode.QRCodeFragment
 import com.vysotsky.attendance.student.bluetooth.StudentBluetoothFragment
+import com.vysotsky.attendance.student.proximity.StudentProximityFragment
 
 /**
  * Activity, responsible for switching between student's fragments
  */
-//TODO add global viewModel and save
 class StudentActivity : MenuActivity() {
 
     private lateinit var binding: ActivityStudentBinding
@@ -39,10 +38,7 @@ class StudentActivity : MenuActivity() {
             sharedPreferences.getString(getString(R.string.saved_first_name), null).toString()
         viewModel.secondName =
             sharedPreferences.getString(getString(R.string.saved_second_name), null).toString()
-        viewModel.deviceID = intent.extras?.getString("id") ?: Settings.Secure.getString(
-            applicationContext.contentResolver,
-            Settings.Secure.ANDROID_ID
-        )
+        viewModel.deviceID = getId()
 
         binding = ActivityStudentBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -85,6 +81,13 @@ class StudentActivity : MenuActivity() {
                     true
                 }
 
+                R.id.nav_wifi_student -> {
+                    supportFragmentManager.commit {
+                        replace<StudentProximityFragment>(R.id.fragment_container_view)
+                    }
+                    true
+                }
+
                 else -> false
             }
         }
@@ -106,6 +109,16 @@ class StudentActivity : MenuActivity() {
         } else {
             return super.onOptionsItemSelected(item)
         }
+    }
+
+    /**
+     * returns a unique id for the device
+     */
+    private fun getId(): String {
+        return intent.extras?.getString("id") ?: Settings.Secure.getString(
+            applicationContext.contentResolver,
+            Settings.Secure.ANDROID_ID
+        )
     }
 
 }

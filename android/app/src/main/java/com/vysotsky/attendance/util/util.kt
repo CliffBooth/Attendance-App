@@ -141,3 +141,12 @@ open class ThreadHandler : Handler(Looper.getMainLooper()) {
 fun String.Companion.fromByteArray(byteArray: ByteArray, n: Int): String {
     return String(byteArray.copyOfRange(0, n), Charset.defaultCharset())
 }
+
+//class for connections api
+data class Endpoint(val id: String, val name: String)
+
+//data class Student(
+//    val firstName: String,
+//    val secondName: String,
+//    val id: String,
+//)

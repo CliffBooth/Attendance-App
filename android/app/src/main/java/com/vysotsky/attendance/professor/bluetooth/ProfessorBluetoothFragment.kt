@@ -36,9 +36,9 @@ import com.vysotsky.attendance.databinding.FragmentProfessorBluetoothBinding
 import com.vysotsky.attendance.debug
 import com.vysotsky.attendance.englishQRRegex
 import com.vysotsky.attendance.httpClient
-import com.vysotsky.attendance.professor.Attendee
+import com.vysotsky.attendance.professor.attendeeList.Attendee
 import com.vysotsky.attendance.professor.ProfessorViewModel
-import com.vysotsky.attendance.professor.Status
+import com.vysotsky.attendance.professor.attendeeList.Status
 import com.vysotsky.attendance.util.ConnectedThread
 import com.vysotsky.attendance.util.MESSAGE_CLOSE
 import com.vysotsky.attendance.util.MESSAGE_READ
@@ -50,7 +50,6 @@ import com.vysotsky.attendance.util.fromByteArray
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
@@ -63,7 +62,7 @@ class ProfessorBluetoothFragment : Fragment() {
 //    private var bluetoothAdapter: BluetoothAdapter? = null
     private val viewModel: ProfessorViewModel by activityViewModels()
 //    private lateinit var previousName: String
-    private lateinit var email: String
+    private lateinit var email: String //TODO: get this from the ViewModel
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -163,6 +162,7 @@ class ProfessorBluetoothFragment : Fragment() {
                     .post(body)
                     .build()
                 try {
+                    Log.d(T, "ProfessorBluetoothFragment: sending message to api ${API_URL}/bluetooth")
                     httpClient.newCall(request).execute().use { res ->
                         when (res.code) {
                             200 -> {
@@ -170,6 +170,7 @@ class ProfessorBluetoothFragment : Fragment() {
                                 viewModel.attendeesList += Attendee(
                                     firstName,
                                     secondName,
+                                    null,
                                     Status.OK
                                 )
                                 Handler(Looper.getMainLooper()).post {
@@ -242,7 +243,6 @@ class ProfessorBluetoothFragment : Fragment() {
         return binding.root
     }
 
-    //make object?
     @SuppressLint("MissingPermission")
     inner class AcceptThread : Thread() {
         private val NAME = "Attendance app"
@@ -287,13 +287,13 @@ class ProfessorBluetoothFragment : Fragment() {
             Log.d(T, "ProfessorBluetoothFragment: observe: bluetoothAdapter.name=${viewModel.bluetoothAdapter?.name}")
             when (it) {
                 BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE -> {
-                    binding.modeText.text = "Device is visible =)"
+                    binding.modeText.text = "Device is visible"
                     binding.modeText.setTextColor(Color.GREEN)
                     binding.makeDiscoverableButton.isVisible = false
                 }
 
                 else -> {
-                    binding.modeText.text = "Device is not visible =("
+                    binding.modeText.text = "Device is not visible"
                     binding.modeText.setTextColor(Color.RED)
                     binding.makeDiscoverableButton.isVisible = true
                     if (viewModel.bluetoothPermission && viewModel.bluetoothAdapter != null) {

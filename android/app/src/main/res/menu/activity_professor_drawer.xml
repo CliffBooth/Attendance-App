@@ -13,6 +13,10 @@
             android:icon="@drawable/ic_bluetooth"
             android:title="Bluetooth" />
         <item
+            android:id="@+id/nav_prof_wifi"
+            android:icon="@drawable/ic_wifi"
+            android:title="Wifi" />
+        <item
             android:id="@+id/nav_attendees_list"
             android:icon="@drawable/ic_list"
             android:title="Attendees list" />

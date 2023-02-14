@@ -9,6 +9,9 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
 
+/**
+ * Adapter for device list on screen when student hits "Discover" button
+ */
 class DevicesListAdapter(
     context: Context,
     private val data: MutableList<BluetoothDevice>,

@@ -20,12 +20,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.whenResumed
-import androidx.lifecycle.whenStarted
 import com.vysotsky.attendance.API_URL
 import com.vysotsky.attendance.R
 import com.vysotsky.attendance.T
@@ -36,10 +31,8 @@ import com.vysotsky.attendance.student.StudentViewModel
 import com.vysotsky.attendance.util.checkPermissions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -121,6 +114,10 @@ class QRCodeFragment : Fragment() {
                 sendStudent()
             }
         }
+
+        binding.locationCheckbox.isVisible = false
+        binding.qrCodeText.isVisible = false
+
         binding.locationCheckbox.setOnCheckedChangeListener { buttonView, isChecked ->
             if (!buttonView.isPressed)
                 return@setOnCheckedChangeListener
@@ -207,12 +204,15 @@ class QRCodeFragment : Fragment() {
                     }
                 }
             } catch (e: IOException) {
+                val context = context
                 Handler(Looper.getMainLooper()).post {
-                    Toast.makeText(
-                        requireContext(),
-                        getString(R.string.internet_error),
-                        Toast.LENGTH_LONG
-                    ).show()
+                    if (context != null) {
+                        Toast.makeText(
+                            context,
+                            getString(R.string.internet_error),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                     fragmentViewModel.tryAgainButtonVisibility.value = true
                 }
             }

@@ -45,11 +45,11 @@ class MainActivity : AppCompatActivity() {
             finish()
             //android.os.Process.killProcess(android.os.Process.myPid())
         }
-        val deviceID = intent.extras?.getString("id") ?: Settings.Secure.getString(
-            applicationContext.contentResolver,
-            Settings.Secure.ANDROID_ID
-        )
-        Log.d(T, "MainActivity: deviceID = $deviceID")
+//        val deviceID = intent.extras?.getString("id") ?: Settings.Secure.getString(
+//            applicationContext.contentResolver,
+//            Settings.Secure.ANDROID_ID
+//        )
+//        Log.d(T, "MainActivity: deviceID = $deviceID")
 
         //check if already logged in
         val sharedPreferences =

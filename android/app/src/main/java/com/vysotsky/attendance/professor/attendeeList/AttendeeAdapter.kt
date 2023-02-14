@@ -1,4 +1,4 @@
-package com.vysotsky.attendance.professor
+package com.vysotsky.attendance.professor.attendeeList
 
 import android.content.Context
 import android.util.Log
@@ -53,7 +53,7 @@ class AttendeeAdapter(context: Context, private val data: MutableList<Attendee>)
         }
 
         //gone == 8, visible == 0
-        Log.e(T, "statusText.visibility = ${statusText.visibility}")
+//        Log.d(T, "statusText.visibility = ${statusText.visibility}")
 
         return result
     }
