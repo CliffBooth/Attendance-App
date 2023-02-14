@@ -17,7 +17,6 @@ import com.vysotsky.attendance.R
 import com.vysotsky.attendance.T
 import com.vysotsky.attendance.databinding.ActivityProfessorBinding
 import com.vysotsky.attendance.professor.attendeeList.AttendeesListFragment
-import com.vysotsky.attendance.professor.bluetooth.ProfessorBluetoothFragment
 import com.vysotsky.attendance.professor.camera.CameraFragment
 import com.vysotsky.attendance.professor.proximity.ProfessorProximityFragment
 
@@ -49,7 +48,7 @@ class ProfessorActivity : MenuActivity() {
         if (savedInstanceState == null) {
             supportFragmentManager.commit {
                 setReorderingAllowed(true)
-                add<ProfessorBluetoothFragment>(R.id.fragment_container_view)
+                add<ProfessorProximityFragment>(R.id.fragment_container_view)
                 //addToBackStack("starSessionFragment")
                 Log.d(T, "Camera activity after add()")
             }
@@ -68,13 +67,6 @@ class ProfessorActivity : MenuActivity() {
                 R.id.nav_scan_qr_code -> {
                     supportFragmentManager.commit {
                         replace<CameraFragment>(R.id.fragment_container_view)
-                    }
-                    true
-                }
-
-                R.id.nav_bluetooth -> {
-                    supportFragmentManager.commit {
-                        replace<ProfessorBluetoothFragment>(R.id.fragment_container_view)
                     }
                     true
                 }

@@ -17,7 +17,6 @@ import com.vysotsky.attendance.R
 import com.vysotsky.attendance.T
 import com.vysotsky.attendance.databinding.ActivityStudentBinding
 import com.vysotsky.attendance.student.QRCode.QRCodeFragment
-import com.vysotsky.attendance.student.bluetooth.StudentBluetoothFragment
 import com.vysotsky.attendance.student.proximity.StudentProximityFragment
 
 /**
@@ -70,13 +69,6 @@ class StudentActivity : MenuActivity() {
                 R.id.nav_display_qr_code -> {
                     supportFragmentManager.commit {
                         replace<QRCodeFragment>(R.id.fragment_container_view)
-                    }
-                    true
-                }
-
-                R.id.nav_bluetooth_student -> {
-                    supportFragmentManager.commit {
-                        replace<StudentBluetoothFragment>(R.id.fragment_container_view)
                     }
                     true
                 }

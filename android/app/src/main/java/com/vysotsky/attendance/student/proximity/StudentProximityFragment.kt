@@ -97,7 +97,8 @@ class StudentProximityFragment : Fragment() {
                 viewModel.accountedStatus.value = StudentProximityViewModel.AccountedStatus.ERROR
             }
         }
-            //DISCONNECT!!! (read the docs)
+        connectionsClient.disconnectFromEndpoint(endpoint.id)
+        establishedConnections.remove(endpoint.id)
     }
 
     private fun startDiscovering() {
@@ -119,7 +120,7 @@ class StudentProximityFragment : Fragment() {
             Log.d(T, "StudentWifiFragment: onEndpointFound: id = $endpointId, info.name = ${info.endpointName}")
             if (SERVICE_ID == info.serviceId) {
                 //display in the list
-                val str = "${info.endpointName} ${info.serviceId}"
+                val str = "${info.serviceId}"
                 if (!devicesList.contains(str)) {
                     devicesList += str
                     lastDiscoveredEndpoint = Endpoint(endpointId, info.endpointName)

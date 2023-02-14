@@ -9,10 +9,6 @@
             android:icon="@drawable/ic_scan"
             android:title="Display QR Code" />
         <item
-            android:id="@+id/nav_bluetooth_student"
-            android:icon="@drawable/ic_bluetooth"
-            android:title="Bluetooth" />
-        <item
             android:id="@+id/nav_wifi_student"
             android:icon="@drawable/ic_wifi"
             android:title="WIFI" />

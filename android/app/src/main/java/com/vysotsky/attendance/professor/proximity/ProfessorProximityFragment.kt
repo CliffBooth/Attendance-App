@@ -102,13 +102,14 @@ class ProfessorProximityFragment : Fragment() {
                 activityViewModel.studentsNumber.value = activityViewModel.studentsNumber.value!! + 1
                 send(endpoint, "200")
             } else {
-                send(endpoint, "402")
+                send(endpoint, "202")
             }
         } else {
             Log.d(T, "ProfessorWifiFragment: ERROR! data doesn't match regex: ${data}")
             send(endpoint, "406")
         }
-        //todo: disconnect!
+        connectionsClient.disconnectFromEndpoint(endpoint.id)
+        establishedConnections.remove(endpoint.id)
     }
 
 
@@ -117,6 +118,7 @@ class ProfessorProximityFragment : Fragment() {
             .setStrategy(Strategy.P2P_STAR)
             .build()
         Nearby.getConnectionsClient(requireContext())
+                //SERVICE_ID - is a string that can be seen when connecting
             .startAdvertising(
                 userName, SERVICE_ID, connectionLifecycleCallback, advertisingOptions
             )
