@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 import express from 'express';
 import { Session } from './Session';
+import apiRouter from './api';
 
 dotenv.config();
 
@@ -12,22 +13,6 @@ let sessions: { [email: string]: Session } = {};
 // since professor should have ability to cancel processing current student, maybe a session should have
 // a list of verified students?
 
-// function test() {
-//     let str = "MY:NAME:12345"
-//     let str2 = "valery:vysotsky:1234:hello"
-//     let session = new Session()
-//     try {
-//         sessions["1"] = new Session();
-//         sessions["1"].putName(str);
-//         checkIfScanned(str)
-//     } catch (e) {
-//         console.log(`error was thrown: ${e}`)
-//     }
-// }
-
-// test()
-// process.exit(1)
-
 if (!process.env.PORT) {
     console.error('No PORT environment variable!');
     process.exit(1);
@@ -36,6 +21,16 @@ if (!process.env.PORT) {
 const PORT = parseInt(process.env.PORT);
 const app = express();
 app.use(express.json());
+app.use('/api', apiRouter);
+// catch 404 and forward to error handler
+app.use(function (req: express.Request, res: express.Response, next) {
+    next({ status: 404 });
+});
+
+app.use(function (err: any, req: express.Request, res: express.Response, next: express.NextFunction) {
+    console.error(err);
+    res.status(err.status || 500).json();
+});
 
 /**
  * chekc if there is a session this phone as currentId
@@ -48,16 +43,16 @@ function getSession(data: string): Session | null {
         try {
             if (session.isCurrent(data)) return session;
         } catch (e) {
-            return null
+            return null;
         }
     }
     return null;
 }
 
 app.get('/test', (req, res) => {
-    console.log('test')
-    res.send(JSON.stringify(sessions))
-})
+    console.log('test');
+    res.send(JSON.stringify(sessions));
+});
 
 /**
  * return statuses:
@@ -85,7 +80,7 @@ app.post('/start', (req, res) => {
  * 406 - wrong qrCode format or wrong request body
  */
 app.post('/scan', (req, res) => {
-    console.log('/scan')
+    console.log('/scan');
     if (!req.body.email || !req.body.data) {
         res.sendStatus(406);
         return;
@@ -114,7 +109,7 @@ app.post('/scan', (req, res) => {
  * 406 - wrong qrCode format or wrong request body
  */
 app.post('/student', (req, res) => {
-    console.log('/student')
+    console.log('/student');
     if (!req.body.data) {
         res.sendStatus(406);
         return;
@@ -136,19 +131,19 @@ app.post('/student', (req, res) => {
  * 406 - request message error
  */
 app.post('/verify', (req, res) => {
-    console.log('/verify')
+    console.log('/verify');
     if (!req.body.email || !req.body.data) {
         res.sendStatus(406);
         return;
     }
     let email = req.body.email;
     let token = req.body.data;
-    let session = sessions[email]
+    let session = sessions[email];
     //TODO: chekc if null - than server error
     if (session.getToken() === token) {
-        res.status(200).json(session.getCurrentName())
+        res.status(200).json(session.getCurrentName());
     } else {
-        res.sendStatus(401)
+        res.sendStatus(401);
     }
 });
 
@@ -162,7 +157,7 @@ app.listen(PORT, () => console.log(`started on port ${PORT}`));
  */
 //it doesn't change current Id in session to allow bluetooth and qrcode work in parallel
 app.post('/bluetooth', (req, res) => {
-    console.log("/bluetooth")
+    console.log('/bluetooth');
     if (!req.body.email || !req.body.data) {
         res.status(406).send('wrong data format');
         return;
@@ -172,15 +167,15 @@ app.post('/bluetooth', (req, res) => {
         res.sendStatus(401);
     } else {
         try {
-            let session = sessions[email]
+            let session = sessions[email];
             if (session.contains(req.body.data)) {
                 res.status(202).send('id has already been scanned');
             } else {
                 session.saveName(req.body.data);
-                res.sendStatus(200)
+                res.sendStatus(200);
             }
         } catch (e) {
-            res.status(406).send('wrong data format')
+            res.status(406).send('wrong data format');
         }
     }
-})
+});
