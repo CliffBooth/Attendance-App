@@ -2,6 +2,7 @@ import * as dotenv from 'dotenv';
 import express from 'express';
 import { Session } from './Session';
 import apiRouter from './api';
+import cors from 'cors'
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ if (!process.env.PORT) {
 const PORT = parseInt(process.env.PORT);
 const app = express();
 app.use(express.json());
+app.use(cors())
 app.use('/api', apiRouter);
 // catch 404 and forward to error handler
 app.use(function (req: express.Request, res: express.Response, next) {

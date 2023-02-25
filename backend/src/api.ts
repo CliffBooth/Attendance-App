@@ -44,6 +44,18 @@ router
     //save a new class object with professor's email
     .post(async (req: Request<{ email: string }, {}, RequestClass>, res) => {
         const prof_email = req.params.email;
+        //check if professor with such email exists:
+        const prof = await prisma.professor.findUnique({
+            where: {
+                email: prof_email,
+            },
+        });
+
+        if (prof === null) {
+            res.sendStatus(404);
+            return;
+        }
+
         const data = req.body;
 
         if (data.students === undefined || data.subjectName === undefined) {
@@ -244,9 +256,9 @@ router.get('/student_classes/:email', async (req, res) => {
             classes: {
                 select: {
                     date: true,
-                    subject_name: true
-                }
-            }
+                    subject_name: true,
+                },
+            },
         },
     });
     if (result === null) res.sendStatus(404);
