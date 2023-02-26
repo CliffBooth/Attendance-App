@@ -9,9 +9,7 @@ import android.util.Log
 import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import com.vysotsky.attendance.T
-import kotlinx.coroutines.CoroutineScope
-import okhttp3.Request
+import com.vysotsky.attendance.TAG
 import java.io.IOException
 import java.nio.charset.Charset
 
@@ -41,7 +39,7 @@ fun checkPermissions(
     if (check) return true
 
     var res = false
-    Log.d(T, "asking for permissions: ${permissions.contentDeepToString()}")
+    Log.d(TAG, "asking for permissions: ${permissions.contentDeepToString()}")
     val permissionsLauncher =
         resultCaller.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
             if (it.any { entry -> !entry.value }) {
@@ -90,7 +88,7 @@ class ConnectedThread(
                 running = false
                 val closeMsg = handler.obtainMessage(MESSAGE_CLOSE)
                 closeMsg.sendToTarget()
-                Log.d(T, "ConnectedThread: error reading data; bytesRead = ${bytesRead}", e)
+                Log.d(TAG, "ConnectedThread: error reading data; bytesRead = ${bytesRead}", e)
             }
         }
     }
@@ -99,7 +97,7 @@ class ConnectedThread(
         try {
             socket.outputStream.write(bytes)
         } catch (e: IOException) {
-            Log.d(T, "ConnectedThread: error writing data", e)
+            Log.d(TAG, "ConnectedThread: error writing data", e)
             //TODO make toast in activity or something
             /*
             Log.e(TAG, "Error occurred when sending data", e)
@@ -125,7 +123,7 @@ class ConnectedThread(
             running = false
             socket.close()
         } catch (e: IOException) {
-            Log.d(T, "ConnectedThread: error closing socket", e)
+            Log.d(TAG, "ConnectedThread: error closing socket", e)
         }
     }
 }

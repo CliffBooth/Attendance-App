@@ -52,7 +52,7 @@ class StudentLogInActivity : AppCompatActivity() {
                     intent.putExtra("id", id)
                 }
                 startActivity(intent)
-                Log.d(T, "StudentLogIn before setResult")
+                Log.d(TAG, "StudentLogIn before setResult")
                 setResult(Activity.RESULT_OK)
                 finish()
             }
@@ -62,7 +62,7 @@ class StudentLogInActivity : AppCompatActivity() {
             if (!buttonView.isPressed)
                 return@setOnCheckedChangeListener
             randomLocation = isChecked
-            Log.d(T, "StudentLogIn: randomLocation = $randomLocation")
+            Log.d(TAG, "StudentLogIn: randomLocation = $randomLocation")
         }
     }
 }

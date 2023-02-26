@@ -5,7 +5,6 @@ import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -18,7 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.vysotsky.attendance.databinding.ActivityMainBinding
-import com.vysotsky.attendance.professor.StartSessionActivity
+import com.vysotsky.attendance.professor.ProfessorHomeActivity
 import com.vysotsky.attendance.student.StudentActivity
 
 
@@ -38,10 +37,10 @@ class MainActivity : AppCompatActivity() {
         val sourceDir = applicationInfo.sourceDir
         binding = ActivityMainBinding.inflate(layoutInflater)
         binding.infoText.text = "dataDir = $dataDir, sourceDir = $sourceDir"
-        Log.d(T, "dataDir = $dataDir, sourceDir = $sourceDir")
+        Log.d(TAG, "dataDir = $dataDir, sourceDir = $sourceDir")
         if (dataDir.contains(DUAL_APP_ID_999) || dataDir.count { c -> c == DOT } != APP_PACKAGE_DOT_COUNT) {
             Toast.makeText(this, "You can't open a clone of the app!", Toast.LENGTH_LONG).show()
-            Log.d(T, "toast made, finishing...")
+            Log.d(TAG, "toast made, finishing...")
             finish()
             //android.os.Process.killProcess(android.os.Process.myPid())
         }
@@ -63,7 +62,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (sharedPreferences.contains(getString(R.string.saved_email))) {
-            val intent = Intent(this, StartSessionActivity::class.java)
+            val intent = Intent(this, ProfessorHomeActivity::class.java)
+            Log.d(TAG, "MainActivity: starting ProfessorHomeActivity")
             startActivity(intent)
             finish()
         }
@@ -73,7 +73,7 @@ class MainActivity : AppCompatActivity() {
         val studentLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { res ->
                 if (res.resultCode == Activity.RESULT_OK) {
-                    Log.d(T, "MainActivity GOT RESULT!")
+                    Log.d(TAG, "MainActivity GOT RESULT!")
                     finish()
                 }
             }
@@ -138,12 +138,12 @@ class MainActivity : AppCompatActivity() {
                     arrayOf("debug", "student polling"),
                     checkedItems
                 ) { _: DialogInterface, which: Int, isChecked: Boolean ->
-                    Log.d(T, "which: $which")
+                    Log.d(TAG, "which: $which")
                     when (which) {
                         0 -> viewModel.debug.value = isChecked
                         1 -> polling = isChecked
                     }
-                    Log.d(T, "debug = ${debug}, polling = ${polling}")
+                    Log.d(TAG, "debug = ${debug}, polling = ${polling}")
                 }
                 .setPositiveButton("OK") { _, _ -> }
                 .create()
@@ -153,32 +153,32 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        Log.d(T, "onPause")
+        Log.d(TAG, "onPause")
     }
 
     override fun onResume() {
         super.onResume()
-        Log.d(T, "onResume")
+        Log.d(TAG, "onResume")
     }
 
     override fun onStop() {
         super.onStop()
-        Log.d(T, "onStop")
+        Log.d(TAG, "onStop")
     }
 
     override fun onStart() {
         super.onStart()
-        Log.d(T, "onStart")
+        Log.d(TAG, "onStart")
     }
 
     override fun onRestart() {
         super.onRestart()
-        Log.d(T, "onRestart")
+        Log.d(TAG, "onRestart")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d(T, "Main Activity: onDestroy")
+        Log.d(TAG, "Main Activity: onDestroy")
     }
 
 }

@@ -14,7 +14,7 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import com.vysotsky.attendance.MenuActivity
 import com.vysotsky.attendance.R
-import com.vysotsky.attendance.T
+import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.databinding.ActivityStudentBinding
 import com.vysotsky.attendance.student.QRCode.QRCodeFragment
 import com.vysotsky.attendance.student.proximity.StudentProximityFragment
@@ -43,7 +43,7 @@ class StudentActivity : MenuActivity() {
         setContentView(binding.root)
 
         Log.d(
-            T,
+            TAG,
             "StudentActivity: first name = ${viewModel.firstName} second name = ${viewModel.secondName} id = ${viewModel.deviceID}"
         )
         //check what will happen if not do that
@@ -52,7 +52,7 @@ class StudentActivity : MenuActivity() {
                 setReorderingAllowed(true)
                 add<QRCodeFragment>(R.id.fragment_container_view)
                 //addToBackStack("starSessionFragment")
-                Log.d(T, "StudentActivity after add()")
+                Log.d(TAG, "StudentActivity after add()")
             }
         }
 
@@ -95,7 +95,7 @@ class StudentActivity : MenuActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        Log.d(T, "StudentActivity: item selected: $item")
+        Log.d(TAG, "StudentActivity: item selected: $item")
         return if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
             true
         } else {

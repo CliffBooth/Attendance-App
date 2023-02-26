@@ -21,7 +21,7 @@ class ChangeIPActivity : AppCompatActivity() {
         binding.ipButton.setOnClickListener {
             if (selectedItem != 0) {
                 val ip = addresses[selectedItem]
-                Log.d(T, "ChangeIPActivity: ip = $ip")
+                Log.d(TAG, "ChangeIPActivity: ip = $ip")
                 API_URL = "http://$ip:7000"
             } else {
                 val text = binding.ipTextEdit.text.toString()
@@ -38,7 +38,7 @@ class ChangeIPActivity : AppCompatActivity() {
         binding.spinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, addresses)
         binding.spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                Log.d(T, "ChangeIPActivity: position = $position")
+                Log.d(TAG, "ChangeIPActivity: position = $position")
                 selectedItem = position
             }
             override fun onNothingSelected(parent: AdapterView<*>?) = Unit

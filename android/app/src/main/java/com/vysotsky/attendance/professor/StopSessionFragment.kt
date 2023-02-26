@@ -13,7 +13,7 @@ class StopSessionFragment: Fragment() {
     private var _binding: FragmentStopSessionBinding? = null
     private val binding: FragmentStopSessionBinding
         get() = _binding!!
-    private val viewModel: ProfessorViewModel by activityViewModels()
+    private val viewModel: SessionViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +32,7 @@ class StopSessionFragment: Fragment() {
 
             }
 
-            val intent = Intent(requireContext(), StartSessionActivity::class.java)
+            val intent = Intent(requireContext(), ProfessorHomeActivity::class.java)
             startActivity(intent)
             activity?.finish()
         }

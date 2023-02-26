@@ -30,13 +30,13 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.OnTokenCanceledListener
 import com.vysotsky.attendance.API_URL
 import com.vysotsky.attendance.R
-import com.vysotsky.attendance.T
+import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.databinding.FragmentCameraBinding
 import com.vysotsky.attendance.englishQRRegex
 import com.vysotsky.attendance.httpClient
 import com.vysotsky.attendance.professor.attendeeList.Attendee
 import com.vysotsky.attendance.professor.attendeeList.GeoLocation
-import com.vysotsky.attendance.professor.ProfessorViewModel
+import com.vysotsky.attendance.professor.SessionViewModel
 import com.vysotsky.attendance.professor.attendeeList.Status
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -54,14 +54,14 @@ class CameraFragment : Fragment() {
     private val binding
         get() = _binding!!
     private lateinit var email: String
-    private val viewModel: ProfessorViewModel by activityViewModels()
+    private val viewModel: SessionViewModel by activityViewModels()
     private var locationOfCurrentAttendee: GeoLocation? = null
 
     private lateinit var currentAttendee: Attendee
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(T, "CameraFragment onCreate()")
+        Log.d(TAG, "CameraFragment onCreate()")
         val c = requireContext()
         val sharedPreferences = c.getSharedPreferences(
             getString(R.string.preference_file_key),
@@ -69,7 +69,7 @@ class CameraFragment : Fragment() {
         )
         email = sharedPreferences.getString(c.getString(R.string.saved_email), "error") ?: "error"
         Log.d(
-            T,
+            TAG,
             "CameraFragment: viewmodel.lastSent = ${viewModel.lastSent} viewmodel.nameSent = ${viewModel.nameSent}"
         )
     }
@@ -82,7 +82,7 @@ class CameraFragment : Fragment() {
         if (viewModel.isUsingGeodata && viewModel.ownLocation == null) {
             val permitted = checkLocationPermission()
             if (permitted) {
-                Log.d(T, "CameraFragment: permission granted")
+                Log.d(TAG, "CameraFragment: permission granted")
                 updateLocation()
             }
         }
@@ -124,18 +124,18 @@ class CameraFragment : Fragment() {
                 //get latitude and longitude and then use Location.distance() - on Professor
                 if (location == null) {
                     //gps was turned off
-                    Log.d(T, "QRCodeViewModel displaying toast...")
+                    Log.d(TAG, "QRCodeViewModel displaying toast...")
                     Toast.makeText(context, "can't retrieve location data!", Toast.LENGTH_LONG)
                         .show()
                 } else {
                     val lon = location.longitude
                     val lat = location.latitude
-                    Log.d(T, "inside updateLocation: longitude = $lon, latitude = $lat")
+                    Log.d(TAG, "inside updateLocation: longitude = $lon, latitude = $lat")
                     viewModel.ownLocation = GeoLocation(lon, lat)
                 }
             }
         } catch (e: SecurityException) {
-            Log.d(T, e.toString())
+            Log.d(TAG, e.toString())
         }
     }
 
@@ -146,7 +146,7 @@ class CameraFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d(T, "CameraFragment onDestroy()")
+        Log.d(TAG, "CameraFragment onDestroy()")
     }
 
     private fun checkLocationPermission(): Boolean {
@@ -156,17 +156,17 @@ class CameraFragment : Fragment() {
             return true
         } else {
             var res = false
-            Log.d(T, "CameraFragment: asking for location permission")
+            Log.d(TAG, "CameraFragment: asking for location permission")
             val reqPermission =
                 registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
                     when {
                         it.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
-                            Log.d(T, "location permissions granted")
+                            Log.d(TAG, "location permissions granted")
                             res = true
                         }
 
                         it.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
-                            Log.d(T, "Only coarse location permission!")
+                            Log.d(TAG, "Only coarse location permission!")
                             //TODO make different notification
                             Toast.makeText(
                                 requireContext(),
@@ -176,7 +176,7 @@ class CameraFragment : Fragment() {
                         }
 
                         else -> {
-                            Log.d(T, "No location permission!")
+                            Log.d(TAG, "No location permission!")
                             Toast.makeText(
                                 requireContext(),
                                 getString(R.string.location_permissions_error),
@@ -212,13 +212,13 @@ class CameraFragment : Fragment() {
             }
 
             else -> {
-                Log.d(T, "asking for permission")
+                Log.d(TAG, "asking for permission")
                 val reqPermission =
                     registerForActivityResult(ActivityResultContracts.RequestPermission()) {
                         if (it) {
                             startCamera()
                         } else {
-                            Log.d(T, "No permission!")
+                            Log.d(TAG, "No permission!")
                             Toast.makeText(
                                 requireContext(),
                                 getString(R.string.camera_permissions_error),
@@ -251,7 +251,7 @@ class CameraFragment : Fragment() {
                 bindCameraPreview(cameraProvider)
             } catch (e: Exception) {
                 //TODO: notify user about error
-                Log.e(T, "Use case binding failed", e)
+                Log.e(TAG, "Use case binding failed", e)
             }
         }, ContextCompat.getMainExecutor(requireContext()))
     }
@@ -300,7 +300,7 @@ class CameraFragment : Fragment() {
                         val student = Attendee(firstName, secondName, id)
                         if (viewModel.notInTheList(student)) {
                             currentAttendee = student
-                            Log.e(T, "going to send : ${string.substringBeforeLast(":")}")
+                            Log.e(TAG, "going to send : ${string.substringBeforeLast(":")}")
                             sendScan(string.substringBeforeLast(":"))
                         }
                         else {
@@ -374,9 +374,9 @@ class CameraFragment : Fragment() {
                     }
                 }
             }
-            Log.i(T, "call is made in coroutine!")
+            Log.i(TAG, "call is made in coroutine!")
         }
-        Log.i(T, "after calling coroutine in mainThread")
+        Log.i(TAG, "after calling coroutine in mainThread")
     }
 
 
@@ -445,7 +445,7 @@ class CameraFragment : Fragment() {
                     viewModel.ownLocation?.longitude ?: 0.0,
                     results
                 )
-                Log.d(T, "${attendee.firstName} distance = ${results[0]}")
+                Log.d(TAG, "${attendee.firstName} distance = ${results[0]}")
                 if (results[0] > allowedDistance) {
                     status = Status.OUT_OF_RANGE
                 }
@@ -453,28 +453,6 @@ class CameraFragment : Fragment() {
         }
         attendee.status = status
     }
-//    private fun getAttendee(firstName: String, secondName: String, attendeeLocation: GeoLocation?): Attendee {
-//        var status = Status.OK
-//        if (viewModel.isUsingGeodata) {
-//            if (attendeeLocation == null) {
-//                status = Status.NO_DATA
-//            } else {
-//                val results = FloatArray(3)
-//                Location.distanceBetween(
-//                    attendeeLocation.latitude,
-//                    attendeeLocation.longitude,
-//                    viewModel.ownLocation?.latitude ?: 0.0,
-//                    viewModel.ownLocation?.longitude ?: 0.0,
-//                    results
-//                )
-//                Log.d(T, "$firstName distance = ${results[0]}")
-//                if (results[0] > allowedDistance) {
-//                    status = Status.OUT_OF_RANGE
-//                }
-//            }
-//        }
-//        return Attendee(firstName, secondName, status)
-//    }
 
     /**
      * Utility function to run try catch on a network request
@@ -482,7 +460,7 @@ class CameraFragment : Fragment() {
      */
     private fun tryCatchNetworkError(block: () -> Unit) {
         try {
-            Log.d(T, "tryCatchNetworkError")
+            Log.d(TAG, "tryCatchNetworkError")
             block()
             Handler(Looper.getMainLooper()).post {
                 viewModel.intnetErrorMessageVisibility.value = View.GONE
@@ -538,7 +516,7 @@ class CameraFragment : Fragment() {
                 ).show()
                 //TODO: don't finish but show activity with error message, or previous activity
                 parentFragmentManager.commit {
-                    Log.d(T, "REMOVING FRAGMENT!")
+                    Log.d(TAG, "REMOVING FRAGMENT!")
                     remove(this@CameraFragment)
                 }
             }

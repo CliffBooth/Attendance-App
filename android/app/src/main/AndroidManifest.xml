@@ -52,16 +52,15 @@
             android:name=".ChangeIPActivity"
             android:exported="false" />
         <activity
-            android:name=".professor.StartSessionActivity"
-            android:exported="false" />
-        <activity
-            android:name=".professor.ProfessorActivity"
+            android:name=".professor.SessionActivity"
             android:exported="false" />
         <activity
             android:name=".StudentLogInActivity"
             android:exported="false" />
         <activity
             android:name=".ProfessorLogInActivity"
+            android:exported="false" />
+        <activity android:name=".professor.ProfessorHomeActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

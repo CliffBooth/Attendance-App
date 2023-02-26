@@ -14,7 +14,7 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import com.vysotsky.attendance.MenuActivity
 import com.vysotsky.attendance.R
-import com.vysotsky.attendance.T
+import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.databinding.ActivityProfessorBinding
 import com.vysotsky.attendance.professor.attendeeList.AttendeesListFragment
 import com.vysotsky.attendance.professor.camera.CameraFragment
@@ -24,12 +24,12 @@ import com.vysotsky.attendance.professor.proximity.ProfessorProximityFragment
  * Activity, responsible for switching between professor's fragments
  */
 
-class ProfessorActivity : MenuActivity() {
+class SessionActivity : MenuActivity() {
     private lateinit var binding: ActivityProfessorBinding
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
-    private val viewModel: ProfessorViewModel by viewModels()
+    private val viewModel: SessionViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,20 +37,20 @@ class ProfessorActivity : MenuActivity() {
         sharedPreferences =
             getSharedPreferences(getString(R.string.preference_file_key), MODE_PRIVATE)
         val email = sharedPreferences.getString(getString(R.string.saved_email), "ERROR!");
-        Log.d(T, "Camera activity: email: $email")
+        Log.d(TAG, "Camera activity: email: $email")
         binding = ActivityProfessorBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         viewModel.isUsingGeodata = intent.extras?.getBoolean(getString(R.string.geolocation_bundle_key)) ?: false
-        Log.d(T, "Camera activity: using geodata = ${viewModel.isUsingGeodata}")
+        Log.d(TAG, "Camera activity: using geodata = ${viewModel.isUsingGeodata}")
 
-        //check what will happen if not do that
+        //without it will add fragment with every screen rotation
         if (savedInstanceState == null) {
             supportFragmentManager.commit {
                 setReorderingAllowed(true)
                 add<ProfessorProximityFragment>(R.id.fragment_container_view)
                 //addToBackStack("starSessionFragment")
-                Log.d(T, "Camera activity after add()")
+                Log.d(TAG, "Camera activity after add()")
             }
         }
 
@@ -106,7 +106,7 @@ class ProfessorActivity : MenuActivity() {
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        Log.d(T, "ProfessorActivity: item selected: $item")
+        Log.d(TAG, "ProfessorActivity: item selected: $item")
         return if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
             true
         } else {

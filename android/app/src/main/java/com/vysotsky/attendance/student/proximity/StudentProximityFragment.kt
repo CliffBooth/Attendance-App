@@ -23,7 +23,7 @@ import com.google.android.gms.nearby.connection.PayloadCallback
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate
 import com.google.android.gms.nearby.connection.Strategy
 import com.vysotsky.attendance.SERVICE_ID
-import com.vysotsky.attendance.T
+import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.databinding.FragmentStudentWifiBinding
 import com.vysotsky.attendance.getName
 import com.vysotsky.attendance.student.StudentViewModel
@@ -107,17 +107,17 @@ class StudentProximityFragment : Fragment() {
             .build()
         connectionsClient.startDiscovery(SERVICE_ID, discoveryCallback, discoveryOptions)
             .addOnSuccessListener {
-                Log.d(T, "StudentWifiFragment discovery success")
+                Log.d(TAG, "StudentWifiFragment discovery success")
             }
             .addOnFailureListener { e ->
-                Log.d(T, "StudentWifiFragment discovery failure ", e)
+                Log.d(TAG, "StudentWifiFragment discovery failure ", e)
             }
 
     }
 
     private val discoveryCallback = object : EndpointDiscoveryCallback() {
         override fun onEndpointFound(endpointId: String, info: DiscoveredEndpointInfo) {
-            Log.d(T, "StudentWifiFragment: onEndpointFound: id = $endpointId, info.name = ${info.endpointName}")
+            Log.d(TAG, "StudentWifiFragment: onEndpointFound: id = $endpointId, info.name = ${info.endpointName}")
             if (SERVICE_ID == info.serviceId) {
                 //display in the list
                 val str = "${info.serviceId}"
@@ -130,15 +130,15 @@ class StudentProximityFragment : Fragment() {
         }
 
         override fun onEndpointLost(endpointId: String) {
-            Log.d(T, "StudentWifiFragment: onEndpointLost: id = $endpointId")
+            Log.d(TAG, "StudentWifiFragment: onEndpointLost: id = $endpointId")
         }
     }
 
     private fun connectToEndpoint(endpoint: Endpoint) {
-        Log.d(T, "sending a connection request to endpoint = $endpoint")
+        Log.d(TAG, "sending a connection request to endpoint = $endpoint")
         connectionsClient.requestConnection(userName, endpoint.id, connectionLifeCycleCallback)
             .addOnFailureListener { e: Exception ->
-                Log.d(T, "requestConnection() failed: ", e)
+                Log.d(TAG, "requestConnection() failed: ", e)
             }
     }
 
@@ -146,7 +146,7 @@ class StudentProximityFragment : Fragment() {
         connectionsClient.acceptConnection(endpoint.id, object : PayloadCallback() {
             override fun onPayloadReceived(id: String, payload: Payload) {
                 val data = payload.asBytes()?.let {String(it)} ?: ""
-                Log.d(T, "StudentWifiFragment: onPayloadReceived() payload = " +
+                Log.d(TAG, "StudentWifiFragment: onPayloadReceived() payload = " +
                         "${data}")
                 handleReceive(endpoint, data)
             }
@@ -161,7 +161,7 @@ class StudentProximityFragment : Fragment() {
                         4 -> "status = ${update.status} (cancelled)"
                         else -> ""
                     }
-                    Log.d(T, "PorfessorWifiFragment: onPayloadUpdate() id = $endpointId $strStatus")
+                    Log.d(TAG, "PorfessorWifiFragment: onPayloadUpdate() id = $endpointId $strStatus")
                 }
             }
         })
@@ -169,23 +169,23 @@ class StudentProximityFragment : Fragment() {
 
     private fun send(endpoint: Endpoint, data: String) {
         connectionsClient.sendPayload(endpoint.id, Payload.fromBytes(data.toByteArray()))
-            .addOnFailureListener { Log.d(T, "error sending data: ", it) }
+            .addOnFailureListener { Log.d(TAG, "error sending data: ", it) }
     }
 
     private val connectionLifeCycleCallback = object : ConnectionLifecycleCallback() {
         override fun onConnectionInitiated(endpointId: String, connectionInfo: ConnectionInfo) {
             val endpoint = Endpoint(endpointId, connectionInfo.endpointName)
-            Log.d(T, "ProfessorWifiFragment: onConnectionInitiated(): $endpoint (saving to pending...)")
+            Log.d(TAG, "ProfessorWifiFragment: onConnectionInitiated(): $endpoint (saving to pending...)")
             pendingConnections[endpointId] = endpoint
             //nConnectionInitiated(endpoint, connectionInfo) //update ui or something
-            Log.d(T, "sending data endpoint.id = ${endpoint.id}")
+            Log.d(TAG, "sending data endpoint.id = ${endpoint.id}")
             onConnectionInitiated(endpoint)
         }
 
         override fun onConnectionResult(endpointId: String, result: ConnectionResolution) {
-            Log.d(T, "StudentWifiFragment onConnectionResult() id = $endpointId")
+            Log.d(TAG, "StudentWifiFragment onConnectionResult() id = $endpointId")
             if (!result.status.isSuccess) {
-                Log.d(T, "Connection failed. Status = ${result.status}")
+                Log.d(TAG, "Connection failed. Status = ${result.status}")
                 //onConnectionFailed() //start discovering again
                 return
             }
@@ -194,13 +194,13 @@ class StudentProximityFragment : Fragment() {
         }
 
         private fun connectedToEndpoint(endpoint: Endpoint) {
-            Log.d(T, "connectedToEndpoint $endpoint, (saving in established...)")
+            Log.d(TAG, "connectedToEndpoint $endpoint, (saving in established...)")
             establishedConnections[endpoint.id] = endpoint
             send(endpoint, stringToSend)
         }
 
         override fun onDisconnected(endpointId: String) {
-            Log.d(T, "StudentWifiFragment onDisconnected()")
+            Log.d(TAG, "StudentWifiFragment onDisconnected()")
         }
     }
 

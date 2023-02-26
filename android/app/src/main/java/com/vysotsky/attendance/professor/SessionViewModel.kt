@@ -7,7 +7,7 @@ import com.vysotsky.attendance.professor.attendeeList.AdapterList
 import com.vysotsky.attendance.professor.attendeeList.Attendee
 import com.vysotsky.attendance.professor.attendeeList.GeoLocation
 
-class ProfessorViewModel: ViewModel() {
+class SessionViewModel: ViewModel() {
     var intnetErrorMessageVisibility = MutableLiveData(View.GONE)
     var sessionStarted = false
     var isUsingGeodata = false

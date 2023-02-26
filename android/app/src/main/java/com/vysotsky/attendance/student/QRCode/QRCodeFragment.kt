@@ -23,7 +23,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewModelScope
 import com.vysotsky.attendance.API_URL
 import com.vysotsky.attendance.R
-import com.vysotsky.attendance.T
+import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.databinding.FragmentQrcodeBinding
 import com.vysotsky.attendance.httpClient
 import com.vysotsky.attendance.polling
@@ -107,10 +107,10 @@ class QRCodeFragment : Fragment() {
                 fragmentViewModel.isRunningPolling = true
                 runPolling()
             }
-            Log.d(T, "QRCodeFragment calling runPolling()")
+            Log.d(TAG, "QRCodeFragment calling runPolling()")
         } else {
             binding.checkButton.setOnClickListener {
-                Log.d(T, "QRCodeFragment: api call")
+                Log.d(TAG, "QRCodeFragment: api call")
                 sendStudent()
             }
         }
@@ -122,7 +122,7 @@ class QRCodeFragment : Fragment() {
             if (!buttonView.isPressed)
                 return@setOnCheckedChangeListener
             fragmentViewModel.isCheckBoxEnabled.value = false //this should be on top
-            Log.d(T, "QRCodeFragment: clickable disabled: ${binding.locationCheckbox.isEnabled}")
+            Log.d(TAG, "QRCodeFragment: clickable disabled: ${binding.locationCheckbox.isEnabled}")
             if (!isChecked) {
                 fragmentViewModel.updateLocation(requireContext(), false);
             } else {
@@ -130,7 +130,7 @@ class QRCodeFragment : Fragment() {
                 if (permitted)
                     fragmentViewModel.updateLocation(requireContext(), true)
                 else {
-                    Log.d(T, "QRCodeFragment: No locatoin permission")
+                    Log.d(TAG, "QRCodeFragment: No locatoin permission")
                     Toast.makeText(
                         requireContext(),
                         getString(R.string.location_permissions_error),
@@ -146,13 +146,13 @@ class QRCodeFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        Log.d(T, "QRCodeFragment: onStart()")
+        Log.d(TAG, "QRCodeFragment: onStart()")
         fragmentViewModel.isPollingActive = true
     }
 
     override fun onStop() {
         super.onStop()
-        Log.d(T, "QRCodeFragment: onStop()")
+        Log.d(TAG, "QRCodeFragment: onStop()")
         fragmentViewModel.isPollingActive = false
     }
 
@@ -173,26 +173,26 @@ class QRCodeFragment : Fragment() {
                         delay(1000)
                         continue
                     }
-                    Log.d(T, "making polling request... ${++i}")
+                    Log.d(TAG, "making polling request... ${++i}")
                     httpClient.newCall(request).execute().use { res ->
                         when (res.code) {
                             200 -> {
                                 //token = adapter.fromJson(res.body!!.source())!!.token
-                                Log.i(T, "QRCodeActivity: inside 200")
+                                Log.i(TAG, "QRCodeActivity: inside 200")
                                 val reader =
                                     JsonReader(InputStreamReader(res.body!!.byteStream()))
                                 //reader.isLenient = true
-                                Log.i(T, "1")
+                                Log.i(TAG, "1")
                                 try {
                                     reader.beginObject()
                                     reader.nextName()
                                     val token = reader.nextString()
-                                    Log.d(T, "read token: $token")
+                                    Log.d(TAG, "read token: $token")
                                     Handler(Looper.getMainLooper()).post {
                                         fragmentViewModel.token.value = token
                                     }
                                 } catch (e: Exception) {
-                                    Log.e(T, "exception: $e")
+                                    Log.e(TAG, "exception: $e")
                                 }
                                 gotResult = true
                             }
@@ -224,7 +224,7 @@ class QRCodeFragment : Fragment() {
     private fun sendStudent() {
         fragmentViewModel.spinnerVisibility.value = true
         fragmentViewModel.viewModelScope.launch(Dispatchers.IO) {
-            Log.i(T, "QRCodeFragment: enter coroutine")
+            Log.i(TAG, "QRCodeFragment: enter coroutine")
             try {
                 httpClient.newCall(request).execute().use { res ->
                     Handler(Looper.getMainLooper()).post {
@@ -233,20 +233,20 @@ class QRCodeFragment : Fragment() {
                     when (res.code) {
                         200 -> {
                             //token = adapter.fromJson(res.body!!.source())!!.token
-                            Log.i(T, "QRCodeActivity: inside 200")
+                            Log.i(TAG, "QRCodeActivity: inside 200")
                             val reader = JsonReader(InputStreamReader(res.body!!.byteStream()))
                             //reader.isLenient = true
-                            Log.i(T, "1")
+                            Log.i(TAG, "1")
                             try {
                                 reader.beginObject()
                                 reader.nextName()
                                 val token = reader.nextString()
-                                Log.d(T, "read token: $token")
+                                Log.d(TAG, "read token: $token")
                                 Handler(Looper.getMainLooper()).post {
                                     fragmentViewModel.token.value = token
                                 }
                             } catch (e: Exception) {
-                                Log.e(T, "exception: $e")
+                                Log.e(TAG, "exception: $e")
                             }
                         }
 
@@ -258,7 +258,7 @@ class QRCodeFragment : Fragment() {
                                     Toast.LENGTH_LONG
                                 ).show()
                             }
-                            Log.d(T, "the phone hasn't been scanned, doing nothing")
+                            Log.d(TAG, "the phone hasn't been scanned, doing nothing")
                         }
 
                         406 -> {
@@ -269,14 +269,14 @@ class QRCodeFragment : Fragment() {
                                     Toast.LENGTH_LONG
                                 ).show()
                             }
-                            Log.d(T, "QRCodeActivity: error sending request")
+                            Log.d(TAG, "QRCodeActivity: error sending request")
                         }
 
                         else -> Unit
                     }
                 }
             } catch (e: IOException) {
-                Log.e(T, "QRCodeFragment: sendStudent() error", e)
+                Log.e(TAG, "QRCodeFragment: sendStudent() error", e)
                 Handler(Looper.getMainLooper()).post {
                     fragmentViewModel.spinnerVisibility.value = false
                     Toast.makeText(
@@ -293,7 +293,7 @@ class QRCodeFragment : Fragment() {
         val tokenBitmap = getBitMap(str)
         if (tokenBitmap == null) {
             //TODO: HANDLE ERROR
-            Log.d(T, "QR Code image is null!")
+            Log.d(TAG, "QR Code image is null!")
         } else {
             binding.qrCodeImage.setImageBitmap(tokenBitmap)
             binding.qrCodeText.text = str
@@ -326,19 +326,19 @@ class QRCodeFragment : Fragment() {
         }
 
         fragmentViewModel.locationString.observe(viewLifecycleOwner) { location ->
-            Log.d(T, "inside observer!")
+            Log.d(TAG, "inside observer!")
             stringToQR =
                 "${activityViewModel.firstName}:${activityViewModel.secondName}:${activityViewModel.deviceID}:${location}"
             setImage(stringToQR)
-            Log.d(T, "clickable enabled: ${binding.locationCheckbox.isEnabled}")
+            Log.d(TAG, "clickable enabled: ${binding.locationCheckbox.isEnabled}")
         }
 
         fragmentViewModel.isCheckBoxEnabled.observe(viewLifecycleOwner) {
             if (it == null)
                 return@observe
-            Log.i(T, "inside isCheckBoxEnabled.observe(), ${it}")
+            Log.i(TAG, "inside isCheckBoxEnabled.observe(), ${it}")
             binding.locationCheckbox.isEnabled = it
-            Log.i(T, "locationCheckBox.isEnabled = ${binding.locationCheckbox.isEnabled}")
+            Log.i(TAG, "locationCheckBox.isEnabled = ${binding.locationCheckbox.isEnabled}")
         }
     }
 

@@ -8,15 +8,15 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.vysotsky.attendance.T
+import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.databinding.FragmentAttendeesListBinding
-import com.vysotsky.attendance.professor.ProfessorViewModel
+import com.vysotsky.attendance.professor.SessionViewModel
 import com.vysotsky.attendance.professor.attendeeList.AddAttendeeDialog.Companion.DIALOG_REQUEST_KEY
 import com.vysotsky.attendance.professor.attendeeList.AddAttendeeDialog.Companion.FIRST_NAME_KEY
 import com.vysotsky.attendance.professor.attendeeList.AddAttendeeDialog.Companion.SECOND_NAME_KEY
 
 class AttendeesListFragment : Fragment() {
-    private val viewModel: ProfessorViewModel by activityViewModels()
+    private val viewModel: SessionViewModel by activityViewModels()
     private lateinit var adapter: AttendeeAdapter
 
     override fun onCreateView(
@@ -33,7 +33,7 @@ class AttendeesListFragment : Fragment() {
             DIALOG_REQUEST_KEY,
             viewLifecycleOwner
         ) { _: String, bundle: Bundle ->
-            Log.d(T, "AttendeeListFragment: inside of FragmentResultListener")
+            Log.d(TAG, "AttendeeListFragment: inside of FragmentResultListener")
             val firstName = bundle.getString(FIRST_NAME_KEY)
             val secondName = bundle.getString(SECOND_NAME_KEY)
             if (firstName == null || secondName == null) {

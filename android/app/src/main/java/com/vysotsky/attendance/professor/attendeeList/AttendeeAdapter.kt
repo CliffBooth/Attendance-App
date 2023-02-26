@@ -10,14 +10,14 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import com.vysotsky.attendance.R
-import com.vysotsky.attendance.T
+import com.vysotsky.attendance.TAG
 
 class AttendeeAdapter(context: Context, private val data: MutableList<Attendee>) :
     ArrayAdapter<Attendee>(context, R.layout.list_item, data) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val attendee = data[position]
-        Log.d(T, "AttendeeAdapter: $position) $attendee")
+        Log.d(TAG, "AttendeeAdapter: $position) $attendee")
         val result: View =
             convertView ?: LayoutInflater.from(context).inflate(R.layout.list_item, parent, false)
 

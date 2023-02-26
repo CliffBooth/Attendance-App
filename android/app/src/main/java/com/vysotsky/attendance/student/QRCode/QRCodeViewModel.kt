@@ -1,10 +1,8 @@
 package com.vysotsky.attendance.student.QRCode
 
-import android.app.Activity
 import android.content.Context
 import android.location.LocationRequest
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -13,7 +11,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.CancellationToken
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.OnTokenCanceledListener
-import com.vysotsky.attendance.T
+import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.debug
 import com.vysotsky.attendance.randomLocation
 import java.util.Random
@@ -45,7 +43,7 @@ class QRCodeViewModel : ViewModel() {
      * @param getLocatoin - true if make location request, false if use null instead
      */
     fun updateLocation(context: Context, getLocation: Boolean) {
-        Log.d(T, "inside updateLocation()")
+        Log.d(TAG, "inside updateLocation()")
         if (!getLocation) {
             _locationString.value = "null"
             isCheckBoxEnabled.value = true
@@ -79,20 +77,20 @@ class QRCodeViewModel : ViewModel() {
                 //TODO: bug: if no gps then location == 0. Notify user and cancel this operation
                 if (location == null) {
                     //gps was turned off
-                    Log.d(T, "QRCodeViewModel displaying toast...")
+                    Log.d(TAG, "QRCodeViewModel displaying toast...")
                     Toast.makeText(context, "can't retrieve location data!", Toast.LENGTH_LONG)
                         .show()
                     //_locationString.value = "null"
                 } else {
                     val lon = location.longitude
                     val lat = location.latitude
-                    Log.d(T, "inside callback: longitude = $lon, latitude = $lat")
+                    Log.d(TAG, "inside callback: longitude = $lon, latitude = $lat")
                     _locationString.value = "$lon--$lat"
                 }
                 isCheckBoxEnabled.value = true
             }
         } catch (e: SecurityException) {
-            Log.d(T, e.toString())
+            Log.d(TAG, e.toString())
         }
     }
 }

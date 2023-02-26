@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
 import com.vysotsky.attendance.databinding.ActivityProfessorLoginBinding
-import com.vysotsky.attendance.professor.StartSessionActivity
+import com.vysotsky.attendance.professor.ProfessorHomeActivity
 
 class ProfessorLogInActivity : AppCompatActivity() {
     private lateinit var binding: ActivityProfessorLoginBinding
@@ -31,7 +31,7 @@ class ProfessorLogInActivity : AppCompatActivity() {
                     putString(getString(R.string.saved_email), email)
                     apply()
                 }
-                val intent = Intent(this, StartSessionActivity::class.java)
+                val intent = Intent(this, ProfessorHomeActivity::class.java)
                 startActivity(intent)
                 setResult(Activity.RESULT_OK)
                 finish()
