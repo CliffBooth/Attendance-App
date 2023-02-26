@@ -229,12 +229,12 @@ router.post('/login_student', async (req, res) => {
         res.sendStatus(406);
         return;
     }
-    const professor = await prisma.student.findUnique({
+    const student = await prisma.student.findUnique({
         where: {
             email,
         },
     });
-    if (professor != null) res.sendStatus(200);
+    if (student != null) res.sendStatus(200);
     else res.sendStatus(401);
 });
 //get classes by student email

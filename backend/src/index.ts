@@ -24,15 +24,7 @@ const app = express();
 app.use(express.json());
 app.use(cors())
 app.use('/api', apiRouter);
-// catch 404 and forward to error handler
-app.use(function (req: express.Request, res: express.Response, next) {
-    next({ status: 404 });
-});
 
-app.use(function (err: any, req: express.Request, res: express.Response, next: express.NextFunction) {
-    console.error(err);
-    res.status(err.status || 500).json();
-});
 
 /**
  * chekc if there is a session this phone as currentId
@@ -180,4 +172,15 @@ app.post('/bluetooth', (req, res) => {
             res.status(406).send('wrong data format');
         }
     }
+});
+
+
+// catch 404 and forward to error handler
+app.use(function (req: express.Request, res: express.Response, next) {
+    next({ status: 404 });
+});
+
+app.use(function (err: any, req: express.Request, res: express.Response, next: express.NextFunction) {
+    console.error(err);
+    res.status(err.status || 500).json();
 });
