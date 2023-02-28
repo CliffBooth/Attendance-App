@@ -21,6 +21,11 @@ if (!process.env.PORT) {
 
 const PORT = parseInt(process.env.PORT);
 const app = express();
+//logging middleware
+app.use((req, res, next) => {
+    console.log(req.url)
+    next()
+})
 app.use(express.json());
 app.use(cors())
 app.use('/api', apiRouter);
@@ -55,7 +60,6 @@ app.get('/test', (req, res) => {
  */
 //TODO: handle if session for that email already exists.
 app.post('/start', (req, res) => {
-    console.clear();
     if (!req.body.email) {
         res.status(406);
         return;

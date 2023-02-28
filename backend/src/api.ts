@@ -42,7 +42,12 @@ router
         else res.json(result.classes);
     })
     //save a new class object with professor's email
+    /**
+     * empty string date => defualt date.
+     * student.email == null => create new student
+     */
     .post(async (req: Request<{ email: string }, {}, RequestClass>, res) => {
+        console.log('POST_SESSION')
         const prof_email = req.params.email;
         //check if professor with such email exists:
         const prof = await prisma.professor.findUnique({
@@ -52,13 +57,16 @@ router
         });
 
         if (prof === null) {
+            console.log('prof === null')
             res.sendStatus(404);
             return;
         }
 
         const data = req.body;
 
-        if (data.students === undefined || data.subjectName === undefined) {
+        console.log(`POST /professor_classes/${prof_email}`, data)
+
+        if (data.students === undefined || data.subject_name === undefined) {
             res.sendStatus(406);
             return;
         }
@@ -68,18 +76,20 @@ router
         const students: Student[] = [];
 
         for (let s of data.students) {
-            if (s.email != undefined) {
+            if (s.email != undefined && s.email != null) {
+                console.log('s.email != undefined && s.email != null')
                 const student = await prisma.student.findUnique({
                     where: {
                         email: s.email,
                     },
                 });
                 if (student != null) students.push(student);
-            } else if (s.firstName != undefined && s.secondName != undefined) {
+            } else if (s.first_name != undefined && s.second_name != undefined) {
+                console.log('s.first_name != undefined && s.second_name != undefined')
                 const student = await prisma.student.create({
                     data: {
-                        first_name: s.firstName,
-                        second_name: s.secondName,
+                        first_name: s.first_name,
+                        second_name: s.second_name,
                     },
                 });
                 students.push(student);
@@ -90,7 +100,7 @@ router
 
         const result = await prisma.class.create({
             data: {
-                subject_name: data.subjectName,
+                subject_name: data.subject_name,
                 professor: {
                     connect: {
                         email: prof_email,
@@ -109,14 +119,14 @@ router
     });
 
 interface RequestClass {
-    subjectName: string;
+    subject_name: string;
     students: RequestStudent[];
 }
 
 type RequestStudent = {
     email?: string;
-    firstName?: string;
-    secondName?: string;
+    first_name?: string;
+    second_name?: string;
 };
 
 //create professor (takes email)
@@ -234,7 +244,7 @@ router.post('/login_student', async (req, res) => {
             email,
         },
     });
-    if (student != null) res.sendStatus(200);
+    if (student != null) res.json(student);
     else res.sendStatus(401);
 });
 //get classes by student email
