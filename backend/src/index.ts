@@ -49,7 +49,6 @@ function getSession(data: string): Session | null {
 }
 
 app.get('/test', (req, res) => {
-    console.log('test');
     res.send(JSON.stringify(sessions));
 });
 
@@ -78,7 +77,6 @@ app.post('/start', (req, res) => {
  * 406 - wrong qrCode format or wrong request body
  */
 app.post('/scan', (req, res) => {
-    console.log('/scan');
     if (!req.body.email || !req.body.data) {
         res.sendStatus(406);
         return;
@@ -107,7 +105,6 @@ app.post('/scan', (req, res) => {
  * 406 - wrong qrCode format or wrong request body
  */
 app.post('/student', (req, res) => {
-    console.log('/student');
     if (!req.body.data) {
         res.sendStatus(406);
         return;
@@ -129,7 +126,6 @@ app.post('/student', (req, res) => {
  * 406 - request message error
  */
 app.post('/verify', (req, res) => {
-    console.log('/verify');
     if (!req.body.email || !req.body.data) {
         res.sendStatus(406);
         return;
@@ -155,7 +151,6 @@ app.listen(PORT, () => console.log(`started on port ${PORT}`));
  */
 //it doesn't change current Id in session to allow bluetooth and qrcode work in parallel
 app.post('/bluetooth', (req, res) => {
-    console.log('/bluetooth');
     if (!req.body.email || !req.body.data) {
         res.status(406).send('wrong data format');
         return;

@@ -8,7 +8,7 @@ interface Props {
 
 const SubjectComponent: React.FC<Props> = ({
     subject_name,
-    classes
+    classes //list of classes with subject_name
 }) => {
 
     const navigate = useNavigate()
