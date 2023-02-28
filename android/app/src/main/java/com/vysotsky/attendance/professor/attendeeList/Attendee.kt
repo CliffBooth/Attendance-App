@@ -5,7 +5,7 @@ package com.vysotsky.attendance.professor.attendeeList
 data class Attendee(
     val firstName: String,
     val secondName: String,
-    val id: String?,
+    val id: String?, //android_id
     /*val geoLocation: GeoLocation?,*/
     var status: Status = Status.OK
 ) {

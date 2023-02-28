@@ -16,6 +16,7 @@ class ProfessorHomeViewModel : ViewModel() {
     val sessions = MutableLiveData<Resource<List<Session>>>()
 
     val tvNoItemsVisibility = MutableLiveData(false)
+    val btnRetryRequestVisibility = MutableLiveData(false)
 
     //to avoid making request with every screen rotation
     private var searchedOnStartUp = false
@@ -27,7 +28,6 @@ class ProfessorHomeViewModel : ViewModel() {
         Log.d(TAG, "ProfessorHomeViewModel: getSessions() email = $email")
         sessions.postValue(Resource.Loading())
 
-        //do we need to specify Dispatchers.IO here?
         viewModelScope.launch {
             try {
                 val response = RetrofitInstance.api.getProfessorSessions(email)

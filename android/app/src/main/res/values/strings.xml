@@ -57,4 +57,8 @@
     <string name="bluetooth_name">ATTENDANCE APP</string>
     <string name="internet_error">Internet error</string>
     <string name="subject_name">subject name</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="sign_up">sign up</string>
 </resources>

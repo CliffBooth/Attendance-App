@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/tv_subject_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Computer science"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ScrollView
+        android:layout_marginTop="10dp"
+        android:id="@+id/scrollView2"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_subject_name"
+        app:layout_constraintVertical_bias="0.5">
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TableLayout
+                android:id="@+id/tl"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <!--                <TableRow>-->
+                <!--                    <TextView-->
+                <!--                        android:text="Students"-->
+                <!--                        android:textSize="25sp"-->
+                <!--                        android:padding="5dp"-->
+                <!--                        android:background="@drawable/table_cell_border"-->
+                <!--                        />-->
+                <!--                    <TextView-->
+                <!--                        android:text="first"-->
+                <!--                        android:textSize="25sp"-->
+                <!--                        android:padding="5dp"-->
+                <!--                        android:layout_height="match_parent"-->
+                <!--                        android:background="@drawable/table_cell_border"-->
+                <!--                        />-->
+                <!--                    <TextView-->
+                <!--                        android:text="first"-->
+                <!--                        android:textSize="25sp"-->
+                <!--                        android:padding="5dp"-->
+                <!--                        android:layout_height="match_parent"-->
+                <!--                        android:background="@drawable/table_cell_border"-->
+                <!--                        />-->
+                <!--                    <TextView-->
+                <!--                        android:text="first"-->
+                <!--                        android:textSize="25sp"-->
+                <!--                        android:padding="5dp"-->
+                <!--                        android:layout_height="match_parent"-->
+                <!--                        android:background="@drawable/table_cell_border"-->
+                <!--                        />-->
+                <!--                </TableRow>-->
+                <!--                <TableRow>-->
+                <!--                    <TextView-->
+                <!--                        android:text="first hello"-->
+                <!--                        android:maxWidth="100dp"-->
+                <!--                        android:textSize="25sp"-->
+                <!--                        android:padding="5dp"-->
+                <!--                        android:layout_width="match_parent"-->
+                <!--                        android:layout_height="wrap_content"-->
+                <!--                        android:background="@drawable/table_cell_border"-->
+                <!--                    />-->
+                <!--                    <View-->
+                <!--                        android:layout_width="match_parent"-->
+                <!--                        android:layout_height="match_parent"-->
+                <!--                        android:background="@drawable/table_cell_border" />-->
+                <!--                    <View-->
+                <!--                        android:layout_width="match_parent"-->
+                <!--                        android:layout_height="match_parent"-->
+                <!--                        android:background="@drawable/table_cell_border" />-->
+                <!--                    <View-->
+                <!--                        android:layout_width="match_parent"-->
+                <!--                        android:layout_height="match_parent"-->
+                <!--                        android:background="@drawable/table_cell_border" />-->
+                <!--                </TableRow>-->
+            </TableLayout>
+
+        </HorizontalScrollView>
+    </ScrollView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

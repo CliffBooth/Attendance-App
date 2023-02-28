@@ -41,7 +41,9 @@ class SessionActivity : MenuActivity() {
         binding = ActivityProfessorBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel.isUsingGeodata = intent.extras?.getBoolean(getString(R.string.geolocation_bundle_key)) ?: false
+        viewModel.isUsingGeodata = intent.extras?.getBoolean(GEOLOCATION_KEY) ?: false
+        viewModel.subjectName = intent.extras?.getString(SUBJECT_NAME_KEY) ?: "error"
+
         Log.d(TAG, "Camera activity: using geodata = ${viewModel.isUsingGeodata}")
 
         //without it will add fragment with every screen rotation
@@ -112,5 +114,10 @@ class SessionActivity : MenuActivity() {
         } else {
             return super.onOptionsItemSelected(item)
         }
+    }
+
+    companion object {
+        const val GEOLOCATION_KEY = "geolocation_key"
+        const val SUBJECT_NAME_KEY = "SessionActivity.subject_name"
     }
 }

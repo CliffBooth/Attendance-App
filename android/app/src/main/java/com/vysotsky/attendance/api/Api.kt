@@ -2,13 +2,13 @@ package com.vysotsky.attendance.api
 
 import com.vysotsky.attendance.models.ProfessorData
 import com.vysotsky.attendance.models.Session
+import com.vysotsky.attendance.models.Student
 import com.vysotsky.attendance.models.StudentData
 import com.vysotsky.attendance.models.StudentLoginData
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
-import retrofit2.http.PUT
 import retrofit2.http.Path
 
 
@@ -17,7 +17,7 @@ interface Api {
     @GET("api/professor_classes/{email}")
     suspend fun getProfessorSessions(@Path("email") email: String): Response<List<Session>>
 
-    @PUT("api/professor_classes/{email}")
+    @POST("api/professor_classes/{email}")
     suspend fun addSession(@Path("email") email: String, @Body session: Session): Response<Session>
 
     @POST("api/login_professor")
@@ -31,7 +31,7 @@ interface Api {
     suspend fun getStudentSessions(@Path("email") email: String): Response<List<Session>>
 
     @POST("api/login_student")
-    suspend fun login(@Body studentData: StudentLoginData): Response<Void>
+    suspend fun login(@Body studentData: StudentLoginData): Response<Student>
 
     @POST("api/signup_student")
     suspend fun signup(@Body studentData: StudentData): Response<Void>

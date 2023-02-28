@@ -28,21 +28,21 @@
         app:layout_constraintVertical_bias="0.5"
         tools:layout_editor_absoluteX="16dp" />
 
-<!--    displayed when there is no items in the list -->
+    <!--    displayed when there is no items in the list -->
     <TextView
         android:id="@+id/tv_no_items"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
         android:text="No items"
+        android:textSize="20sp"
         android:visibility="gone"
-        tools:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintVertical_bias="0.5"
+        tools:visibility="visible" />
 
     <ProgressBar
         android:id="@+id/pb"
@@ -56,5 +56,20 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.5"
         tools:visibility="visible" />
+
+    <Button
+        android:id="@+id/btn_retry_request"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:textSize="20sp"
+        tools:visibility="visible"
+        android:visibility="gone"
+        android:text="try again"
+        app:layout_constraintBottom_toBottomOf="@+id/rv"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -61,8 +61,12 @@ class StartSessionFragment: Fragment() {
         email = sharedPreferences.getString(getString(R.string.saved_email), "error") ?: "error"
 
         binding.startButton.setOnClickListener {
-            binding.startButton.isEnabled = false
-            registerSession()
+            if (binding.subjectName.text?.isNotEmpty() == true) {
+                binding.startButton.isEnabled = false //TODO: move this to viewModek
+                registerSession()
+            } else {
+                Toast.makeText(requireContext(), "Please, fill in the subject name!", Toast.LENGTH_SHORT).show()
+            }
         }
 
         subscribe()
@@ -108,7 +112,8 @@ class StartSessionFragment: Fragment() {
                         val usingGeolocation = binding.locationCheckbox.isChecked
                         val intent = Intent(requireContext(), SessionActivity::class.java).apply {
                             val bundle = Bundle().apply {
-                                putBoolean(getString(R.string.geolocation_bundle_key), usingGeolocation)
+                                putBoolean(SessionActivity.GEOLOCATION_KEY, usingGeolocation)
+                                putString(SessionActivity.SUBJECT_NAME_KEY, binding.subjectName.text.toString())
                             }
                             putExtras(bundle)
                         }
