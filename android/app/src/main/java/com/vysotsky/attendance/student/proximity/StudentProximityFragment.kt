@@ -1,12 +1,16 @@
 package com.vysotsky.attendance.student.proximity
 
+import android.Manifest
+import android.content.Context
 import android.graphics.Color
+import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -26,8 +30,10 @@ import com.vysotsky.attendance.SERVICE_ID
 import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.databinding.FragmentStudentWifiBinding
 import com.vysotsky.attendance.getName
+import com.vysotsky.attendance.models.Student
 import com.vysotsky.attendance.student.StudentViewModel
 import com.vysotsky.attendance.util.Endpoint
+import com.vysotsky.attendance.util.checkPermissions
 
 class StudentProximityFragment : Fragment() {
     private var _binding: FragmentStudentWifiBinding? = null
@@ -48,6 +54,19 @@ class StudentProximityFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val permissions = arrayOf(
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+        )
+        val permissionsGranted = checkPermissions(requireActivity(), this, permissions)
+        Log.d(TAG, "StudentProximityFragment onCreate()  permissionsGranted = $permissionsGranted")
+        if (!permissionsGranted) {
+            Toast.makeText(
+                requireContext(),
+                "Can't use wifi because no location permission!",
+                Toast.LENGTH_LONG
+            ).show()
+        }
         stringToSend = "${activityViewModel.firstName}:${activityViewModel.secondName}:${activityViewModel.deviceID}"
     }
 
@@ -110,8 +129,23 @@ class StudentProximityFragment : Fragment() {
                 Log.d(TAG, "StudentWifiFragment discovery success")
             }
             .addOnFailureListener { e ->
+                if (!checkIfGpsEnabled() && context != null)
+                    Toast.makeText(context, "Please, enable gps!", Toast.LENGTH_LONG).show()
                 Log.d(TAG, "StudentWifiFragment discovery failure ", e)
             }
+
+    }
+
+    private fun checkIfGpsEnabled(): Boolean {
+        if (context == null)
+            return false
+        val lm = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+        return try {
+            lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        } catch (_: Exception) {
+            false
+        }
 
     }
 
