@@ -77,6 +77,60 @@ async function populate() {
         },
         update: {},
     });
+
+    const class3 = await prisma.class.upsert({
+        where: {
+            id: 1,
+        },
+        create: {
+            subject_name: 'math',
+            professor: {
+                connect: {
+                    id: professor.id
+                }
+            },
+            students: {
+                connect: [{ id: student1.id }, { id: student2.id }, {id: student3.id}],
+            },
+        },
+        update: {},
+    });
+
+    const class4 = await prisma.class.upsert({
+        where: {
+            id: 1,
+        },
+        create: {
+            subject_name: 'math',
+            professor: {
+                connect: {
+                    id: professor.id
+                }
+            },
+            students: {
+                connect: [{id: student3.id}],
+            },
+        },
+        update: {},
+    });
+
+    const class5 = await prisma.class.upsert({
+        where: {
+            id: 1,
+        },
+        create: {
+            subject_name: 'math',
+            professor: {
+                connect: {
+                    id: professor.id
+                }
+            },
+            students: {
+                connect: [{ id: student2.id }, {id: student3.id}],
+            },
+        },
+        update: {},
+    });
     
     //professor, who don't have any classes
     //what will getClasses endpoint return to professor who don't have any classes? null?
