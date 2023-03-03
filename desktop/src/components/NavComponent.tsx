@@ -27,7 +27,7 @@ function NavComponent() {
             <div className="flex items-center justify-between">
                 {/* logo */}
                 <div className="font-bold text-2xl text-center p-2">
-                    Hello world
+                    
                 </div>
                 {user1.email && (
                     <>

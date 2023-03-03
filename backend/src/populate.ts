@@ -15,34 +15,34 @@ async function populate() {
     console.log(professor);
     const student1 = await prisma.student.upsert({
         where: {
-            email: 'student1',
+            email: '1',
         },
         create: {
-            email: 'student1',
-            first_name: 'valery',
-            second_name: 'vysotsky',
+            email: '1',
+            first_name: 'student',
+            second_name: 'first',
         },
         update: {},
     });
     const student2 = await prisma.student.upsert({
         where: {
-            email: 'student2',
+            email: '2',
         },
         create: {
-            email: 'student2',
-            first_name: 'grigory',
-            second_name: 'vysotsky',
+            email: '2',
+            first_name: 'stduent',
+            second_name: 'second',
         },
         update: {},
     });
     const student3 = await prisma.student.upsert({
         where: {
-            email: 'student3',
+            email: '3',
         },
         create: {
-            email: 'student3',
-            first_name: 'sofia',
-            second_name: 'vysotskaya',
+            email: '3',
+            first_name: 'student',
+            second_name: 'third',
         },
         update: {},
     });

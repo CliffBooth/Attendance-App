@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import com.vysotsky.attendance.api.RetrofitInstance
 import com.vysotsky.attendance.databinding.ActivityChangeIpactivityBinding
 
 class ChangeIPActivity : AppCompatActivity() {
@@ -32,6 +33,8 @@ class ChangeIPActivity : AppCompatActivity() {
                 }
                 Toast.makeText(this, "api set", Toast.LENGTH_SHORT).show()
             }
+            RetrofitInstance.changeURL(API_URL)
+            Log.d(TAG, "button clickListener, retrofit url changed")
             finish()
         }
 

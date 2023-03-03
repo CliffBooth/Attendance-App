@@ -5,9 +5,16 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitInstance {
-    val api: Api by lazy {
+    var api: Api =
         Retrofit.Builder()
             .baseUrl(API_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(Api::class.java)
+
+    fun changeURL(newURL: String) {
+        api = Retrofit.Builder()
+            .baseUrl(newURL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(Api::class.java)

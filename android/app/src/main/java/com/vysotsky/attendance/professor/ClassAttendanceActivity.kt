@@ -63,7 +63,12 @@ class ClassAttendanceActivity : AppCompatActivity() {
             tr.addView(tv)
             for (date in dates) {
                 //check if student was present on that date and change background color of a view accordingly
-                val wasPresent = sessions.filter { s -> s.date == date }[0].students.contains(student)
+                val allClassesThisDate = sessions.filter { s -> s.date == date }
+                Log.d(TAG, "allClasses = ${allClassesThisDate}")
+                val classThisDate = allClassesThisDate[0]
+                Log.d(TAG, "class = ${classThisDate}")
+                val wasPresent = classThisDate.students.contains(student)
+                Log.d(TAG, "$date) $student wasPresent = $wasPresent")
                 val view = View(this)
                 view.layoutParams = TableRow.LayoutParams(cellSize, LayoutParams.MATCH_PARENT)
                 if (wasPresent) {
@@ -80,7 +85,10 @@ class ClassAttendanceActivity : AppCompatActivity() {
     private fun listOfDistinct(l: List<Student>): List<Student> {
         val res = mutableListOf<Student>()
         for (st in l) {
-            if (res.find {s -> st.first_name == s.first_name && st.second_name == s.second_name} == null) {
+//            if (res.find {s -> st.first_name == s.first_name && st.second_name == s.second_name} == null) {
+//                res += st
+//            }
+            if (res.find { s -> st.email == s.email } == null) {
                 res += st
             }
         }

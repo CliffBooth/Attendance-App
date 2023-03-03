@@ -19,6 +19,7 @@ import androidx.fragment.app.activityViewModels
 import com.vysotsky.attendance.databinding.ActivityMainBinding
 import com.vysotsky.attendance.professor.ProfessorHomeActivity
 import com.vysotsky.attendance.student.StudentActivity
+import kotlin.math.log
 
 
 class MainActivity : AppCompatActivity() {
@@ -95,6 +96,7 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.debug.observe(this) {
             debug = it
+            Log.d(TAG, "MainActivity observe: debug: $it")
             if (it) {
                 binding.serverAddressText.text = API_URL
                 binding.serverAddressText.visibility = View.VISIBLE
@@ -140,7 +142,10 @@ class MainActivity : AppCompatActivity() {
                 ) { _: DialogInterface, which: Int, isChecked: Boolean ->
                     Log.d(TAG, "which: $which")
                     when (which) {
-                        0 -> viewModel.debug.value = isChecked
+                        0 -> {
+                            viewModel.debug.value = isChecked
+                            Log.d(TAG, "onCreateDialog: debug=${viewModel.debug.value}")
+                        }
                         1 -> polling = isChecked
                     }
                     Log.d(TAG, "debug = ${debug}, polling = ${polling}")
