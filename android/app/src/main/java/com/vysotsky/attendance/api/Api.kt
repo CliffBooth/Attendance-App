@@ -3,6 +3,7 @@ package com.vysotsky.attendance.api
 import com.vysotsky.attendance.models.ProfessorData
 import com.vysotsky.attendance.models.Session
 import com.vysotsky.attendance.models.Student
+import com.vysotsky.attendance.models.StudentClass
 import com.vysotsky.attendance.models.StudentData
 import com.vysotsky.attendance.models.StudentLoginData
 import retrofit2.Response
@@ -28,7 +29,7 @@ interface Api {
 
     //student
     @GET("api/student_classes/{email}")
-    suspend fun getStudentSessions(@Path("email") email: String): Response<List<Session>>
+    suspend fun getStudentSessions(@Path("email") email: String): Response<List<StudentClass>>
 
     @POST("api/login_student")
     suspend fun login(@Body studentData: StudentLoginData): Response<Student>
@@ -36,4 +37,9 @@ interface Api {
     @POST("api/signup_student")
     suspend fun signup(@Body studentData: StudentData): Response<Void>
 
+    @POST("/student-qr-code")
+    suspend fun sendQRCode(@Body body: SendQrCodeBody): Response<Void>
+
 }
+
+data class SendQrCodeBody(val qrCode: String, val data: String)

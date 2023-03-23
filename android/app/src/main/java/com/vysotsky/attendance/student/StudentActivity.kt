@@ -17,6 +17,8 @@ import com.vysotsky.attendance.R
 import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.databinding.ActivityStudentBinding
 import com.vysotsky.attendance.student.QRCode.QRCodeFragment
+import com.vysotsky.attendance.student.camera.StudentCameraFragment
+import com.vysotsky.attendance.student.home.StudentHomeFragment
 import com.vysotsky.attendance.student.proximity.StudentProximityFragment
 
 /**
@@ -46,11 +48,11 @@ class StudentActivity : MenuActivity() {
             TAG,
             "StudentActivity: first name = ${viewModel.firstName} second name = ${viewModel.secondName} id = ${viewModel.deviceID}"
         )
-        //check what will happen if not do that
+        //if not do that it will add fragment with every screen rotation
         if (savedInstanceState == null) {
             supportFragmentManager.commit {
                 setReorderingAllowed(true)
-                add<QRCodeFragment>(R.id.fragment_container_view)
+                replace<StudentHomeFragment>(R.id.fragment_container_view)
                 //addToBackStack("starSessionFragment")
                 Log.d(TAG, "StudentActivity after add()")
             }
@@ -66,6 +68,13 @@ class StudentActivity : MenuActivity() {
         navView.setNavigationItemSelectedListener {
             drawerLayout.close()
             when (it.itemId) {
+                R.id.student_home -> {
+                    supportFragmentManager.commit {
+                        replace<StudentHomeFragment>(R.id.fragment_container_view)
+                    }
+                    true
+                }
+
                 R.id.nav_display_qr_code -> {
                     supportFragmentManager.commit {
                         replace<QRCodeFragment>(R.id.fragment_container_view)
@@ -76,6 +85,13 @@ class StudentActivity : MenuActivity() {
                 R.id.nav_wifi_student -> {
                     supportFragmentManager.commit {
                         replace<StudentProximityFragment>(R.id.fragment_container_view)
+                    }
+                    true
+                }
+
+                R.id.nav_student_camera -> {
+                    supportFragmentManager.commit {
+                        replace<StudentCameraFragment>(R.id.fragment_container_view)
                     }
                     true
                 }

@@ -17,6 +17,7 @@ import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.databinding.FragmentProfessorHomeBinding
 import com.vysotsky.attendance.models.Session
 import com.vysotsky.attendance.util.Resource
+import com.vysotsky.attendance.util.SubjectsAdapter
 import java.io.Serializable
 
 //first, make api request

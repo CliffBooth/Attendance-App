@@ -1,4 +1,4 @@
-package com.vysotsky.attendance.professor
+package com.vysotsky.attendance.util
 
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,7 +10,7 @@ import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.databinding.SubjectItemBinding
 
 /**
- * list of subjects displayed on professor's home screen.
+ * list of subjects displayed on home screen.
  */
 class SubjectsAdapter(val onClick: (subjectName: String) -> Unit) : RecyclerView.Adapter<SubjectsAdapter.SubjectViewHolder>() {
 

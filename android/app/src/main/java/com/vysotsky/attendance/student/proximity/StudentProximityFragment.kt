@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -30,7 +31,6 @@ import com.vysotsky.attendance.SERVICE_ID
 import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.databinding.FragmentStudentWifiBinding
 import com.vysotsky.attendance.getName
-import com.vysotsky.attendance.models.Student
 import com.vysotsky.attendance.student.StudentViewModel
 import com.vysotsky.attendance.util.Endpoint
 import com.vysotsky.attendance.util.checkPermissions
@@ -84,6 +84,7 @@ class StudentProximityFragment : Fragment() {
         adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, devicesList)
         binding.devicesList.adapter = adapter
         binding.scanButton.setOnClickListener {
+
             startDiscovering()
         }
         binding.devicesList.setOnItemClickListener { parent, view, position, id ->
@@ -117,6 +118,7 @@ class StudentProximityFragment : Fragment() {
             }
         }
         connectionsClient.disconnectFromEndpoint(endpoint.id)
+        Log.d(TAG, "StudentProximityFragment handleReceive() called disconnect")
         establishedConnections.remove(endpoint.id)
     }
 
@@ -124,6 +126,7 @@ class StudentProximityFragment : Fragment() {
         val discoveryOptions = DiscoveryOptions.Builder()
             .setStrategy(Strategy.P2P_STAR)
             .build()
+        viewModel.pbVisibility.value = true
         connectionsClient.startDiscovery(SERVICE_ID, discoveryCallback, discoveryOptions)
             .addOnSuccessListener {
                 Log.d(TAG, "StudentWifiFragment discovery success")
@@ -132,6 +135,7 @@ class StudentProximityFragment : Fragment() {
                 if (!checkIfGpsEnabled() && context != null)
                     Toast.makeText(context, "Please, enable gps!", Toast.LENGTH_LONG).show()
                 Log.d(TAG, "StudentWifiFragment discovery failure ", e)
+                viewModel.pbVisibility.value = false
             }
 
     }
@@ -153,6 +157,7 @@ class StudentProximityFragment : Fragment() {
         override fun onEndpointFound(endpointId: String, info: DiscoveredEndpointInfo) {
             Log.d(TAG, "StudentWifiFragment: onEndpointFound: id = $endpointId, info.name = ${info.endpointName}")
             if (SERVICE_ID == info.serviceId) {
+                viewModel.pbVisibility.value = false
                 //display in the list
                 val str = "${info.serviceId}"
                 if (!devicesList.contains(str)) {
@@ -165,14 +170,17 @@ class StudentProximityFragment : Fragment() {
 
         override fun onEndpointLost(endpointId: String) {
             Log.d(TAG, "StudentWifiFragment: onEndpointLost: id = $endpointId")
+            //TODO: delete from list
         }
     }
 
     private fun connectToEndpoint(endpoint: Endpoint) {
+        viewModel.pbVisibility.value = true
         Log.d(TAG, "sending a connection request to endpoint = $endpoint")
         connectionsClient.requestConnection(userName, endpoint.id, connectionLifeCycleCallback)
             .addOnFailureListener { e: Exception ->
-                Log.d(TAG, "requestConnection() failed: ", e)
+            viewModel.pbVisibility.value = false
+            Log.d(TAG, "requestConnection() failed: ", e)
             }
     }
 
@@ -190,12 +198,13 @@ class StudentProximityFragment : Fragment() {
                  * 1 - success, 3 - in_progress, 2 - failure, 4 - cancelled
                  */
                 if (update.status == 2 || update.status == 4) {
+                    viewModel.pbVisibility.value = false
                     val strStatus = when (update.status) {
                         2 -> "status = ${update.status} (failure)"
                         4 -> "status = ${update.status} (cancelled)"
                         else -> ""
                     }
-                    Log.d(TAG, "PorfessorWifiFragment: onPayloadUpdate() id = $endpointId $strStatus")
+                    Log.d(TAG, "StudentProximityFragment: onPayloadUpdate() id = $endpointId $strStatus")
                 }
             }
         })
@@ -209,7 +218,7 @@ class StudentProximityFragment : Fragment() {
     private val connectionLifeCycleCallback = object : ConnectionLifecycleCallback() {
         override fun onConnectionInitiated(endpointId: String, connectionInfo: ConnectionInfo) {
             val endpoint = Endpoint(endpointId, connectionInfo.endpointName)
-            Log.d(TAG, "ProfessorWifiFragment: onConnectionInitiated(): $endpoint (saving to pending...)")
+            Log.d(TAG, "StudentProximityFragment: onConnectionInitiated(): $endpoint (saving to pending...)")
             pendingConnections[endpointId] = endpoint
             //nConnectionInitiated(endpoint, connectionInfo) //update ui or something
             Log.d(TAG, "sending data endpoint.id = ${endpoint.id}")
@@ -234,6 +243,7 @@ class StudentProximityFragment : Fragment() {
         }
 
         override fun onDisconnected(endpointId: String) {
+            viewModel.pbVisibility.value = false
             Log.d(TAG, "StudentWifiFragment onDisconnected()")
         }
     }
@@ -258,6 +268,10 @@ class StudentProximityFragment : Fragment() {
                 }
                 else -> Unit //to get rid of warning
             }
+        }
+
+        viewModel.pbVisibility.observe(viewLifecycleOwner) {
+            binding.pb.isVisible = it
         }
     }
 

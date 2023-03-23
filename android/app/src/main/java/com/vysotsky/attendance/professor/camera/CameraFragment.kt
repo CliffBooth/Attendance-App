@@ -38,6 +38,9 @@ import com.vysotsky.attendance.professor.attendeeList.Attendee
 import com.vysotsky.attendance.professor.attendeeList.GeoLocation
 import com.vysotsky.attendance.professor.SessionViewModel
 import com.vysotsky.attendance.professor.attendeeList.Status
+import com.vysotsky.attendance.util.CameraFragment
+import com.vysotsky.attendance.util.QRCodeImageAnalyzer
+import com.vysotsky.attendance.util.checkPermissions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -49,7 +52,7 @@ import java.io.IOException
 //TODO: move to constants
 const val allowedDistance = 100 //100 meters
 
-class CameraFragment : Fragment() {
+class CameraFragment : CameraFragment() {
     private var _binding: FragmentCameraBinding? = null
     private val binding
         get() = _binding!!
@@ -72,13 +75,25 @@ class CameraFragment : Fragment() {
             TAG,
             "CameraFragment: viewmodel.lastSent = ${viewModel.lastSent} viewmodel.nameSent = ${viewModel.nameSent}"
         )
+
+        val permissions = arrayOf(
+            Manifest.permission.CAMERA,
+        )
+        val permissionsGranted = checkPermissions(requireActivity(), this, permissions)
+        if (!permissionsGranted) {
+            Toast.makeText(
+                requireContext(),
+                "Can't use camera without permission!",
+                Toast.LENGTH_LONG
+            ).show()
+        }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        checkPermission()
+//        checkPermission()
         if (viewModel.isUsingGeodata && viewModel.ownLocation == null) {
             val permitted = checkLocationPermission()
             if (permitted) {
@@ -195,85 +210,89 @@ class CameraFragment : Fragment() {
         }
     }
 
-    private fun checkPermission() {
-        when {
-            ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED -> startCamera()
-
-            shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> {
-                showRationaleDialog(
-                    "Camera Access",
-                    "Allow camera access in order to use camera",
-                    Manifest.permission.CAMERA,
-                    REQUEST_CODE_PERMISSIONS
-                )
-            }
-
-            else -> {
-                Log.d(TAG, "asking for permission")
-                val reqPermission =
-                    registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-                        if (it) {
-                            startCamera()
-                        } else {
-                            Log.d(TAG, "No permission!")
-                            Toast.makeText(
-                                requireContext(),
-                                getString(R.string.camera_permissions_error),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            //TODO: don't finish but show activity with error message, or previous activity
-                            parentFragmentManager.commit {
-                                remove(this@CameraFragment)
-                            }
-                        }
-                    }
-                reqPermission.launch(Manifest.permission.CAMERA)
-            }
-        }
-    }
+//    private fun checkPermission() {
+//        when {
+//            ContextCompat.checkSelfPermission(
+//                requireContext(),
+//                Manifest.permission.CAMERA
+//            ) == PackageManager.PERMISSION_GRANTED -> startCamera()
+//
+//            shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> {
+//                showRationaleDialog(
+//                    "Camera Access",
+//                    "Allow camera access in order to use camera",
+//                    Manifest.permission.CAMERA,
+//                    REQUEST_CODE_PERMISSIONS
+//                )
+//            }
+//
+//            else -> {
+//                Log.d(TAG, "asking for permission")
+//                val reqPermission =
+//                    registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+//                        if (it) {
+//                            startCamera()
+//                        } else {
+//                            Log.d(TAG, "No permission!")
+//                            Toast.makeText(
+//                                requireContext(),
+//                                getString(R.string.camera_permissions_error),
+//                                Toast.LENGTH_SHORT
+//                            ).show()
+//                            //TODO: don't finish but show activity with error message, or previous activity
+//                            parentFragmentManager.commit {
+//                                remove(this@CameraFragment)
+//                            }
+//                        }
+//                    }
+//                reqPermission.launch(Manifest.permission.CAMERA)
+//            }
+//        }
+//    }
 
     companion object {
         private const val REQUEST_CODE_PERMISSIONS = 10 //??
         private val REQUIRED_PERMISSIONS = listOf(Manifest.permission.CAMERA).toTypedArray()
     }
 
-    private fun startCamera() {
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
-        cameraProviderFuture.addListener({
-            val cameraProvider = cameraProviderFuture.get()
-            try {
-                // Unbind use cases before rebinding
-                cameraProvider.unbindAll()
-                // Bind use cases to camera
-                bindCameraPreview(cameraProvider)
-            } catch (e: Exception) {
-                //TODO: notify user about error
-                Log.e(TAG, "Use case binding failed", e)
-            }
-        }, ContextCompat.getMainExecutor(requireContext()))
-    }
+    override fun getListener(): QRCodeImageAnalyzer.QRCodeListener = listener
 
-    private fun bindCameraPreview(cameraProvider: ProcessCameraProvider) {
-        val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-        val preview = Preview.Builder()
-            .build()
-            .also {
-                it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
-            }
+    override fun getSurfaceProvider(): Preview.SurfaceProvider = binding.viewFinder.surfaceProvider
 
-        //may be there is a bug
-        val imageAnalysis = ImageAnalysis.Builder()
-            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-            .build()
-        imageAnalysis.setAnalyzer(
-            ContextCompat.getMainExecutor(requireContext()), //TODO: should this be the main executor?
-            QRCodeImageAnalyzer(listener)
-        )
-        cameraProvider.bindToLifecycle(viewLifecycleOwner, cameraSelector, imageAnalysis, preview)
-    }
+//    private fun startCamera() {
+//        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
+//        cameraProviderFuture.addListener({
+//            val cameraProvider = cameraProviderFuture.get()
+//            try {
+//                // Unbind use cases before rebinding
+//                cameraProvider.unbindAll()
+//                // Bind use cases to camera
+//                bindCameraPreview(cameraProvider)
+//            } catch (e: Exception) {
+//                //TODO: notify user about error
+//                Log.e(TAG, "Use case binding failed", e)
+//            }
+//        }, ContextCompat.getMainExecutor(requireContext()))
+//    }
+//
+//    private fun bindCameraPreview(cameraProvider: ProcessCameraProvider) {
+//        val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+//        val preview = Preview.Builder()
+//            .build()
+//            .also {
+//                it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
+//            }
+//
+//        //may be there is a bug
+//        val imageAnalysis = ImageAnalysis.Builder()
+//            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+//            .build()
+//        imageAnalysis.setAnalyzer(
+//            ContextCompat.getMainExecutor(requireContext()), //TODO: should this be the main executor?
+//            QRCodeImageAnalyzer(listener)
+//        )
+//        cameraProvider.bindToLifecycle(viewLifecycleOwner, cameraSelector, imageAnalysis, preview)
+//    }
 
     private val listener = object : QRCodeImageAnalyzer.QRCodeListener {
         override fun onQRCodeFound(string: String) {
@@ -323,7 +342,7 @@ class CameraFragment : Fragment() {
             }
         }
 
-        override fun onQRCodeNotFound() {}
+        override fun onQRCodeNotFound() = Unit
     }
 
     private fun sendScan(data: String) {
@@ -495,31 +514,31 @@ class CameraFragment : Fragment() {
     }
 
     //TODO: delete this
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_CODE_PERMISSIONS) {
-            if (ContextCompat.checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.CAMERA
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                startCamera()
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.camera_permissions_error),
-                    Toast.LENGTH_SHORT
-                ).show()
-                //TODO: don't finish but show activity with error message, or previous activity
-                parentFragmentManager.commit {
-                    Log.d(TAG, "REMOVING FRAGMENT!")
-                    remove(this@CameraFragment)
-                }
-            }
-        }
-    }
+//    override fun onRequestPermissionsResult(
+//        requestCode: Int,
+//        permissions: Array<out String>,
+//        grantResults: IntArray
+//    ) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+//        if (requestCode == REQUEST_CODE_PERMISSIONS) {
+//            if (ContextCompat.checkSelfPermission(
+//                    requireContext(),
+//                    Manifest.permission.CAMERA
+//                ) == PackageManager.PERMISSION_GRANTED
+//            ) {
+//                startCamera()
+//            } else {
+//                Toast.makeText(
+//                    requireContext(),
+//                    getString(R.string.camera_permissions_error),
+//                    Toast.LENGTH_SHORT
+//                ).show()
+//                //TODO: don't finish but show activity with error message, or previous activity
+//                parentFragmentManager.commit {
+//                    Log.d(TAG, "REMOVING FRAGMENT!")
+//                    remove(this@CameraFragment)
+//                }
+//            }
+//        }
+//    }
 }
