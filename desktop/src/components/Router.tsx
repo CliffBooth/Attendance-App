@@ -2,9 +2,12 @@ import { useContext, useEffect } from "react"
 import { Route, Routes, useNavigate } from "react-router-dom"
 import UserContext from "../context/UserContext"
 import AttendanceView from "./bySubject/AttendanceView"
-import ClassesScreen from "./ClassesScreen"
-import Home from "./Home"
-import LoginPage from "./LoginPage"
+import ClassesScreen from "../layouts/ClassesScreen"
+import Home from "../layouts/Home"
+import LoginPage from "../layouts/LoginPage"
+import QRView from "../layouts/QRView"
+
+//TODO: set user in App.tsx
 
 const Router = () => {
 
@@ -34,6 +37,7 @@ const Router = () => {
                 <Route path="/sign-in" element={<LoginPage />} />
                 <Route path="/classes" element={<ClassesScreen />} />
                 <Route path='/list' element={<AttendanceView />} />
+                <Route path='/qr' element={<QRView />} />
             </Routes>
     )
 }

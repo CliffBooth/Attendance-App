@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import UserContext from '../context/UserContext';
 import { Class, getClasses } from '../services/ApiService';
-import SubjectComponent from './bySubject/SubjectComponent';
+import SubjectComponent from '../components/bySubject/SubjectComponent';
 
 const ClassesScreen = () => {
     const [classes, setClasses] = useState<Class[]>([]);

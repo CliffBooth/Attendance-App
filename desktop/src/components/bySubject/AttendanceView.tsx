@@ -21,7 +21,7 @@ const AttendanceView = () => {
     
     function getTable() {
         console.log(classes)
-        const set = new Set<string>
+        const set = new Set<string>()
         classes.forEach((c) => {
             c.students.forEach(st => set.add(JSON.stringify(st)))
         })
@@ -80,13 +80,14 @@ const AttendanceView = () => {
                                     const classIncludesStudent = theClass.students.some(s1 => equalStudents(s, s1))
                                     
                                     let style = 'bg-red-300'
+                                    // let style = ""
                                     if (classIncludesStudent) {
                                         currentStudentCounter++
                                         style = 'bg-green-500'
                                     }
 
                                     return (
-                                        <td className={`border-2 ${style}`}></td>
+                                        <td className={`${style} border-2 border-gray-600 bg-clip-padding`}></td>
                                     )
                                 })}
                                 <td>{currentStudentCounter}/{allDates.length}</td>

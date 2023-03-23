@@ -1,17 +1,16 @@
 import { useContext } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import UserContext from '../context/UserContext';
+import ULink from './MyLink';
 
 function NavComponent() {
     const navigate = useNavigate();
 
     const { user, setUser } = useContext(UserContext);
 
-    const data = window.localStorage.getItem('user')
-    let user1: {email: string} = {email: ''}
-    if (data)
-        user1 = JSON.parse(data)
-
+    const data = window.localStorage.getItem('user');
+    let user1: { email: string } = { email: '' };
+    if (data) user1 = JSON.parse(data);
 
     function handleLogout() {
         setUser({
@@ -23,14 +22,15 @@ function NavComponent() {
     }
 
     return (
-        <div className="relative container mx-auto p-6 shadow-lg mb-5">
+        <div className="relative container mx-auto p-6 shadow-lg mb-5 bg-[#F7F7F7]">
             <div className="flex items-center justify-between">
                 {/* logo */}
-                <div className="font-bold text-2xl text-center p-2">
-                    
-                </div>
                 {user1.email && (
                     <>
+                        <div className="font-bold text-2xl text-center p-2 grow space-x-3">
+                            <ULink to="classes">Home</ULink>
+                            <ULink to="qr">QR-Code</ULink>
+                        </div>
                         {/* menu itemes */}
                         <div></div>
                         {/* logout button */}
