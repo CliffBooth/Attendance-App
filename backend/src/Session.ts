@@ -7,6 +7,16 @@ export class Session {
     private currentToken: string | null = null;
     private currentId: string | null = null;
 
+    private _qrCode: string;
+
+    public get qrCode() {
+        return this._qrCode;
+    }
+
+    constructor() {
+        this._qrCode = uuid();
+    }
+
     /**
      * Puts assosiates name with id in the dictionary and also creates unique token for the name
      *

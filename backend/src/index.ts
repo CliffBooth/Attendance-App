@@ -32,7 +32,7 @@ app.use('/api', apiRouter);
 
 
 /**
- * chekc if there is a session this phone as currentId
+ * check if there is a session this phone as currentId
  * @param data = "${firstName}:${seconNmae}:${id}"
  * @returns session if there is session containing this data, otherwise null
  */
@@ -54,13 +54,13 @@ app.get('/test', (req, res) => {
 
 /**
  * return statuses:
- * 201 - session has been created
+ * 200 - session has been created
  * 406 - no email in request
  */
 //TODO: handle if session for that email already exists.
 app.post('/start', (req, res) => {
     if (!req.body.email) {
-        res.status(406);
+        res.sendStatus(406);
         return;
     }
     let email = req.body.email;
@@ -173,6 +173,87 @@ app.post('/bluetooth', (req, res) => {
     }
 });
 
+/**
+ * return statuses:
+ * 200 - return qr code
+ * 406 - no email in request
+ * 401 - there is no session for this email
+ */
+app.post('/qr-code', (req, res) => {
+    if (!req.body.email) {
+        res.sendStatus(406);
+        return;
+    }
+    const email = req.body.email;
+    const session = sessions[email]
+    if (!session) {
+        res.sendStatus(401); //if there is no session for this email
+    } else {
+        const qrCode = session.qrCode
+        res.status(200).send(qrCode)
+    }
+})
+
+/**
+ * return statuses:
+ * 200 - ok
+ * 202 - id already been saved
+ * 406 - no qrCode in request
+ * 401 - there is no session with such qrCode or wrong qrCode
+ */
+app.post('/student-qr-code', (req, res) => {
+    //get any session with such qrCode 
+    const qrCode = req.body.qrCode;
+    const data = req.body.data;
+    if (!qrCode || !data) {
+        res.sendStatus(406);
+        return;
+    }
+    const s = Object.values(sessions).filter(f => f.qrCode === qrCode)
+    if (s.length === 0) {
+        res.sendStatus(401);
+        return;
+    }
+    const session = s[0];
+    if (session.qrCode !== qrCode) {
+        res.sendStatus(401);
+        return;
+    }
+    if (session.contains(req.body.data)) {
+        res.sendStatus(202);
+        return;
+    }
+    session.saveName(data);
+    res.sendStatus(200);
+})
+
+/**
+ * End session, get list of students as a result
+ * 406 - no email in request 
+ * 401 - no sessoin with this email
+ * 200 - session ended, returns list of students
+ */
+app.post('/end', (req, res) => {
+    if (!req.body.email) {
+        res.sendStatus(406);
+        return;
+    }
+    let email = req.body.email;
+    if (!sessions[email]) {
+        res.sendStatus(401); //if there is no session for this email
+        return;
+    }
+    const result = [];
+    for (const id in sessions[email].idToName) {
+        result.push({
+            email: id,
+            first_name: sessions[email].idToName[id].firstName,
+            second_name: sessions[email].idToName[id].secondName
+        })
+    }
+    delete sessions[email];
+    res.json(result);
+})
 
 // catch 404 and forward to error handler
 app.use(function (req: express.Request, res: express.Response, next) {

@@ -272,7 +272,7 @@ router.get('/student_classes/:email', async (req, res) => {
         },
     });
     if (result === null) res.sendStatus(404);
-    else res.json(result);
+    else res.json(result.classes || []);
 });
 
 export default router;
