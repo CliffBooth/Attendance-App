@@ -10,8 +10,12 @@ import {
     startSession,
     stopSession,
 } from '../services/ApiService';
+import useInterval from '../hooks/useInterval';
+import QRCodeAndList from './QRCodeAndList';
 
 const maxSize = 750;
+
+let i = 1
 
 const QRView: React.FC = () => {
     /**
@@ -24,7 +28,6 @@ const QRView: React.FC = () => {
     const [inputValue, setInputValue] = useState<string>('');
 
     const { session, setSession } = useContext(SessionContext);
-    // const {user} = useContext(UserContext)
     const user = JSON.parse(localStorage.getItem('user')!!);
 
     async function handleStart() {
@@ -34,7 +37,7 @@ const QRView: React.FC = () => {
         const newSession = JSON.parse(JSON.stringify(session));
         newSession.subjectName = inputValue;
 
-        const resp = await startSession({ email: user.email });
+        const resp = await startSession({ email: user.email, subjectName: newSession.subjectName});
         if (resp.status === 'success') {
             const resp1 = await getQrCode({ email: user.email });
             if (resp1.status === 'success') {
@@ -78,37 +81,38 @@ const QRView: React.FC = () => {
     }
 
     return (
-        <div className="flex flex-col  justify-center items-center">
-            {session.qrCode.length !== 0 && (
-                <QRCodeComponent value={session.qrCode} />
-            )}
-            {session.qrCode.length === 0 && (
-                <div className="my-2">
-                    <h1>Class name:</h1>
-                    <input
-                        type="text"
-                        className="border-black border-2 text-center"
-                        value={inputValue}
-                        onChange={e => setInputValue(e.target.value)}
-                    />
-                </div>
-            )}
-            {session.qrCode.length === 0 ? (
-                <button
-                    className="bg-gray-700 text-xl text-white p-2 rounded-md hover:bg-gray-600"
-                    onClick={handleStart}
-                >
-                    Start session
-                </button>
-            ) : (
-                <button
-                    className="bg-gray-700 text-xl text-white p-2 rounded-md hover:bg-gray-600"
-                    onClick={endSession}
-                >
-                    End Session
-                </button>
-            )}
-        </div>
+            <div className="flex flex-col justify-center items-center">
+                {session.qrCode.length !== 0 && (
+                    // <QRCodeComponent value={session.qrCode} />
+                    <QRCodeAndList />
+                )}
+                {session.qrCode.length === 0 && (
+                    <div className="my-2">
+                        <h1>Class name:</h1>
+                        <input
+                            type="text"
+                            className="border-black border-2 text-center"
+                            value={inputValue}
+                            onChange={e => setInputValue(e.target.value)}
+                        />
+                    </div>
+                )}
+                {session.qrCode.length === 0 ? (
+                    <button
+                        className="bg-gray-700 text-xl text-white p-2 rounded-md hover:bg-gray-600"
+                        onClick={handleStart}
+                    >
+                        Start session
+                    </button>
+                ) : (
+                    <button
+                        className="bg-gray-700 text-xl text-white p-2 rounded-md hover:bg-gray-600"
+                        onClick={endSession}
+                    >
+                        End Session
+                    </button>
+                )}
+            </div>
     );
 };
 

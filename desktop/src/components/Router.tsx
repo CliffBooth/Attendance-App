@@ -15,7 +15,7 @@ const Router = () => {
 
     const navigate = useNavigate()
 
-    console.log('router rendered!')
+    // console.log('router rendered!')
 
     useEffect(() => {
         const data = window.localStorage.getItem('user')

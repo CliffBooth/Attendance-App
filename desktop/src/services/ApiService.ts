@@ -102,7 +102,7 @@ export async function getClasses(user: {
     }
 }
 
-export async function startSession(data: { email: string }) {
+export async function startSession(data: { email: string, subjectName: string }) {
     try {
         const resp = await client({
             url: '/start',
@@ -227,5 +227,59 @@ export async function addSession(
             status: 'failure',
             message: errors?.response?.data?.message || errors.toString(),
         };
+    }
+}
+
+export async function getStudentsList(data: {email: string}): Promise<Result<{
+    subjectName?: string,
+    students?: {
+        email: string,
+        first_name: string,
+        second_name: string,
+    }[],
+    terminated?: boolean,
+}>> {
+    try {
+        const resp = await client({
+            url: '/current-students',
+            method: 'post',
+            data,
+        });
+        console.log("status = ", resp.status)
+        if (resp.status >= 200 && resp.status < 300) {
+            return {
+                status: 'success',
+                message: '',
+                data: resp.data,
+            };
+        } else if (resp.status === 401) {
+            console.log("401!!!!!!")
+            return {
+                status: 'success',
+                message: '',
+                data: {
+                    terminated: true,
+                }
+            }
+        } else {
+            return {
+                status: 'failure',
+                message: `response status = ${resp.status}`,
+            };
+        }
+    } catch (errors: any) {
+        if (errors?.response.status === 401) {
+            return {
+                status: 'success',
+                message: '',
+                data: {
+                    terminated: true,
+                }
+            }
+        }
+        return {
+            status: 'failure',
+            message: errors?.response?.data?.message || errors.toString()
+        }
     }
 }

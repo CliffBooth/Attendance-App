@@ -58,7 +58,7 @@ const ClassesScreen = () => {
         }
         console.log(subjectToClasses);
         return (
-            <div className='flex space-x-5'>
+            <div className='flex space-x-5 flex-wrap space-y-3'>
                 {Object.entries(subjectToClasses).map(value => {
                     return (
                         <SubjectComponent
