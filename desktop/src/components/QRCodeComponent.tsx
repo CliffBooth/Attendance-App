@@ -31,7 +31,7 @@ const QRCodeComponent: FunctionComponent<Props> = (props) => {
 };
 
 QRCodeComponent.defaultProps = {
-    size: 500
+    size: 300
   };
 
 export default QRCodeComponent;
