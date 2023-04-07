@@ -2,7 +2,11 @@ import * as dotenv from 'dotenv';
 import express from 'express';
 import { Session } from './Session';
 import apiRouter from './api';
-import cors from 'cors'
+import cors from 'cors';
+import ws from 'express-ws';
+import * as http from 'http'
+
+import * as WebSocket from 'ws';
 
 dotenv.config();
 
@@ -21,15 +25,17 @@ if (!process.env.PORT) {
 
 const PORT = parseInt(process.env.PORT);
 const app = express();
+const expressWs = ws(app)
+const server = http.createServer(app);
+const wss = new WebSocket.Server({server,}) // path: "/websocket"
 //logging middleware
 app.use((req, res, next) => {
-    console.log(req.url)
-    next()
-})
+    console.log(req.url);
+    next();
+});
 app.use(express.json());
-app.use(cors())
+app.use(cors());
 app.use('/api', apiRouter);
-
 
 /**
  * check if there is a session this phone as currentId
@@ -59,13 +65,15 @@ app.get('/test', (req, res) => {
  */
 //TODO: handle if session for that email already exists.
 app.post('/start', (req, res) => {
-    if (!req.body.email) {
+    const email = req.body.email
+    const subjectName = req.body.subjectName
+    console.log(req.body)
+    if (!email || !subjectName) {
         res.sendStatus(406);
         return;
     }
-    let email = req.body.email;
     console.log(`/start request from ip: ${req.ip}`);
-    sessions[email] = new Session();
+    sessions[email] = new Session(subjectName);
     res.sendStatus(200);
 });
 
@@ -112,9 +120,13 @@ app.post('/student', (req, res) => {
     //TODO: data is not verified!
     let data = req.body.data;
     let session = getSession(data);
+    console.log("SESSION = ", session)
     if (session !== null) {
-        res.status(200).json({ token: session.getToken() });
+        const token = session.getToken()
+        console.log("TOKEN = ", session)
+        res.status(200).json({ token });
     } else {
+        console.log("SENDING 401")
         res.sendStatus(401);
     }
 });
@@ -185,14 +197,14 @@ app.post('/qr-code', (req, res) => {
         return;
     }
     const email = req.body.email;
-    const session = sessions[email]
+    const session = sessions[email];
     if (!session) {
         res.sendStatus(401); //if there is no session for this email
     } else {
-        const qrCode = session.qrCode
-        res.status(200).send(qrCode)
+        const qrCode = session.qrCode;
+        res.status(200).send(qrCode);
     }
-})
+});
 
 /**
  * return statuses:
@@ -202,14 +214,14 @@ app.post('/qr-code', (req, res) => {
  * 401 - there is no session with such qrCode or wrong qrCode
  */
 app.post('/student-qr-code', (req, res) => {
-    //get any session with such qrCode 
+    //get any session with such qrCode
     const qrCode = req.body.qrCode;
     const data = req.body.data;
     if (!qrCode || !data) {
         res.sendStatus(406);
         return;
     }
-    const s = Object.values(sessions).filter(f => f.qrCode === qrCode)
+    const s = Object.values(sessions).filter(f => f.qrCode === qrCode);
     if (s.length === 0) {
         res.sendStatus(401);
         return;
@@ -225,11 +237,11 @@ app.post('/student-qr-code', (req, res) => {
     }
     session.saveName(data);
     res.sendStatus(200);
-})
+});
 
 /**
  * End session, get list of students as a result
- * 406 - no email in request 
+ * 406 - no email in request
  * 401 - no sessoin with this email
  * 200 - session ended, returns list of students
  */
@@ -243,24 +255,69 @@ app.post('/end', (req, res) => {
         res.sendStatus(401); //if there is no session for this email
         return;
     }
-    const result = [];
-    for (const id in sessions[email].idToName) {
-        result.push({
-            email: id,
-            first_name: sessions[email].idToName[id].firstName,
-            second_name: sessions[email].idToName[id].secondName
-        })
-    }
+    const result = sessions[email].getListOfStudents()
     delete sessions[email];
     res.json(result);
+});
+
+//request returns list of students in the current session.
+/**
+ * 406 - no email in request
+ * 401 - no current session with this email
+ */
+app.post('/current-students', (req, res) => {
+    console.log('inside current-students');
+    const email = req.body.email;
+    if (!email) {
+        res.sendStatus(406);
+        return;
+    }
+    const session = sessions[email];
+    if (!session) {
+        res.sendStatus(401);
+        return;
+    }
+    
+    const result = {
+        subjectName: session.subjectName,
+        students: session.getListOfStudents()
+    };
+
+    res.json(result)
+});
+
+// (app as any).ws('/websocket', (ws: WebSocket, req: express.Request) => {
+//     console.log('WEBSOCKET')
+//     console.log(req.body.email)
+// });
+
+// app.ws('/websocket', (ws: WebSocket, req: express.Request) => {
+//     console.log('WEBSOCKET')
+//     console.log(req.body.email)
+// });
+
+wss.on('connection', (ws: WebSocket) => {
+    console.log('CONNECTED')
+    ws.on('message', msg => {
+        console.log('email = ', msg)
+        //get session and pass this ws to it.
+    })
 })
 
 // catch 404 and forward to error handler
 app.use(function (req: express.Request, res: express.Response, next) {
-    next({ status: 404 });
+    next({
+        status: 404,
+        message: 'end of endpoint list',
+    });
 });
 
-app.use(function (err: any, req: express.Request, res: express.Response, next: express.NextFunction) {
+app.use(function (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+) {
     console.error(err);
     res.status(err.status || 500).json();
 });

@@ -83,7 +83,11 @@ router
                         email: s.email,
                     },
                 });
-                if (student != null) students.push(student);
+                if (student != null) {
+                    students.push(student);
+                } else {
+                    console.log(`non existant student id (email): ${s.email}`)
+                }
             } else if (s.first_name != undefined && s.second_name != undefined) {
                 console.log('s.first_name != undefined && s.second_name != undefined')
                 const student = await prisma.student.create({

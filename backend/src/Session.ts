@@ -1,8 +1,11 @@
 import { v4 as uuid } from 'uuid';
 
+const delay = 500
+
 export class Session {
     //add verified field
-    idToName: { [id: string]: { firstName: string; secondName: string } } = {};
+    subjectName: string
+    private idToName: { [id: string]: { firstName: string; secondName: string } } = {};
 
     private currentToken: string | null = null;
     private currentId: string | null = null;
@@ -13,8 +16,13 @@ export class Session {
         return this._qrCode;
     }
 
-    constructor() {
+    constructor(subjectName: string) {
+        this.subjectName = subjectName;
         this._qrCode = uuid();
+
+        setInterval(() => {
+            this._qrCode = uuid();
+        }, delay)
     }
 
     /**
@@ -26,7 +34,7 @@ export class Session {
     //TODO: check if elements empty!
     //TODO: maybe throw custom exception if the same id?
     //better to throw exception if there are not 3 elements and return false if id already exists
-    //TODO: what if you get null or andefined as input? (CHECK TOP TODO IN index.ts)
+    //TODO: what if you get null or undefined as input? (CHECK TOP TODO IN index.ts)
     putName(str: string) {
         let params = str.split(':');
         if (params.length !== 3) throw Error('Wrong string structure');
@@ -87,5 +95,18 @@ export class Session {
     //TODO: null safety
     getToken(): string {
         return this.currentToken!!;
+    }
+
+    //get list of all students in this session as {email, first_name, second_name}[]
+    getListOfStudents(): {
+        email: string,
+        first_name: string,
+        second_name: string,
+    }[] {
+        return Object.keys(this.idToName).map(id => ({
+            email: id,
+            first_name: this.idToName[id].firstName,
+            second_name: this.idToName[id].secondName,
+        }))
     }
 }
