@@ -1,9 +1,11 @@
 package com.vysotsky.attendance.professor
 
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -31,13 +33,15 @@ class SessionActivity : MenuActivity() {
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     private val viewModel: SessionViewModel by viewModels()
 
+    private lateinit var email: String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         sharedPreferences =
             getSharedPreferences(getString(R.string.preference_file_key), MODE_PRIVATE)
-        val email = sharedPreferences.getString(getString(R.string.saved_email), "ERROR!");
-        Log.d(TAG, "Camera activity: email: $email")
+        email = sharedPreferences.getString(getString(R.string.saved_email), "ERROR!") ?: "error"
+        Log.d(TAG, "SessionActivity: email: $email")
         binding = ActivityProfessorBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -104,7 +108,33 @@ class SessionActivity : MenuActivity() {
                 finish()
             }
         }
+
+        subscribe()
+
     }
+
+    private fun subscribe() {
+        viewModel.isSessionTerminated.observe(this) {
+            if (it) {
+                Toast.makeText(this, "Session has been terminated!", Toast.LENGTH_LONG).show()
+                val intent = Intent(this, ProfessorHomeActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.runningPolling = true
+        viewModel.runPolling(email) //TODO: how to stop polling when closing the
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.runningPolling = false
+    }
+
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

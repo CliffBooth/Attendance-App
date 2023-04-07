@@ -104,13 +104,20 @@ class StudentCameraFragment : CameraFragment() {
                                 Toast.LENGTH_LONG
                             ).show()
                         }
+                        401 -> {
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                viewModel.status.value = Status.SEARCHING
+                            }, 100)
+                        }
                         else -> {
                             Toast.makeText(
                                 requireContext(),
                                 "Something went wrong...",
                                 Toast.LENGTH_LONG
                             ).show()
-                            viewModel.status.value = Status.SEARCHING
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                viewModel.status.value = Status.SEARCHING
+                            }, 3000)
                         }
                     }
                 }

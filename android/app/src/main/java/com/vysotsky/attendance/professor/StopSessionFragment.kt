@@ -33,25 +33,26 @@ class StopSessionFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val email = requireContext()
+            .getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+            .getString(getString(R.string.saved_email), "error") ?: "error"
         binding.stopSessionButton.setOnClickListener {
             //TODO all checkboxes
             if (binding.sendEmailCheckbox.isChecked) {
 
             }
             //check if attendee list is empty and don't save the session then
-            val email = requireContext()
-                .getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-                .getString(getString(R.string.saved_email), "error") ?: "error"
             viewModel.postSession(email)
+            viewModel.endSession(email)
         }
         binding.discardButton.setOnClickListener {
-            exitSession()
+            viewModel.endSession(email)
         }
         subscribe()
     }
 
     private fun subscribe() {
-        viewModel.requestStatus.observe(viewLifecycleOwner) {
+        viewModel.postSessionStatus.observe(viewLifecycleOwner) {
             when (it) {
                 is Resource.Loading -> {
                     viewModel.isPBVisible.value = true
@@ -68,7 +69,21 @@ class StopSessionFragment: Fragment() {
                 }
                 is Resource.Success -> {
                     viewModel.isPBVisible.value = false
+//                    exitSession()
+                }
+            }
+        }
+        viewModel.endSessionStatus.observe(viewLifecycleOwner) {
+            when (it) {
+                is Resource.Loading -> {
+                }
+                is Resource.Success -> {
                     exitSession()
+                }
+                is Resource.Error -> {
+                    Toast.makeText(requireContext(), it.message, Toast.LENGTH_LONG).show()
+                    exitSession()
+
                 }
             }
         }

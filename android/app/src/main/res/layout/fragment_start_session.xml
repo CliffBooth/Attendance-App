@@ -12,6 +12,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/frameLayout"
         android:layout_width="match_parent"
+        android:padding="5dp"
         android:layout_height="wrap_content">
 
         <com.google.android.material.textfield.TextInputLayout
@@ -62,6 +63,20 @@
             android:layout_height="210dp"
             android:background="@drawable/round_button"
             android:text="@string/start_session"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1, 1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintWidth_percent=".60" />
+
+        <Button
+            android:id="@+id/go_to_existing_session"
+            android:layout_width="201dp"
+            android:layout_height="210dp"
+            android:background="@drawable/round_button"
+            android:text="go to existing session"
+            android:visibility="gone"
             android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1, 1"

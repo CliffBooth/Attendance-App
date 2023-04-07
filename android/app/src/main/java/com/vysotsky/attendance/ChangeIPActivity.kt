@@ -12,7 +12,7 @@ import com.vysotsky.attendance.databinding.ActivityChangeIpactivityBinding
 
 class ChangeIPActivity : AppCompatActivity() {
     private lateinit var binding: ActivityChangeIpactivityBinding
-    private val addresses = arrayOf("custom", "192.168.119.144")
+    private val addresses = arrayOf("custom", "192.168.119.144", "192.168.188.144")
     private var selectedItem = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {

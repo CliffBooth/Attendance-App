@@ -27,6 +27,12 @@ interface Api {
     @POST("api/signup_professor")
     suspend fun signup(@Body professorData: ProfessorData): Response<Void>
 
+    @POST("/current-students")
+    suspend fun getCurrentStudentsList(@Body professorData: ProfessorData): Response<CurrentStudentListResponse>
+
+    @POST("/end")
+    suspend fun endSession(@Body professorData: ProfessorData): Response<List<Student>>
+
     //student
     @GET("api/student_classes/{email}")
     suspend fun getStudentSessions(@Path("email") email: String): Response<List<StudentClass>>
@@ -43,3 +49,5 @@ interface Api {
 }
 
 data class SendQrCodeBody(val qrCode: String, val data: String)
+
+data class CurrentStudentListResponse(val subjectName: String, val students: List<Student>)
