@@ -21,11 +21,12 @@
     <string name="saved_first_name">first_name</string>
     <string name="saved_second_name">second_name</string>
     <string name="check_string">Check</string>
-    <string name="professor_log_in">Enter your email</string>
+    <string name="professor_log_in">Enter your email and password</string>
     <string name="email_hint">email</string>
     <string name="professor_log_in_button">Log in</string>
     <string name="email_error_text">Please, enter valid email address</string>
     <string name="saved_email">email</string>
+    <string name="access_token">token</string>
     <string name="camera_permissions_error">Camera permission is not granted by the user!</string>
     <string name="location_permissions_error">Location permission is not granted by the user!</string>
     <string name="start_session">start session</string>
@@ -61,4 +62,5 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="sign_up">sign up</string>
+    <string name="password_hint">password</string>
 </resources>

@@ -5,7 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vysotsky.attendance.api.RetrofitInstance
-import com.vysotsky.attendance.models.StudentData
+import com.vysotsky.attendance.models.Student
+//import com.vysotsky.attendance.models.StudentData
 import com.vysotsky.attendance.models.StudentLoginData
 import com.vysotsky.attendance.util.Resource
 import kotlinx.coroutines.launch
@@ -29,14 +30,14 @@ class StudentLoginViewModel : ViewModel() {
         loginRequestStatus.postValue(Resource.Loading())
         viewModelScope.launch {
             try {
-                val response = RetrofitInstance.api.login(StudentLoginData(email = email))
+                val response = RetrofitInstance.api.login(StudentLoginData(phoneId = email))
                 if (response.code() == 200) {
                     loginRequestStatus.postValue(
                         Resource.Success(
                             LoginResponse(
                                 status = 200,
-                                firstName = response.body()!!.first_name,
-                                secondName = response.body()!!.second_name
+                                firstName = response.body()!!.firstName,
+                                secondName = response.body()!!.secondName
                             )
                         )
                     )
@@ -59,7 +60,7 @@ class StudentLoginViewModel : ViewModel() {
         signupRequestStatus.postValue(Resource.Loading())
         viewModelScope.launch {
             try {
-                val response = RetrofitInstance.api.signup(StudentData(email, firstName, secondName))
+                val response = RetrofitInstance.api.signup(Student(email, firstName, secondName))
                 if (response.isSuccessful) {
                     signupRequestStatus.postValue(Resource.Success(200))
                 }

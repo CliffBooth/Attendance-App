@@ -1,5 +1,7 @@
 package com.vysotsky.attendance.models
 
-data class ProfessorData(
+data class ProfessorAuthData(
     val email: String,
+    val password: String
 )
+

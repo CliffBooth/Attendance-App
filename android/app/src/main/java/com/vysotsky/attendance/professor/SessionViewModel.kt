@@ -61,7 +61,7 @@ class SessionViewModel: ViewModel() {
     /**
      * save current session on the backend
      */
-    fun postSession(email: String) {
+    fun postSession(email: String, token: String) {
         Log.d(TAG, "SessionViewModel: postSession() email = $email")
 
         postSessionStatus.postValue(Resource.Loading())
@@ -72,7 +72,7 @@ class SessionViewModel: ViewModel() {
             return
         viewModelScope.launch {
             try {
-                val response = RetrofitInstance.api.addSession(email, session)
+                val response = RetrofitInstance.api.addSession(email, session, token)
                 if (response.isSuccessful)
                     postSessionStatus.postValue(Resource.Success(Unit))
                 else
@@ -112,7 +112,7 @@ class SessionViewModel: ViewModel() {
                 try {
                     val response = RetrofitInstance.api.getCurrentStudentsList(ProfessorData(email))
                     if (response.isSuccessful) {
-                        val list = response.body()!!.students.map { s -> Attendee(s.first_name, s.second_name, s.email) }
+                        val list = response.body()!!.students.map { s -> Attendee(s.firstName, s.secondName, s.phoneId) }
                         list.forEach { a ->
                             if (attendeesList.none { it.id == a.id }) {
                                 addAttendeeToList(a)

@@ -36,13 +36,16 @@ class StopSessionFragment: Fragment() {
         val email = requireContext()
             .getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
             .getString(getString(R.string.saved_email), "error") ?: "error"
+        val token = requireContext()
+            .getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+            .getString(getString(R.string.access_token), "") ?: ""
         binding.stopSessionButton.setOnClickListener {
             //TODO all checkboxes
             if (binding.sendEmailCheckbox.isChecked) {
 
             }
             //check if attendee list is empty and don't save the session then
-            viewModel.postSession(email)
+            viewModel.postSession(email, token)
             viewModel.endSession(email)
         }
         binding.discardButton.setOnClickListener {

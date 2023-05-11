@@ -21,7 +21,7 @@ class ProfessorHomeViewModel : ViewModel() {
     //to avoid making request with every screen rotation
     private var searchedOnStartUp = false
 
-    fun getSessions(email: String, force: Boolean = false) {
+    fun getSessions(email: String, token: String, force: Boolean = false) {
         if (!force && searchedOnStartUp)
             return
 
@@ -30,7 +30,7 @@ class ProfessorHomeViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                val response = RetrofitInstance.api.getProfessorSessions(email)
+                val response = RetrofitInstance.api.getProfessorSessions(email, token)
                 if (response.body() != null)
                     sessions.postValue(Resource.Success(response.body()!!))
                 else

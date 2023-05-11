@@ -20,7 +20,7 @@ class StudentAttendanceActivity : AppCompatActivity() {
         binding = ActivityStudentAttendanceBinding.inflate(layoutInflater)
 
         //adapter
-        binding.title.text = classes[0].subject_name
+        binding.title.text = classes[0].subjectName
         val dates = classes.map{cl -> formatDate(cl.date)}
         setUpRecyclerView(dates)
         setContentView(binding.root)

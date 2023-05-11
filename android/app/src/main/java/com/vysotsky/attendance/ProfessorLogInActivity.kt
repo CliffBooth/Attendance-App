@@ -32,13 +32,20 @@ class ProfessorLogInActivity : AppCompatActivity() {
 
         binding.button.setOnClickListener {
             val email = binding.emailEditText.text?.toString() ?: ""
+            val password = binding.passwordEditText.text?.toString() ?: ""
             //TODO: check if matches email regex
             if (email.isBlank()) {
                 Snackbar.make(it, getString(R.string.email_error_text), Snackbar.LENGTH_LONG)
                     .show()
             } else {
-                viewModel.enteredEmail = email
-                viewModel.login(email)
+                if (password.isBlank()) {
+                    Toast.makeText(this, "Please enter password", Toast.LENGTH_LONG).show()
+
+                } else {
+                    viewModel.enteredEmail = email
+                    viewModel.enteredPassword = password
+                    viewModel.login(email, password)
+                }
             }
         }
         subscribe()
@@ -50,14 +57,18 @@ class ProfessorLogInActivity : AppCompatActivity() {
                 is Resource.Loading -> {
                     viewModel.isPBVisible.value = true
                 }
-                is Resource.Success -> {
+                is Resource.Success<LoginResponse> -> {
                     viewModel.isPBVisible.value = false
-                    when (it.data) {
+                    when (it.data?.status) {
                         200 -> {
                             //proceed to ProfessorHome
-                            startProfessorActivity(viewModel.enteredEmail)
+                            startProfessorActivity(viewModel.enteredEmail, it.data.data!!.token)
                         }
                         401 -> {
+                            //display signup dialog
+                            Toast.makeText(this, "wrong password!", Toast.LENGTH_LONG).show()
+                        }
+                        409 -> {
                             //display signup dialog
                             displayDialog()
                         }
@@ -80,7 +91,7 @@ class ProfessorLogInActivity : AppCompatActivity() {
                 }
                 is Resource.Success -> {
                     viewModel.isPBVisible.value = false
-                    startProfessorActivity(viewModel.enteredEmail)
+                    startProfessorActivity(viewModel.enteredEmail, it.data!!.token)
                 }
                 is Resource.Error -> {
                     viewModel.isPBVisible.value = false
@@ -99,18 +110,19 @@ class ProfessorLogInActivity : AppCompatActivity() {
 
     private fun displayDialog() {
         val dialogBuilder = AlertDialog.Builder(this).apply {
-            setTitle("Non existant email! Do you want to register with this email?")
+            setTitle("Non existent email! Do you want to register with this email?")
             setPositiveButton("Yes") { dialog, id ->
-                viewModel.signup(viewModel.enteredEmail)
+                viewModel.signup(viewModel.enteredEmail, viewModel.enteredPassword)
             }
             setNegativeButton("No") {_, _ -> }
         }
         dialogBuilder.create().show()
     }
 
-    private fun startProfessorActivity(email: String) {
+    private fun startProfessorActivity(email: String, token: String) {
         with (sharedPreferences.edit()) {
             putString(getString(R.string.saved_email), email)
+            putString(getString(R.string.access_token), "Bearer $token")
             apply()
         }
         val intent = Intent(this, ProfessorHomeActivity::class.java)

@@ -1,14 +1,10 @@
 package com.vysotsky.attendance.api
 
-import com.vysotsky.attendance.models.ProfessorData
-import com.vysotsky.attendance.models.Session
-import com.vysotsky.attendance.models.Student
-import com.vysotsky.attendance.models.StudentClass
-import com.vysotsky.attendance.models.StudentData
-import com.vysotsky.attendance.models.StudentLoginData
+import com.vysotsky.attendance.models.*
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 
@@ -16,16 +12,16 @@ import retrofit2.http.Path
 interface Api {
     //professor
     @GET("api/professor_classes/{email}")
-    suspend fun getProfessorSessions(@Path("email") email: String): Response<List<Session>>
+    suspend fun getProfessorSessions(@Path("email") email: String, @Header("Authorization") token: String): Response<List<Session>>
 
     @POST("api/professor_classes/{email}")
-    suspend fun addSession(@Path("email") email: String, @Body session: Session): Response<Session>
+    suspend fun addSession(@Path("email") email: String, @Body session: Session, @Header("Authorization") token: String): Response<Session>
 
     @POST("api/login_professor")
-    suspend fun login(@Body professorData: ProfessorData): Response<Void>
+    suspend fun login(@Body professorData: ProfessorAuthData): Response<AuthResult>
 
     @POST("api/signup_professor")
-    suspend fun signup(@Body professorData: ProfessorData): Response<Void>
+    suspend fun signup(@Body professorData: ProfessorAuthData): Response<AuthResult>
 
     @POST("/current-students")
     suspend fun getCurrentStudentsList(@Body professorData: ProfessorData): Response<CurrentStudentListResponse>
@@ -41,7 +37,7 @@ interface Api {
     suspend fun login(@Body studentData: StudentLoginData): Response<Student>
 
     @POST("api/signup_student")
-    suspend fun signup(@Body studentData: StudentData): Response<Void>
+    suspend fun signup(@Body studentData: Student): Response<Void>
 
     @POST("/student-qr-code")
     suspend fun sendQRCode(@Body body: SendQrCodeBody): Response<Void>

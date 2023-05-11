@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.databinding.FragmentStudentHomeBinding
 import com.vysotsky.attendance.models.StudentClass
-import com.vysotsky.attendance.professor.ClassAttendanceActivity
 import com.vysotsky.attendance.student.StudentViewModel
 import com.vysotsky.attendance.util.Resource
 import com.vysotsky.attendance.util.SubjectsAdapter
@@ -63,7 +62,7 @@ class StudentHomeFragment : Fragment() {
             if (allSessions == null) {
                 Log.e(TAG, "StudentHomeFragment onClick() classes list is null! ",)
             } else {
-                val sessions = allSessions.filter{ it.subject_name == subjectName }
+                val sessions = allSessions.filter{ it.subjectName == subjectName }
                 val intent = Intent(requireContext(), StudentAttendanceActivity::class.java)
                 intent.putExtra(StudentAttendanceActivity.EXTRA_CLASSES_KEY, sessions as Serializable)
                 startActivity(intent)
@@ -105,7 +104,7 @@ class StudentHomeFragment : Fragment() {
         if (classes.isEmpty()) {
             viewModel.tvNoItemsVisibility.value = true
         } else {
-            val subjects = classes.map { s -> s.subject_name }.toSet().toList()
+            val subjects = classes.map { s -> s.subjectName }.toSet().toList()
             Log.d(TAG, "StudentHomeFragment fillRecyclerView() unique subjects = $subjects")
             subjectsAdapter.subjects = subjects
         }

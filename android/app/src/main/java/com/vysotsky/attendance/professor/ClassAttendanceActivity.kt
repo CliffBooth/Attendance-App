@@ -35,7 +35,7 @@ class ClassAttendanceActivity : AppCompatActivity() {
         sessions = intent.extras?.getSerializable(EXTRA_CLASSES_KEY) as List<Session>
         Log.d(TAG, "ClassAttendanceActivity onCreate() sessions.size = ${sessions.size}")
         binding = ActivityClassAttendanceBinding.inflate(layoutInflater)
-        binding.tvSubjectName.text = sessions[0].subject_name
+        binding.tvSubjectName.text = sessions[0].subjectName
         setUpTable()
         setContentView(binding.root)
     }
@@ -46,7 +46,7 @@ class ClassAttendanceActivity : AppCompatActivity() {
     private fun setUpTable() {
         val dates = sessions.map { s -> s.date }
         val students = listOfDistinct(sessions.map {session -> session.students}.flatten()).sortedWith(
-            compareBy {it: Student -> it.second_name }.thenBy { it.first_name }
+            compareBy {it: Student -> it.secondName }.thenBy { it.firstName }
         )
         val cellSize = resources.getDimensionPixelSize(R.dimen.table_cell_size)
 
@@ -56,7 +56,7 @@ class ClassAttendanceActivity : AppCompatActivity() {
             val tr = TableRow(this)
             val tv = TextView(this)
             tv.layoutParams = TableRow.LayoutParams((cellSize * 1.5).toInt(), cellSize)
-            tv.text = "${student.second_name} ${student.first_name}"
+            tv.text = "${student.secondName} ${student.firstName}"
             tv.gravity = Gravity.CENTER
             tv.setBackgroundResource(R.drawable.table_cell_border)
             tv.setPadding(10)
@@ -88,7 +88,7 @@ class ClassAttendanceActivity : AppCompatActivity() {
 //            if (res.find {s -> st.first_name == s.first_name && st.second_name == s.second_name} == null) {
 //                res += st
 //            }
-            if (res.find { s -> st.email == s.email } == null) {
+            if (res.find { s -> st.phoneId == s.phoneId } == null) {
                 res += st
             }
         }

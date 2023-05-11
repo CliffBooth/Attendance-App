@@ -47,9 +47,10 @@ class ProfessorHomeFragment : Fragment() {
         setUpRecyclerView()
         val sharedPreferences = requireContext().getSharedPreferences(getString(R.string.preference_file_key), MODE_PRIVATE)
         val email = sharedPreferences.getString(getString(R.string.saved_email), "")
-        activityViewModel.getSessions(email!!)
+        val token = sharedPreferences.getString(getString(R.string.access_token), "")
+        activityViewModel.getSessions(email!!, token=token!!)
         binding.btnRetryRequest.setOnClickListener {
-            activityViewModel.getSessions(email, force = true)
+            activityViewModel.getSessions(email, token=token, force = true)
             activityViewModel.btnRetryRequestVisibility.value = false
         }
         subscribe()
@@ -61,7 +62,7 @@ class ProfessorHomeFragment : Fragment() {
             if (allSessions == null) {
                 Log.e(TAG, "Subject onClick(): sessions list is null!", )
             } else {
-                val sessions = allSessions.filter { it.subject_name == subjectName }
+                val sessions = allSessions.filter { it.subjectName == subjectName }
                 val intent = Intent(requireContext(), ClassAttendanceActivity::class.java)
                 intent.putExtra(ClassAttendanceActivity.EXTRA_CLASSES_KEY, sessions as Serializable)
                 startActivity(intent)
@@ -76,7 +77,7 @@ class ProfessorHomeFragment : Fragment() {
         if (sessions.isEmpty()) {
             activityViewModel.tvNoItemsVisibility.value = true
         } else {
-            val subjects = sessions.map { s -> s.subject_name }.toSet().toList()
+            val subjects = sessions.map { s -> s.subjectName }.toSet().toList()
             subjectsAdapter.subjects = subjects
         }
     }
