@@ -13,6 +13,7 @@ datasource db {
 model Professor {
   id Int @id @default(autoincrement())
   email String @unique
+  password String
 
   //one(prfessor) to many (classes)
   classes Class[]
@@ -20,9 +21,9 @@ model Professor {
 
 model Student {
   id Int @id @default(autoincrement()) //10
-  email String? @unique
-  first_name String
-  second_name String
+  phoneId String? @unique
+  firstName String
+  secondName String
 
   //many-to-many
   classes Class[]
@@ -31,9 +32,11 @@ model Student {
 model Class {
   id Int @id @default(autoincrement())
   date DateTime @default(now())
-  professor Professor @relation(fields: [professor_id], references: [id])
-  professor_id Int
-  subject_name String
+  professor Professor @relation(fields: [professorId], references: [id], onDelete: Cascade)
+  professorId Int
+  subjectName String
   //many-to-many
   students Student[]
 }
+
+//we need to do on delete cascade at Class, because if Professor is deleted, we also delete all the classes.

@@ -213,6 +213,7 @@ app.post('/qr-code', (req, res) => {
  * 406 - no qrCode in request
  * 401 - there is no session with such qrCode or wrong qrCode
  */
+//TODO: maybe qr code should also display professor's email, so it will be easier to find the right session in this request?
 app.post('/student-qr-code', (req, res) => {
     //get any session with such qrCode
     const qrCode = req.body.qrCode;
@@ -266,7 +267,6 @@ app.post('/end', (req, res) => {
  * 401 - no current session with this email
  */
 app.post('/current-students', (req, res) => {
-    console.log('inside current-students');
     const email = req.body.email;
     if (!email) {
         res.sendStatus(406);

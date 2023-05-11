@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import {encrypt} from './encrypt';
 
 const prisma = new PrismaClient();
 
@@ -9,40 +10,41 @@ async function populate() {
         },
         create: {
             email: 'test',
+            password: (await encrypt('123'))
         },
         update: {},
     });
     console.log(professor);
     const student1 = await prisma.student.upsert({
         where: {
-            email: '1',
+            phoneId: '1',
         },
         create: {
-            email: '1',
-            first_name: 'student',
-            second_name: 'first',
+            phoneId: '1',
+            firstName: 'student',
+            secondName: 'first',
         },
         update: {},
     });
     const student2 = await prisma.student.upsert({
         where: {
-            email: '2',
+            phoneId: '2',
         },
         create: {
-            email: '2',
-            first_name: 'stduent',
-            second_name: 'second',
+            phoneId: '2',
+            firstName: 'stduent',
+            secondName: 'second',
         },
         update: {},
     });
     const student3 = await prisma.student.upsert({
         where: {
-            email: '3',
+            phoneId: '3',
         },
         create: {
-            email: '3',
-            first_name: 'student',
-            second_name: 'third',
+            phoneId: '3',
+            firstName: 'student',
+            secondName: 'third',
         },
         update: {},
     });
@@ -52,7 +54,7 @@ async function populate() {
             id: 1,
         },
         create: {
-            subject_name: 'math',
+            subjectName: 'math',
             professor: {
                 connect: {
                     id: professor.id
@@ -69,8 +71,8 @@ async function populate() {
             id: 2,
         },
         create: {
-            subject_name: 'history',
-            professor_id: professor.id,
+            subjectName: 'history',
+            professorId: professor.id,
             students: {
                 connect: [{ id: student2.id }, { id: student3.id }],
             },
@@ -83,7 +85,7 @@ async function populate() {
             id: 1,
         },
         create: {
-            subject_name: 'math',
+            subjectName: 'math',
             professor: {
                 connect: {
                     id: professor.id
@@ -101,7 +103,7 @@ async function populate() {
             id: 1,
         },
         create: {
-            subject_name: 'math',
+            subjectName: 'math',
             professor: {
                 connect: {
                     id: professor.id
@@ -119,7 +121,7 @@ async function populate() {
             id: 1,
         },
         create: {
-            subject_name: 'math',
+            subjectName: 'math',
             professor: {
                 connect: {
                     id: professor.id
@@ -141,7 +143,8 @@ async function populate() {
             email: "test2"
         },
         create: {
-            email: "test2"
+            email: "test2",
+            password: await encrypt('123')
         },
         update: {}
     })
