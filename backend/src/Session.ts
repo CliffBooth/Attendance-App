@@ -2,6 +2,12 @@ import { v4 as uuid } from 'uuid';
 
 const delay = 500
 
+export interface Student {
+    phoneId: string,
+    firstName: string,
+    secondName: string
+}
+
 export class Session {
     //add verified field
     subjectName: string
@@ -98,15 +104,11 @@ export class Session {
     }
 
     //get list of all students in this session as {email, first_name, second_name}[]
-    getListOfStudents(): {
-        email: string,
-        first_name: string,
-        second_name: string,
-    }[] {
+    getListOfStudents(): Student[] {
         return Object.keys(this.idToName).map(id => ({
-            email: id,
-            first_name: this.idToName[id].firstName,
-            second_name: this.idToName[id].secondName,
+            phoneId: id,
+            firstName: this.idToName[id].firstName,
+            secondName: this.idToName[id].secondName,
         }))
     }
 }

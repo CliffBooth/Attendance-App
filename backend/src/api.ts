@@ -98,7 +98,7 @@ router
                     user.email,
                     prof_email
                 );
-                res.sendStatus(401);
+                res.status(401).send('invalid access token');
                 return;
             }
             //check if professor with such email exists:
@@ -110,7 +110,7 @@ router
 
             if (prof === null) {
                 console.log('prof === null');
-                res.sendStatus(404);
+                res.status(404).send('wrong email');
                 return;
             }
 
@@ -120,7 +120,7 @@ router
 
             if (data.students === undefined || data.subjectName === undefined) {
                 console.log(data.students, data.subjectName);
-                res.sendStatus(406);
+                res.status(406).send('wrong data format');
                 return;
             }
 

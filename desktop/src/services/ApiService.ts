@@ -8,8 +8,17 @@ const client = axios.create({
     baseURL: appConfig.apiUrl,
 });
 
+client.interceptors.request.use(config => {
+    const token = localStorage.getItem(appConfig.tokenStorageKey)
+    if (token) {
+        config.headers['Authorization'] = `Bearer ${token}`
+    }
+    return config
+})
+
 interface signInData {
     email: string;
+    password: string;
 }
 
 interface Result<T> {
@@ -29,7 +38,9 @@ export default function useAuth() {
                 data: data,
             });
 
-            if (resp.status === 200) {
+            const token = resp.data.token
+            if (resp.status === 200 && token) {
+                localStorage.setItem(appConfig.tokenStorageKey, token)
                 window.localStorage.setItem('user', JSON.stringify(data));
                 navigate('/');
                 return {
@@ -59,20 +70,22 @@ export default function useAuth() {
     };
 }
 
+export interface Student {
+    phoneId: string,
+    firstName: string,
+    secondName: string,
+}
+
 export interface Class {
-    subject_name: string;
+    subjectName: string;
     date: string;
-    students: {
-        email: string;
-        first_name: string;
-        second_name: string;
-    }[];
+    students: Student[];
 }
 
 export async function getClasses(user: {
     email: string;
 }): Promise<Result<Class[]>> {
-    console.log('making a request!');
+    console.log('making get classes request');
     console.log(user);
 
     try {
@@ -159,11 +172,7 @@ export async function getQrCode(data: {
 
 export async function stopSession(data: { email: string }): Promise<
     Result<
-        {
-            email: string;
-            first_name: string;
-            second_name: string;
-        }[]
+        Student[]
     >
 > {
     try {
@@ -195,12 +204,8 @@ export async function stopSession(data: { email: string }): Promise<
 //api call to add session to the database
 export async function addSession(
     data: {
-        subject_name: string;
-        students: {
-            email: string;
-            first_name: string;
-            second_name: string;
-        }[];
+        subjectName: string;
+        students: Student[];
     },
     user: { email: string }
 ) {
@@ -232,11 +237,7 @@ export async function addSession(
 
 export async function getStudentsList(data: {email: string}): Promise<Result<{
     subjectName?: string,
-    students?: {
-        email: string,
-        first_name: string,
-        second_name: string,
-    }[],
+    students?: Student[],
     terminated?: boolean,
 }>> {
     try {

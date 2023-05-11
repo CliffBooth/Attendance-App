@@ -1,16 +1,11 @@
-import { Slider } from '@mui/material';
-import { FunctionComponent, useContext, useState } from 'react';
-import QRCode from 'react-qr-code';
-import QRCodeComponent from '../components/QRCodeComponent';
+import { useContext, useState } from 'react';
 import SessionContext from '../context/SessionContext';
-import UserContext from '../context/UserContext';
 import {
     addSession,
     getQrCode,
     startSession,
     stopSession,
 } from '../services/ApiService';
-import useInterval from '../hooks/useInterval';
 import QRCodeAndList from './QRCodeAndList';
 
 const maxSize = 750;
@@ -60,7 +55,7 @@ const QRView: React.FC = () => {
             console.log('resp.data = ', resp.data);
             if (resp.data!!.length !== 0) {
                 const data = {
-                    subject_name: session.subjectName,
+                    subjectName: session.subjectName,
                     students: resp.data!!,
                 };
                 const resp1 = await addSession(data, user);

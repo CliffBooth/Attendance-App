@@ -50,10 +50,10 @@ const ClassesScreen = () => {
         console.log('classesBySubject!');
         const subjectToClasses: { [key: string]: Class[] } = {};
         for (const c of classes) {
-            if (!subjectToClasses[c.subject_name]) {
-                subjectToClasses[c.subject_name] = [c];
+            if (!subjectToClasses[c.subjectName]) {
+                subjectToClasses[c.subjectName] = [c];
             } else {
-                subjectToClasses[c.subject_name].push(c);
+                subjectToClasses[c.subjectName].push(c);
             }
         }
         console.log(subjectToClasses);

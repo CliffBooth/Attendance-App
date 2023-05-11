@@ -19,19 +19,19 @@ const QRCodeComponent: FunctionComponent<Props> = (props) => {
                 </div>
             </div>
             <div className="w-[500px] p-5">
-                <Slider
+                {/* <Slider
                     defaultValue={props.size!!}
                     onChange={(e, value) => setSize(value as number)}
                     min={props.size!! - (props.size!! / 2)}
                     max={props.size!! + (props.size!! / 2)}
-                />
+                /> */}
             </div>
         </div>
     );
 };
 
 QRCodeComponent.defaultProps = {
-    size: 300
+    size: 400
   };
 
 export default QRCodeComponent;

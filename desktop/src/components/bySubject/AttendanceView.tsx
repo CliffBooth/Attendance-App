@@ -1,14 +1,8 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Class } from '../../services/ApiService';
+import { Class, Student } from '../../services/ApiService';
 
 interface Props {
     classes: Class[];
-}
-
-interface Student {
-    first_name: string,
-    second_name: string,
-    email: string
 }
 
 const AttendanceView = () => {
@@ -52,9 +46,9 @@ const AttendanceView = () => {
         })
 
         function equalStudents(s1: Student, s2: Student): boolean {
-            return s1.email === s2.email && 
-                s1.first_name === s2.first_name &&
-                s1.second_name === s2.second_name
+            return s1.phoneId === s2.phoneId && 
+                s1.firstName === s2.firstName &&
+                s1.secondName === s2.secondName
         }
 
         let currentStudentCounter = 0
@@ -74,7 +68,7 @@ const AttendanceView = () => {
                         return ( 
                             <tr className='table-row'>
                                 <td>{ind + 1}</td>
-                                <td className='border-2 p-1'>{`${s.second_name} ${s.first_name}`}</td>
+                                <td className='border-2 p-1'>{`${s.secondName} ${s.firstName}`}</td>
                                 {allDates.map(d => {
                                     const theClass = classes.filter(cl => cl.date == d[0])[0]
                                     const classIncludesStudent = theClass.students.some(s1 => equalStudents(s, s1))
@@ -106,7 +100,7 @@ const AttendanceView = () => {
                 onClick={() => navigate(-1)}
                 className='absolute left-0 border-2 p-2'
             >back</button>
-            <h1 className="font-bold text-3xl text-center">{classes[0].subject_name}</h1>
+            <h1 className="font-bold text-3xl text-center">{classes[0].subjectName}</h1>
         </div>
         {getTable()}
     </div>

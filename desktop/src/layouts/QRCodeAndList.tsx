@@ -2,7 +2,7 @@ import { useContext, useState } from 'react';
 import useInterval from '../hooks/useInterval';
 import SessionContext from '../context/SessionContext';
 import QRCodeComponent from '../components/QRCodeComponent';
-import { getQrCode, getStudentsList } from '../services/ApiService';
+import { Student, getQrCode, getStudentsList } from '../services/ApiService';
 
 const delay = 250
 
@@ -11,11 +11,7 @@ const QRCodeAndList = () => {
     const user = JSON.parse(localStorage.getItem('user')!!); // {email: string}
 
     const [studentList, setStudentList] = useState<
-        {
-            email: string;
-            first_name: string;
-            second_name: string;
-        }[]
+        Student[]
     >([]);
 
     const stop = useInterval(() => {
@@ -29,6 +25,7 @@ const QRCodeAndList = () => {
                     newSession.qrCode = '';
                     setSession(newSession)
                 } else {
+                    console.log('resp.DATA = ', resp.data)
                     setStudentList(resp.data!!.students!!);
                     // console.log('students: ', resp.data!!.students);
                 }
@@ -60,7 +57,7 @@ const QRCodeAndList = () => {
                 <p className="text-xl font-bold underline mb-3">Accounted:</p>
                 <ol className="text-center list-decimal text-lg">
                     {studentList.map(s => {
-                        return <li key={studentList.indexOf(s)}>{`${s.second_name} ${s.first_name}`}</li>;
+                        return <li key={studentList.indexOf(s)}>{`${s.secondName} ${s.firstName}`}</li>;
                     })}
                 </ol>
             </div>

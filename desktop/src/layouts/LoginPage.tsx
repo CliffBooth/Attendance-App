@@ -7,10 +7,10 @@ const LoginPage = () => {
 
     const {message, setMessage} = useTimeOutMessage();
 
-    const handleSubmit = async ({email}: {email: string}, setSubmitting: (s: boolean) => void) => {
-        console.log(email)
+    const handleSubmit = async (values: {email: string, password: string}, setSubmitting: (s: boolean) => void) => {
+        console.log(values)
         setSubmitting(true)
-        const resp = await signIn({email})
+        const resp = await signIn(values)
         if (resp.status === 'success') {
             //automatically save user in the localstorage and take to home page
             console.log('success!')
@@ -33,6 +33,7 @@ const LoginPage = () => {
                 <Formik
                     initialValues={{
                         email: '',
+                        password: '',
                     }}
                     onSubmit={(values, { setSubmitting }) => {
                         handleSubmit(values, setSubmitting)
@@ -49,6 +50,13 @@ const LoginPage = () => {
                                 className="input-login"
                                 type="text"
                                 {...formik.getFieldProps('email')}
+                            />
+                            <label htmlFor="password">Password</label>
+                            <input
+                                id="password"
+                                className="input-login"
+                                type="password"
+                                {...formik.getFieldProps('password')}
                             />
                             {formik.touched.email && formik.errors.email ? (
                                 <div>{formik.errors.email}</div>
