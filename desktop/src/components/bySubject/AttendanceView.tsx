@@ -32,13 +32,40 @@ const AttendanceView = () => {
     function getTable() {
         console.log(classes)
         const set = new Set<string>()
+
+        const newList: {firstName: string, secondName: string}[] = []
+
+        // predefined.students.filter(s => !classes.find(cl => cl.students.find(st => st.firstName === s.firstName && state.secondName === s.secondName)))
+        for (let i = 0; i < predefined.students.length; i++) {
+            const student = predefined.students[i];
+            // let contains = false
+            classes.forEach(cl => cl.students.forEach(st => {
+                if (st.firstName === student.firstName && st.secondName === student.secondName) {
+                    // contains = true
+                } else {
+                    newList.push({firstName: student.firstName, secondName: student.secondName})
+                }
+            }))
+            // if (contains)
+            //     delete predefined.students[i];
+        }
+
+        
         classes.forEach((c) => {
-            c.students.forEach(st => set.add(JSON.stringify(st)))
+            c.students.forEach(st => {
+                const stringified = JSON.stringify(st)
+                console.log('class = ', stringified)
+                set.add(stringified)
+            })
         })
 
         if (predefined) {
-            predefined.students.forEach(s => {
-                set.add(JSON.stringify(s))
+            newList.forEach(s => {
+                if (s !== null) {
+                    const stringified = JSON.stringify(s)
+                    console.log('predefined = ', stringified)
+                    set.add(stringified)
+                }
             })
         }
         
