@@ -145,8 +145,8 @@ router
                             );
                         }
                     } catch (error) {
-                        console.log('database query error ', error)
-                        res.status(500).send('database query error')
+                        console.log('database query error ', error);
+                        res.status(500).send('database query error');
                         return;
                     }
                 } else if (
@@ -157,18 +157,18 @@ router
                         's.first_name != undefined && s.second_name != undefined'
                     );
                     try {
-                    const student = await prisma.student.create({
-                        data: {
-                            firstName: s.firstName,
-                            secondName: s.secondName,
-                        },
-                    });
-                    students.push(student);
-                } catch (error) {
-                    console.log('database query error ', error)
-                    res.status(500).send('database query error')
-                    return;
-                }
+                        const student = await prisma.student.create({
+                            data: {
+                                firstName: s.firstName,
+                                secondName: s.secondName,
+                            },
+                        });
+                        students.push(student);
+                    } catch (error) {
+                        console.log('database query error ', error);
+                        res.status(500).send('database query error');
+                        return;
+                    }
                 }
             }
 
@@ -283,7 +283,7 @@ router.post(
 
         // const token = jwt.sign(student, SECRET);
         // res.json({ student, token });
-        res.json(student)
+        res.json(student);
     }
 );
 
@@ -390,5 +390,145 @@ router.get('/student_classes/:phoneId', async (req, res) => {
     if (result === null) res.sendStatus(404);
     else res.json(result.classes || []);
 });
+
+/**
+ * 406 - wrong input
+ */
+
+interface PostPredefined {
+    subjectName: string;
+    method: string;
+}
+
+router.post(
+    '/predefinedClasses',
+    verifyToken,
+    async (req: Request<{}, {}, PostPredefined>, res) => {
+        const user = (req as any).jwtData.user as Professor;
+
+        const subjectName = req.body.subjectName;
+        const method = req.body.method;
+        if (!subjectName || !method) {
+            res.status(406).send('wrong data');
+            return;
+        }
+
+        try {
+            const result = await prisma.predefinedClass.create({
+                data: {
+                    subjectName: subjectName,
+                    method: {
+                        connectOrCreate: {
+                            where: {
+                                name: method,
+                            },
+                            create: {
+                                name: method,
+                            },
+                        },
+                    },
+                    professor: {
+                        connect: {
+                            id: user.id,
+                        },
+                    },
+                },
+            });
+            res.json(result);
+        } catch (err) {
+            res.status(500).send('database error');
+        }
+    }
+);
+
+router.get('/predefinedClasses', verifyToken, async (req, res) => {
+    const user = (req as any).jwtData.user as Professor;
+
+    try {
+        const result = await prisma.predefinedClass.findMany({
+            where: {
+                professorId: user.id,
+            },
+            include: {
+                method: {
+                    select: {
+                        name: true,
+                    },
+                },
+                students: {
+                    select: {
+                        firstName: true,
+                        secondName: true,
+                    },
+                },
+            },
+        });
+        res.json(result);
+    } catch (err) {
+        res.status(500).send('database error');
+    }
+});
+
+interface UpdatePredefined {
+    classId: number;
+    method: string;
+    subjectName: string;
+    studentList: {
+        firstName: string;
+        secondName: string;
+    }[];
+}
+
+router.put(
+    '/predefinedClasses',
+    verifyToken,
+    async (req: Request<{}, {}, UpdatePredefined>, res) => {
+        const user = (req as any).jwtData.user as Professor;
+
+        const { classId, method, subjectName, studentList } = req.body;
+
+        if (!classId || !method || !subjectName || !studentList) {
+            res.status(406).send('wrong input');
+            return;
+        }
+
+        try {
+
+            const deleted = await prisma.studentInPredefinedClass.deleteMany({
+                where: {
+                    predefinedClassId: classId
+                }
+            })
+            
+            const result = await prisma.predefinedClass.update({
+                where: {
+                    id: classId,
+                },
+                data: {
+                    method: {
+                        connectOrCreate: {
+                            where: {
+                                name: method,
+                            },
+                            create: {
+                                name: method,
+                            },
+                        },
+                    },
+                    subjectName,
+                    students: {
+                        create: studentList.map(s => ({
+                            firstName: s.firstName,
+                            secondName: s.secondName,
+                        })),
+                    },
+                },
+            });
+            res.json(result);
+        } catch (err) {
+            res.status(500).send('database error');
+        }
+    }
+);
 
 export default router;

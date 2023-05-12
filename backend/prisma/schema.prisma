@@ -17,6 +17,7 @@ model Professor {
 
   //one(prfessor) to many (classes)
   classes Class[]
+  predefinedClasses PredefinedClass[]
 }
 
 model Student {
@@ -37,6 +38,32 @@ model Class {
   subjectName String
   //many-to-many
   students Student[]
+}
+
+model StudentInPredefinedClass {
+  id Int @id @default(autoincrement())
+  firstName String
+  secondName String
+
+  //one to one
+  predefinedClass PredefinedClass @relation(fields: [predefinedClassId], references: [id])
+  predefinedClassId Int
+}
+
+model CheckMethods {
+  id Int @id @default(autoincrement())
+  name String @unique
+  predefinedClasses PredefinedClass[]
+}
+
+model PredefinedClass {
+  id Int @id @default(autoincrement())
+  subjectName String
+  students StudentInPredefinedClass[]
+  method CheckMethods @relation(fields: [methodId], references: [id])
+  methodId Int
+  professor Professor @relation(fields: [professorId], references: [id], onDelete: Cascade)
+  professorId Int 
 }
 
 //we need to do on delete cascade at Class, because if Professor is deleted, we also delete all the classes.
