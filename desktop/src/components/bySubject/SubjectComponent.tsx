@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom"
-import { Class } from "../../services/ApiService"
+import { Class, getPredefinedClasses } from "../../services/ApiService"
 
 interface Props {
     subject_name: string,
@@ -13,8 +13,16 @@ const SubjectComponent: React.FC<Props> = ({
 
     const navigate = useNavigate()
 
-    function handleClick() {
-        navigate('/list', { state: { classes } })
+    async function handleClick() {
+        const resp = await getPredefinedClasses()
+        if (resp.status === 'success' && resp.data) {
+            const predefined = resp.data.find(p => p.subjectName.toLowerCase() === subject_name.toLowerCase())
+            navigate('/list', {state: {classes, predefined}})
+        } else {
+            console.log('cannot fetch predefined clases!! ', resp.message)
+            navigate('/list', { state: { classes } })
+        }
+        
     }
 
     return (

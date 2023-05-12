@@ -1,5 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Class, Student } from '../../services/ApiService';
+import { Subject } from '../SubjectToEdit';
+import { Square2StackIcon } from '@heroicons/react/20/solid';
 
 interface Props {
     classes: Class[];
@@ -7,9 +9,23 @@ interface Props {
 
 const AttendanceView = () => {
 
+    function studentToLowerCase(st: {firstName: string, secondName: string}) {
+        return {
+            ...st,
+            firstName: st.firstName.toLowerCase(),
+            secondName: st.secondName.toLowerCase(),
+        }
+    }
+
     const { state } = useLocation();
 
-    const { classes }: {classes: Class[]} = state;
+    const { classes, predefined }: {classes: Class[], predefined: Subject} = state;
+    classes.forEach(cl => cl.students.map(s => studentToLowerCase(s)))
+    if (predefined) {
+        predefined.students.map(s => studentToLowerCase(s))
+    }
+
+    console.log('ATTENDANCE VIEW: ', predefined )
 
     const navigate = useNavigate();
     
@@ -19,15 +35,22 @@ const AttendanceView = () => {
         classes.forEach((c) => {
             c.students.forEach(st => set.add(JSON.stringify(st)))
         })
-        const allStudents = Array.from(set.values()).map(el => JSON.parse(el))
+
+        if (predefined) {
+            predefined.students.forEach(s => {
+                set.add(JSON.stringify(s))
+            })
+        }
+        
+        const allStudents: Student[] = Array.from(set.values()).map(el => JSON.parse(el))
         allStudents.sort((a, b) => {
-            if (a.second_name < b.second_name) {
+            if (a.secondName < b.secondName) {
                 return -1
-            } else if (a.second_name > b.second_name) {
+            } else if (a.secondName > b.secondName) {
                 return 1
-            } else if  (a.first_name < b.first_name) {
+            } else if  (a.firstName < b.firstName) {
                 return -1
-            } else if (a.first_name > b.first_name) {
+            } else if (a.firstName > b.firstName) {
                 return 1
             }
             return 0
@@ -46,9 +69,13 @@ const AttendanceView = () => {
         })
 
         function equalStudents(s1: Student, s2: Student): boolean {
-            return s1.phoneId === s2.phoneId && 
-                s1.firstName === s2.firstName &&
-                s1.secondName === s2.secondName
+            if (s1.phoneId && s2.phoneId)
+                return s1.phoneId === s2.phoneId && 
+                    s1.firstName === s2.firstName &&
+                    s1.secondName === s2.secondName
+            else 
+                return s1.firstName === s2.firstName &&
+                    s1.secondName === s2.secondName
         }
 
         let currentStudentCounter = 0
