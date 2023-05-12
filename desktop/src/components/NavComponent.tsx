@@ -27,9 +27,9 @@ function NavComponent() {
                 {/* logo */}
                 {user1.email && (
                     <>
-                        <div className="font-bold text-2xl text-center p-2 grow space-x-3">
-                            <ULink to="classes">Home</ULink>
-                            <ULink to="qr">QR-Code</ULink>
+                        <div className="font-bold text-2xl text-center p-2 grow space-x-6">
+                            <ULink to="/">Home</ULink>
+                            <ULink to="qr">Start class</ULink>
                         </div>
                         {/* menu itemes */}
                         <div></div>

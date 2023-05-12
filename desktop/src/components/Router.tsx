@@ -6,6 +6,7 @@ import ClassesScreen from "../layouts/ClassesScreen"
 import Home from "../layouts/Home"
 import LoginPage from "../layouts/LoginPage"
 import QRView from "../layouts/QRView"
+import EditClass from "./EditClass"
 
 //TODO: set user in App.tsx
 
@@ -35,9 +36,10 @@ const Router = () => {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/sign-in" element={<LoginPage />} />
-                <Route path="/classes" element={<ClassesScreen />} />
+                {/* <Route path="/classes" element={<ClassesScreen />} /> */}
                 <Route path='/list' element={<AttendanceView />} />
                 <Route path='/qr' element={<QRView />} />
+                <Route path='/editClass' element={<EditClass />} />
             </Routes>
     )
 }

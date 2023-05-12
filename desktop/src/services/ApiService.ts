@@ -3,6 +3,7 @@ import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import appConfig from '../configs/appConfig';
 import UserContext from '../context/UserContext';
+import { CheckMethod, Subject } from '../components/SubjectToEdit';
 
 const client = axios.create({
     baseURL: appConfig.apiUrl,
@@ -254,7 +255,7 @@ export async function getStudentsList(data: {email: string}): Promise<Result<{
                 data: resp.data,
             };
         } else if (resp.status === 401) {
-            console.log("401!!!!!!")
+            console.log("401")
             return {
                 status: 'success',
                 message: '',
@@ -283,4 +284,101 @@ export async function getStudentsList(data: {email: string}): Promise<Result<{
             message: errors?.response?.data?.message || errors.toString()
         }
     }
+}
+
+export async function getPredefinedClasses(): Promise<Result<Subject[]>> {
+    try {
+        const resp = await client({
+            url: '/api/predefinedClasses',
+            method: 'get',
+        });
+        if (resp.status === 200) {
+            return {
+                status: 'success',
+                message: '',
+                data: resp.data
+            }
+        } else {
+            return {
+                status: 'failure',
+                message: resp.statusText
+            }
+        }
+    } catch (errors: any) {
+        return {
+            status: 'failure',
+            message: errors?.response?.data?.message || errors.toString()
+        }
+    }
+}
+
+export async function addPredefinedClass(data: {
+    subjectName: string,
+    method: CheckMethod
+}): Promise<Result<{
+    id: number,
+    subjectName: string,
+}>> {
+    try {
+        const resp = await client({
+            url: '/api/predefinedClasses',
+            method: 'post',
+            data
+        });
+        if (resp.status === 200) {
+            return {
+                status: 'success',
+                message: '',
+                data: resp.data
+            }
+        } else {
+            return {
+                status: 'failure',
+                message: resp.statusText
+            }
+        }
+    } catch (errors: any) {
+        return {
+            status: 'failure',
+            message: errors?.response?.data?.message || errors.toString()
+        }
+    } 
+}
+
+export async function updatePredefinedClass(data: {
+    classId: number,
+    studentList: {
+        firstName: string,
+        secondName: string
+    }[],
+    method: CheckMethod,
+    subjectName: string,
+}): Promise<Result<{
+    id: number,
+    subjectName: string,
+}>> {
+    try {
+        const resp = await client({
+            url: '/api/predefinedClasses',
+            method: 'put',
+            data
+        });
+        if (resp.status === 200) {
+            return {
+                status: 'success',
+                message: '',
+                data: resp.data
+            }
+        } else {
+            return {
+                status: 'failure',
+                message: resp.statusText
+            }
+        }
+    } catch (errors: any) {
+        return {
+            status: 'failure',
+            message: errors?.response?.data?.message || errors.toString()
+        }
+    } 
 }

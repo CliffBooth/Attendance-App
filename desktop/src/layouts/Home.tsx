@@ -1,6 +1,8 @@
 import { useContext } from "react";
 import { Navigate } from "react-router-dom";
 import UserContext from "../context/UserContext";
+import ClassesScreen from "./ClassesScreen";
+import CreatedClasses from "./CreatedClasses";
 
 const Home = () => {
 
@@ -12,10 +14,17 @@ const Home = () => {
     if (data)
         user = JSON.parse(data)
 
+    console.log('user = ', user)
     return (
-        <div>
-            Home
-            {user.email && <Navigate to={'classes'}/>}
+        <div className="container mx-auto">
+        {user.email &&
+            <>
+                <p className="mb-5">previous classes:</p>
+                <ClassesScreen />
+                <p className="mt-10 mb-5">Your predefined classes:</p>
+                <CreatedClasses />
+            </>
+        }
         </div>
     );
 };
