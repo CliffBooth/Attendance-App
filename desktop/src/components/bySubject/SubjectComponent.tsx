@@ -32,6 +32,7 @@ const SubjectComponent: React.FC<Props> = ({
             onClick={handleClick}
         >
             {subject_name}
+            <p className="font-normal text-sm mt-2">classes: {classes?.length}</p>
         </div>
     )
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Dialog } from '@headlessui/react';
 import SubjectToEdit, { Subject, checkMethods } from '../components/SubjectToEdit';
-import { addPredefinedClass, getPredefinedClasses } from '../services/ApiService';
+import { addPredefinedClass, deletePredefinedClass, getPredefinedClasses } from '../services/ApiService';
 
 type AuthMethod = 'any' | 'phone qr code' | 'screen qr code' | 'bluetooth'
 
@@ -28,16 +28,31 @@ const CreatedClasses = () => {
     }, [])
 
     async function onSaveSubject() {
-        //TODO: make an api request i guess
         const resp = await addPredefinedClass({
             subjectName: dialogSubjectName,
             method: checkMethods[0]
         })
-
-        await fetchSubjects();
+        if (resp.status === 'success') {
+            await fetchSubjects();
+        } else {
+            console.log('error saving new subject: ', resp.message)
+        }
 
         setSubjectName('')
         setOpened(false);
+    }
+
+    async function onDeleteSubject(id: number) {
+        const resp = await deletePredefinedClass({
+            id
+        })
+
+        if (resp.status === 'success') {
+            await fetchSubjects();
+        } else {
+            console.log('error delting subject: ', resp.message)
+        }
+
     }
 
     return (
@@ -46,10 +61,7 @@ const CreatedClasses = () => {
                 <div className="flex">
                     <SubjectToEdit className="grow" subject={s}/>
                     <button className="p-2 ml-2 rounded-md bg-red-200"
-                    onClick={e => {
-                        // const newArray = students.filter((st, i) => i !== studentIndex)
-                        // setStudents(newArray)
-                    }}>-</button>
+                    onClick={() => onDeleteSubject(s.id)}>-</button>
                 </div>
             ))}
             <div className="flex justify-end ">

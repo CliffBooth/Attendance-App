@@ -382,3 +382,29 @@ export async function updatePredefinedClass(data: {
         }
     } 
 }
+
+export async function deletePredefinedClass(data: {id: number}): Promise<Result<void>> {
+    try {
+        const resp = await client({
+            url: '/api/predefinedClasses',
+            method: 'delete',
+            data
+        });
+        if (resp.status === 200) {
+            return {
+                status: 'success',
+                message: '',
+            }
+        } else {
+            return {
+                status: 'failure',
+                message: resp.statusText
+            }
+        }
+    } catch (errors: any) {
+        return {
+            status: 'failure',
+            message: errors?.response?.data?.message || errors.toString()
+        }
+    }
+}
