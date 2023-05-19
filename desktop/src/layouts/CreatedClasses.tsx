@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Dialog } from '@headlessui/react';
+import {TrashIcon} from '@heroicons/react/24/outline'
 import SubjectToEdit, { Subject, checkMethods } from '../components/SubjectToEdit';
 import { addPredefinedClass, deletePredefinedClass, getPredefinedClasses } from '../services/ApiService';
 
@@ -61,7 +62,12 @@ const CreatedClasses = () => {
                 <div className="flex">
                     <SubjectToEdit className="grow" subject={s}/>
                     <button className="p-2 ml-2 rounded-md bg-red-200"
-                    onClick={() => onDeleteSubject(s.id)}>-</button>
+                    onClick={() => onDeleteSubject(s.id)}>
+                        <TrashIcon
+                            className='h-5 w-5' 
+                            aria-hidden="true"
+                        />
+                    </button>
                 </div>
             ))}
             <div className="flex justify-end ">

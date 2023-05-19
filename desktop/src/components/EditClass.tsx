@@ -2,8 +2,10 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { CheckMethod, Student, Subject, checkMethods } from './SubjectToEdit';
 import { useState } from 'react';
 import { Listbox } from '@headlessui/react';
-import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
+import { CheckIcon, ChevronUpDownIcon,} from '@heroicons/react/20/solid'
+import {TrashIcon} from '@heroicons/react/24/outline'
 import { updatePredefinedClass } from '../services/ApiService';
+
 
 const EditClass = () => {
     const { state } = useLocation();
@@ -141,7 +143,12 @@ const EditClass = () => {
                                 onClick={e => {
                                     const newArray = students.filter((st, i) => i !== studentIndex)
                                     setStudents(newArray)
-                                }}>-</button>
+                                }}>
+                                    <TrashIcon
+                                        className='h-5 w-5' 
+                                        aria-hidden="true"
+                                    />
+                                </button>
                             </li>
                         ))}
                     </ol>
