@@ -286,6 +286,38 @@ app.post('/current-students', (req, res) => {
     res.json(result)
 });
 
+app.post('/add-student', (req, res) => {
+    const email = req.body.email
+    const student = req.body.student
+    if (!email || !student) {
+        res.sendStatus(406);
+        return;
+    }
+    const session = sessions[email];
+    if (!session) {
+        res.sendStatus(401);
+        return;
+    }
+    session.manuallyAdd(student)
+    res.sendStatus(200)
+})
+
+app.post('/delete-student', (req, res) => {
+    const email = req.body.email
+    const student = req.body.student
+    if (!email || !student) {
+        res.sendStatus(406);
+        return;
+    }
+    const session = sessions[email];
+    if (!session) {
+        res.sendStatus(401);
+        return;
+    }
+    session.manuallyDelete(student)
+    res.sendStatus(200) 
+})
+
 // (app as any).ws('/websocket', (ws: WebSocket, req: express.Request) => {
 //     console.log('WEBSOCKET')
 //     console.log(req.body.email)

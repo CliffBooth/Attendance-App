@@ -64,6 +64,10 @@ model PredefinedClass {
   methodId Int
   professor Professor @relation(fields: [professorId], references: [id], onDelete: Cascade)
   professorId Int 
+  updatedAt DateTime @default(now()) @updatedAt
+
+  //each professor must have unique subjects
+  @@unique([subjectName, professorId])
 }
 
 //we need to do on delete cascade at Class, because if Professor is deleted, we also delete all the classes.

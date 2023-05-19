@@ -475,7 +475,8 @@ router.get('/predefinedClasses', verifyToken, async (req, res) => {
                 },
             },
         });
-        res.json(result);
+        const toSend = result.map(r => ({...r, updatedAt: new Date(r.updatedAt).getTime()}))
+        res.json(toSend);
     } catch (err) {
         console.log(err);
         res.status(500).send('database error');
@@ -492,15 +493,18 @@ interface UpdatePredefined {
     }[];
 }
 
+/**
+ * don't have to send predefined class id
+ */
 router.put(
     '/predefinedClasses',
     verifyToken,
     async (req: Request<{}, {}, UpdatePredefined>, res) => {
         const user = (req as any).jwtData.user as Professor;
 
-        const { classId, method, subjectName, studentList } = req.body;
+        const { method, subjectName, studentList } = req.body;
 
-        if (!classId || !method || !subjectName || !studentList) {
+        if (!method || !subjectName || !studentList) {
             res.status(406).send('wrong input');
             return;
         }
@@ -508,13 +512,41 @@ router.put(
         try {
             const deleted = await prisma.studentInPredefinedClass.deleteMany({
                 where: {
-                    predefinedClassId: classId,
+                    predefinedClass: {
+                        subjectName: subjectName,
+                        professorId: user.id,
+                    }
                 },
             });
 
+            await prisma.predefinedClass.upsert({
+                where: {
+                    subjectName_professorId: {subjectName, professorId: user.id}
+                },
+                update:{},
+                create: {
+                    subjectName: subjectName,
+                    method: {
+                        connectOrCreate: {
+                            where: {
+                                name: method,
+                            },
+                            create: {
+                                name: method,
+                            },
+                        },
+                    },
+                    professor: {
+                        connect: {
+                            id: user.id,
+                        },
+                    },
+                }
+            })
+
             const result = await prisma.predefinedClass.update({
                 where: {
-                    id: classId,
+                    subjectName_professorId: {subjectName, professorId: user.id}
                 },
                 data: {
                     method: {
@@ -535,8 +567,12 @@ router.put(
                         })),
                     },
                 },
+                include: {
+                    students: true
+                }
             });
-            res.json(result);
+            const toSend = {...result, updatedAt: new Date(result.updatedAt).getTime()}
+            res.json(toSend);
         } catch (err) {
             console.log(err);
             res.status(500).send('database error');

@@ -13,6 +13,8 @@ export class Session {
     subjectName: string
     private idToName: { [id: string]: { firstName: string; secondName: string } } = {};
 
+    private manuallyAdded: {firstName: string, secondName: string}[] = []
+
     private currentToken: string | null = null;
     private currentId: string | null = null;
 
@@ -60,6 +62,16 @@ export class Session {
         this.idToName[id] = { firstName, secondName }
     }
 
+    //called when student is added manually from to sync list of students between android and desktop
+    manuallyAdd(student: {firstName: string, secondName: string}) {
+        this.manuallyAdded.push(student)
+    }
+
+    manuallyDelete(student: {firstName: string, secondName: string}) {
+        const index = this.manuallyAdded.indexOf(student)
+        this.manuallyAdded.splice(index, 1)
+    }
+
     /**
      * @param str = "${firstName}:${seconNmae}:${id}"
      * @throws Error if string has wrong structure
@@ -103,12 +115,21 @@ export class Session {
         return this.currentToken!!;
     }
 
-    //get list of all students in this session as {email, first_name, second_name}[]
-    getListOfStudents(): Student[] {
-        return Object.keys(this.idToName).map(id => ({
+    //get list of all students in this session as {id, first_name, second_name}[]
+    getListOfStudents(): (Student | {firstName: string, secondName: string, phoneId: null})[] {
+        const withId =  Object.keys(this.idToName).map(id => ({
             phoneId: id,
             firstName: this.idToName[id].firstName,
             secondName: this.idToName[id].secondName,
         }))
+        const withoutId = this.manuallyAdded.map(s => ({...s, phoneId: null}))
+        const result: (Student | {firstName: string, secondName: string, phoneId: null})[] = []
+        for (let st of withId) {
+            result.push(st)
+        }
+        for (let st of withoutId) {
+            result.push(st)
+        }
+        return result
     }
 }
