@@ -65,4 +65,7 @@
     <string name="password_hint">password</string>
     <string name="your_classes">Your classes:</string>
     <string name="updating">Updating...</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="yes">Yes</string>
+    <string name="cancel">Cancel</string>
 </resources>

@@ -8,7 +8,6 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.room.Room
 import com.vysotsky.attendance.MenuActivity
 import com.vysotsky.attendance.R
 import com.vysotsky.attendance.TAG
@@ -35,7 +34,7 @@ class ProfessorHomeActivity : MenuActivity() {
             object: ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
                     Log.d(TAG, "ProfessorHomeActivity inside viewModel create()!!")
-                    return ProfessorHomeViewModel(db.dao) as T
+                    return ProfessorHomeViewModel(db) as T
                 }
             }
         }

@@ -88,6 +88,8 @@ class StopSessionFragment: Fragment() {
                     exitSession()
 
                 }
+
+                else -> Unit
             }
         }
         viewModel.isStopButtonEnabled.observe(viewLifecycleOwner) {

@@ -111,10 +111,10 @@ class ProfessorLogInActivity : AppCompatActivity() {
     private fun displayDialog() {
         val dialogBuilder = AlertDialog.Builder(this).apply {
             setTitle("Non existent email! Do you want to register with this email?")
-            setPositiveButton("Yes") { dialog, id ->
+            setPositiveButton(getString(R.string.yes)) { dialog, id ->
                 viewModel.signup(viewModel.enteredEmail, viewModel.enteredPassword)
             }
-            setNegativeButton("No") {_, _ -> }
+            setNegativeButton(getString(R.string.cancel)) {_, _ -> }
         }
         dialogBuilder.create().show()
     }

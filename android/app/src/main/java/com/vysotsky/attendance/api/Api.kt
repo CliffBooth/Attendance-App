@@ -6,6 +6,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 
@@ -28,6 +29,18 @@ interface Api {
 
     @POST("/end")
     suspend fun endSession(@Body professorData: ProfessorData): Response<List<Student>>
+
+    @POST("/add-student")
+    suspend fun addAttendeeToCurrentSession(@Body studentData: ManualStudentData): Response<Void>
+
+    @POST("/delete-student")
+    suspend fun deleteAttendeeFromCurrentSession(@Body studentData: ManualStudentData): Response<Void>
+
+    @GET("api/predefinedClasses")
+    suspend fun getPredefinedClasses(@Header("Authorization") token: String): Response<List<PredefinedClass>>
+
+    @PUT("api/predefinedClasses")
+    suspend fun updatePredefined(@Header("Authorization") token: String, @Body body: PredefinedClassToSend): Response<List<PredefinedClass>>
 
     //student
     @GET("api/student_classes/{email}")

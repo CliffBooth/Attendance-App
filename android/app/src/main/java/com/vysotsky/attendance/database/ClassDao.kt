@@ -11,7 +11,7 @@ interface ClassDao {
     suspend fun insertClass(cl: Class)
 
     @Upsert
-    suspend fun insertAll(cl: List<Class>)
+    suspend fun insertAll(values: List<Class>)
 
     @Query("Select * from class")
     suspend fun getAll(): List<Class>

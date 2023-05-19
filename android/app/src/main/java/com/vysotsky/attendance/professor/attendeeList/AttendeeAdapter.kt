@@ -1,5 +1,6 @@
 package com.vysotsky.attendance.professor.attendeeList
 
+import android.app.AlertDialog
 import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,10 +10,15 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.view.isVisible
 import com.vysotsky.attendance.R
 import com.vysotsky.attendance.TAG
 
-class AttendeeAdapter(context: Context, private val data: MutableList<Attendee>) :
+class AttendeeAdapter(
+    context: Context,
+    private val data: MutableList<Attendee>,
+    private val onDelete : (student: Attendee) -> Unit
+) :
     ArrayAdapter<Attendee>(context, R.layout.list_item, data) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
@@ -23,10 +29,23 @@ class AttendeeAdapter(context: Context, private val data: MutableList<Attendee>)
 
         val deleteImage = result.findViewById<ImageView>(R.id.delete_image)
         deleteImage.setOnClickListener {
-            //TODO: delete from the server!
-            //TODO: display toast (or snack) with undo option
-            data.removeAt(position)
-            notifyDataSetChanged()
+            //TODO: launch dialog
+            val dialogBuilder = AlertDialog.Builder(context).apply {
+                setTitle(context.getString(R.string.are_you_sure))
+                setPositiveButton(context.getString(R.string.yes)) {dialog, id ->
+                    val removed = data.removeAt(position)
+                    notifyDataSetChanged()
+                    onDelete(removed)
+                }
+                setNegativeButton(context.getString(R.string.cancel)) {_, _ -> }
+            }
+            dialogBuilder.create().show()
+        }
+
+        if (attendee.id != null) {
+            deleteImage.isVisible = false
+        } else {
+            deleteImage.isVisible = true
         }
 
         result.findViewById<TextView>(R.id.first_name).text = attendee.firstName

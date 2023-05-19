@@ -89,27 +89,6 @@ class ProfessorHomeFragment : Fragment() {
     }
 
     private fun subscribe() {
-//        activityViewModel.sessions.observe(viewLifecycleOwner) {
-//            when (it) {
-//                is Resource.Error -> {
-//                    binding.pb.isVisible = false
-//                    Toast.makeText(
-//                        requireContext(),
-//                        it.message,
-//                        Toast.LENGTH_LONG
-//                    ).show()
-//                    activityViewModel.btnRetryRequestVisibility.value = true
-//                }
-//                is Resource.Loading -> {
-//                    binding.pb.isVisible = true
-//                }
-//                is Resource.Success -> {
-//                    binding.pb.isVisible = false
-//                    fillRecyclerView(it.data!!)
-//                }
-//            }
-//        }
-
         activityViewModel.state.observe(viewLifecycleOwner) {
             Log.d(TAG, "observer(): state = ${it}")
             if (it.databaseLoaded) {
@@ -122,6 +101,7 @@ class ProfessorHomeFragment : Fragment() {
             when (it.apiResponse) {
                 is Resource.Loading -> {
                     binding.textView.text = getString(R.string.updating)
+                    binding.swipeToRefresh.isRefreshing = true
                 }
 
                 is Resource.Error -> {

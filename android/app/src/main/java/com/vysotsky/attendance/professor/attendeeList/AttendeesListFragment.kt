@@ -1,5 +1,6 @@
 package com.vysotsky.attendance.professor.attendeeList
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.vysotsky.attendance.R
 import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.databinding.FragmentAttendeesListBinding
 import com.vysotsky.attendance.professor.SessionViewModel
@@ -25,7 +27,14 @@ class AttendeesListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val binding = FragmentAttendeesListBinding.inflate(inflater)
-        adapter = AttendeeAdapter(requireContext(), viewModel.attendeesList)
+        val email = context
+            ?.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+            ?.getString(getString(R.string.saved_email), "error") ?: "error"
+
+        adapter = AttendeeAdapter(requireContext(), viewModel.attendeesList) { attendee ->
+            viewModel.deleteAttendee(email, attendee)
+        }
+
         viewModel.attendeesList.adapter = adapter
         binding.list.adapter = adapter
 
@@ -42,6 +51,7 @@ class AttendeesListFragment : Fragment() {
             val attendee = Attendee(firstName, secondName, null, Status.OK)
 
             viewModel.addAttendeeToList(attendee)
+            viewModel.saveAttendee(email, attendee)
         }
 
         binding.fab.setOnClickListener {

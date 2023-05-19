@@ -11,10 +11,11 @@ import com.vysotsky.attendance.professor.attendeeList.AdapterList
 import com.vysotsky.attendance.professor.attendeeList.Attendee
 import com.vysotsky.attendance.professor.attendeeList.GeoLocation
 import com.vysotsky.attendance.util.Resource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class SessionViewModel: ViewModel() {
+class SessionViewModel : ViewModel() {
     var intnetErrorMessageVisibility = MutableLiveData(View.GONE)
     var sessionStarted = false
     var isUsingGeodata = false
@@ -37,6 +38,45 @@ class SessionViewModel: ViewModel() {
     fun addAttendeeToList(attendee: Attendee) {
         attendeesList += attendee
         attendeesList.notifyDataSetChanged()
+    }
+
+    /**
+     * Attempt to save manually added attendee on the backend
+     */
+    fun saveAttendee(email: String, attendee: Attendee) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val resp = RetrofitInstance.api.addAttendeeToCurrentSession(
+                    ManualStudentData(
+                        email = email,
+                        student = Student(phoneId = null, attendee.firstName, attendee.secondName)
+                    )
+                )
+                if (!resp.isSuccessful) {
+                    Log.d(TAG, "SessionViewModel: saveAttendee() can't saveAttendee, message = ${resp.message()}")
+                }
+            } catch (e: Throwable) {
+                Log.e(TAG, "SessionViewModel: saveAttendee()", e)
+            }
+        }
+    }
+
+    fun deleteAttendee(email: String, attendee: Attendee) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val resp = RetrofitInstance.api.deleteAttendeeFromCurrentSession(
+                    ManualStudentData(
+                        email = email,
+                        student = Student(phoneId = null, attendee.firstName, attendee.secondName)
+                    )
+                )
+                if (!resp.isSuccessful) {
+                    Log.d(TAG, "SessionViewModel: delete() can't deleteAttendee, message = ${resp.message()}")
+                }
+            } catch (e: Throwable) {
+                Log.e(TAG, "SessionViewModel: deleteAttendee()", e)
+            }
+        }
     }
 
     //    val attendeesList = mutableListOf<Attendee>()
@@ -109,7 +149,13 @@ class SessionViewModel: ViewModel() {
                 try {
                     val response = RetrofitInstance.api.getCurrentStudentsList(ProfessorData(email))
                     if (response.isSuccessful) {
-                        val list = response.body()!!.students.map { s -> Attendee(s.firstName, s.secondName, s.phoneId) }
+                        val list = response.body()!!.students.map { s ->
+                            Attendee(
+                                s.firstName,
+                                s.secondName,
+                                s.phoneId
+                            )
+                        }
                         list.forEach { a ->
                             if (attendeesList.none { it.id == a.id }) {
                                 addAttendeeToList(a)

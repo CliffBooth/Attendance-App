@@ -4,23 +4,23 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.common.internal.ResourceUtils
+import androidx.room.Database
 import com.vysotsky.attendance.TAG
+import com.vysotsky.attendance.api.PredefinedClass
+import com.vysotsky.attendance.api.PredefinedClassToSend
 import com.vysotsky.attendance.api.RetrofitInstance
 import com.vysotsky.attendance.api.Session
-import com.vysotsky.attendance.api.Student
+import com.vysotsky.attendance.database.AttendanceDatabase
+import com.vysotsky.attendance.database.Class
 import com.vysotsky.attendance.database.ClassDao
+import com.vysotsky.attendance.database.PredefinedClassDB
 import com.vysotsky.attendance.util.Resource
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
-import java.io.IOException
-import com.vysotsky.attendance.database.Class
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 
 class ProfessorHomeViewModel(
-    private val dao: ClassDao
+    private val db: AttendanceDatabase
 ) : ViewModel() {
     val state = MutableLiveData<State>()
 
@@ -45,14 +45,14 @@ class ProfessorHomeViewModel(
     private suspend fun getFromDatabase(): List<Class> {
         var classes: List<Class> = listOf()
         try {
-            classes = dao.getAll()
+            classes = db.classDao.getAll()
         } catch (e: Throwable) {
             Log.e(TAG, "ProfessorHomeViewModel getFromDatabase() error! ", e)
         }
         return classes
     }
 
-    private suspend fun getFromApi(email: String, token: String): Resource<List<Session>> {
+    private suspend fun getClassesFromApi(email: String, token: String): Resource<List<Session>> {
         var result: Resource<List<Session>> = Resource.Error("network error")
         try {
             val response = RetrofitInstance.api.getProfessorSessions(email, token)
@@ -65,11 +65,37 @@ class ProfessorHomeViewModel(
         return result
     }
 
+    private suspend fun getPredefinedFromDB(): List<PredefinedClassDB> {
+        var predefined: List<PredefinedClassDB> = listOf()
+        try {
+            predefined = db.predefinedClassDao.getAll()
+        } catch (e: Throwable) {
+            Log.e(TAG, "ProfessorHomeViewModel getPredefinedFromDB() error! ", e)
+        }
+        return predefined
+    }
+
+    private suspend fun getPredefinedFromApi(token: String): Resource<List<PredefinedClass>> {
+        var result: Resource<List<PredefinedClass>> = Resource.Error("network error")
+        try {
+            val response = RetrofitInstance.api.getPredefinedClasses(token)
+            if (response.body() != null) {
+                Log.d(TAG, "getPredefinedFromApi(): response.body() = ${response.body()}")
+                result = Resource.Success(response.body()!!)
+            }
+        } catch (e: Throwable) {
+            Log.e(TAG, "ProfessorHomeViewModel getFromApi() error! ", e)
+        }
+        return result
+    }
+
     private fun test(email: String, token: String) {
         var databaseClasses: List<Session> = listOf()
         var apiClasses: List<Session> = listOf()
+        var apiPredefined: List<PredefinedClass> = listOf()
+        var dbPredefined: List<PredefinedClassDB> = listOf()
 
-        var connectionToApi = false
+        var connectionToApi = true
 
         state.value = (
             State(
@@ -80,7 +106,7 @@ class ProfessorHomeViewModel(
         )
         viewModelScope.launch(Dispatchers.IO) {
             listOf(
-                async {
+                launch {
                     databaseClasses =
                         getFromDatabase().map { Session(it.date, it.students, it.subjectName) }
                     //display data from api first
@@ -93,37 +119,80 @@ class ProfessorHomeViewModel(
                     )
                     Log.d(TAG, "after db()")
                 },
-                async {
-                    val res = getFromApi(email, token)
+                launch {
+                    val res = getClassesFromApi(email, token)
                     if (res is Resource.Success && res.data != null) {
-                        connectionToApi = true
                         apiClasses = res.data
                         //we also might need to do the sync requests, so don't display anything yet
                     } else {
-                        state.postValue(
-                            State(
-                                databaseLoaded = state.value?.databaseLoaded ?: false,
-                                apiResponse = Resource.Error(res.message ?: "Network error"),
-                                classes = state.value?.classes ?: listOf()
+                        if (connectionToApi) {
+                            state.postValue(
+                                State(
+                                    databaseLoaded = state.value?.databaseLoaded ?: false,
+                                    apiResponse = Resource.Error(res.message ?: "Network error"),
+                                    classes = state.value?.classes ?: listOf()
+                                )
                             )
-                        )
+                            synchronized(this@ProfessorHomeViewModel) {
+                                connectionToApi = false
+                            }
+                        }
                     }
-
                     Log.d(TAG, "after api()")
-                }
-            ).awaitAll()
+                },
+                launch {
+                    dbPredefined = getPredefinedFromDB()
+                    //TODO: maybe change some state...
+                },
+                launch {
+                    val res = getPredefinedFromApi(token)
+                    if (res is Resource.Success && res.data != null) {
+                        apiPredefined = res.data
+                    } else {
+                        if (connectionToApi) {
+                            state.postValue(
+                                State(
+                                    databaseLoaded = state.value?.databaseLoaded ?: false,
+                                    apiResponse = Resource.Error(res.message ?: "Network error"),
+                                    classes = state.value?.classes ?: listOf() //TODO: make list of predefined classes!
+                                )
+                            )
+                            synchronized(this@ProfessorHomeViewModel) {
+                                connectionToApi = false
+                            }
+                        }
+                    }
+                    Log.d(TAG, "after predefinedApi()")
+                },
+            ).joinAll()
 
-            Log.d(TAG, "after awaitAll()")
+            Log.d(TAG, "after joinAll()")
             Log.d(TAG, "databaseClasses = ${databaseClasses}")
             Log.d(TAG, "apiClasses = ${apiClasses}")
+            Log.d(TAG, "apiPredefined = ${apiPredefined}")
+            Log.d(TAG, "dbPredefined = ${dbPredefined}")
 
             val allClasses = (databaseClasses + apiClasses).distinctBy { it.date }
             val toInsertInDatabase = allClasses - databaseClasses.toSet()
             val toSendToApi = allClasses - apiClasses.toSet()
+
+            val allPredefined = (dbPredefined + apiPredefined.map { it.asDatabaseModel() }).distinctBy { it.subjectName }
+            val predefinedToInsertInDB = mutableListOf<PredefinedClassDB>()
+            val predefinedToSend = mutableListOf<PredefinedClassToSend>()
+            for (p in allPredefined) {
+                val inDb = dbPredefined.find { it.subjectName == p.subjectName }
+                val inApi = apiPredefined.find { it.subjectName == p.subjectName }
+                if (inApi != null && (inDb == null || inDb.updatedAt < inApi.updatedAt)) {
+                    predefinedToInsertInDB += p
+                } else if (inDb != null && (inApi == null || inApi.updatedAt < inDb.updatedAt)) {
+                    predefinedToSend += p.asNetworkModel()
+                }
+            }
+
             //insert and/or update api
             if (toInsertInDatabase.isNotEmpty()) {
                 try {
-                    dao.insertAll(toInsertInDatabase.map { s ->
+                    db.classDao.insertAll(toInsertInDatabase.map { s ->
                         Class(
                             date = s.date,
                             subjectName = s.subjectName,
@@ -131,7 +200,15 @@ class ProfessorHomeViewModel(
                         )
                     })
                 } catch (e: Error) {
-                    Log.e(TAG, "Can't insert into database!", e)
+                    Log.e(TAG, "Can't insert class into database!", e)
+                }
+            }
+
+            if (predefinedToInsertInDB.isNotEmpty()) {
+                try {
+                    db.predefinedClassDao.insertAll(predefinedToInsertInDB)
+                } catch (e: Error) {
+                    Log.e(TAG, "Can't insert predefined into database!", e)
                 }
             }
 
@@ -148,6 +225,23 @@ class ProfessorHomeViewModel(
                         }
                     } catch (e: Throwable) {
                         sendSuccess = false
+                        break
+                    }
+                }
+            }
+            var sendPredefinedSuccess = true
+            if (connectionToApi && predefinedToSend.isNotEmpty()) {
+                for (p in predefinedToSend) {
+                    try {
+                        val resp = RetrofitInstance.api.updatePredefined(token, p)
+                        if (resp.isSuccessful) {
+                            continue
+                        } else {
+                            sendPredefinedSuccess = false
+                            break
+                        }
+                    } catch (e: Throwable) {
+                        sendPredefinedSuccess = false
                         break
                     }
                 }

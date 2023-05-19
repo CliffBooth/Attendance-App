@@ -23,7 +23,7 @@ open class MenuActivity : AppCompatActivity() {
                     .clear()
                     .apply()
                 runBlocking {
-                    getDatabase(this@MenuActivity).dao.clear()
+                    getDatabase(this@MenuActivity).classDao.clear()
                 }
                 startActivity(Intent(this, MainActivity::class.java))
                 finish()

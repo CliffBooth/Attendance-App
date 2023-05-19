@@ -7,23 +7,24 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 @Database(
-    entities = [Class::class],
-    version = 2,
+    entities = [Class::class, PredefinedClassDB::class],
+    version = 4,
     exportSchema = false,
 )
 @TypeConverters(TypeConverter::class)
-abstract class ClassDatabase : RoomDatabase() {
-    abstract val dao: ClassDao
+abstract class AttendanceDatabase : RoomDatabase() {
+    abstract val classDao: ClassDao
+    abstract val predefinedClassDao: PredefinedClassDao
 }
 
-private lateinit var INSTANCE: ClassDatabase
+private lateinit var INSTANCE: AttendanceDatabase
 
-fun getDatabase(context: Context): ClassDatabase {
-    synchronized(ClassDatabase::class.java) {
+fun getDatabase(context: Context): AttendanceDatabase {
+    synchronized(AttendanceDatabase::class.java) {
         if (!::INSTANCE.isInitialized) {
             INSTANCE = Room.databaseBuilder(
                 context.applicationContext,
-                ClassDatabase::class.java,
+                AttendanceDatabase::class.java,
                 "class.db"
             )
                 .fallbackToDestructiveMigration()
