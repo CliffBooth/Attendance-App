@@ -46,7 +46,7 @@ model StudentInPredefinedClass {
   secondName String
 
   //one to one
-  predefinedClass PredefinedClass @relation(fields: [predefinedClassId], references: [id])
+  predefinedClass PredefinedClass @relation(fields: [predefinedClassId], references: [id], onDelete: Cascade)
   predefinedClassId Int
 }
 

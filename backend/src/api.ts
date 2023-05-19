@@ -28,6 +28,7 @@ const verifyToken = (
         (req as any).jwtData = { user };
         next();
     } catch (err) {
+        console.log(err);
         res.status(401).send('invalid token');
         return;
     }
@@ -78,8 +79,13 @@ router
             },
         });
 
-        if (result === null) res.sendStatus(404);
-        else res.json(result.classes);
+        if (result === null){
+            res.sendStatus(404);
+            return;
+        }
+        const toReturn = result?.classes.map(cl => ({...cl, date: new Date(cl.date).getTime()}))
+        res.json(toReturn);
+
     })
     //save a new class object with professor's email
     /**
@@ -154,7 +160,7 @@ router
                     s.secondName != undefined
                 ) {
                     console.log(
-                        's.first_name != undefined && s.second_name != undefined'
+                        's.firstName != undefined && s.secondName != undefined'
                     );
                     try {
                         const student = await prisma.student.create({
@@ -191,7 +197,12 @@ router
                 },
             });
 
-            res.json(result);
+            const toSend = {
+                ...result,
+                date: new Date(result.date).getTime()
+            }
+
+            res.json(toSend);
         }
     );
 
@@ -436,6 +447,7 @@ router.post(
             });
             res.json(result);
         } catch (err) {
+            console.log(err);
             res.status(500).send('database error');
         }
     }
@@ -465,6 +477,7 @@ router.get('/predefinedClasses', verifyToken, async (req, res) => {
         });
         res.json(result);
     } catch (err) {
+        console.log(err);
         res.status(500).send('database error');
     }
 });
@@ -493,13 +506,12 @@ router.put(
         }
 
         try {
-
             const deleted = await prisma.studentInPredefinedClass.deleteMany({
                 where: {
-                    predefinedClassId: classId
-                }
-            })
-            
+                    predefinedClassId: classId,
+                },
+            });
+
             const result = await prisma.predefinedClass.update({
                 where: {
                     id: classId,
@@ -526,9 +538,133 @@ router.put(
             });
             res.json(result);
         } catch (err) {
+            console.log(err);
             res.status(500).send('database error');
         }
     }
 );
+
+router.delete('/predefinedClasses', verifyToken, async (req, res) => {
+    const id = req.body.id;
+    if (!id) {
+        res.status(406).send('wrong data');
+    }
+
+    try {
+        const result = await prisma.predefinedClass.delete({
+            where: {
+                id,
+            },
+        });
+        res.sendStatus(200);
+    } catch (err) {
+        console.log(err);
+        res.status(500).send('database error');
+    }
+});
+
+interface PostAttendanceBody {
+    subjectName: string;
+}
+
+/**
+ * return type:
+ * {
+    listOfStudents: [], //gathered from all classes + predefined if exists
+    dateToStudents: {
+        [date: string]: {
+            firstName: string,
+            secondName: string,
+        }
+    }[]
+ * }
+ */
+router.post('/attendance', verifyToken, async (req, res) => {
+    const body = req.body as PostAttendanceBody;
+
+    const user = (req as any).jwtData.user as Professor;
+
+    const fullListOfStudents: Student[] = [];
+    const dateToStudents: { [date: string]: Student[] }[] = [];
+
+    try {
+        const classes = await prisma.class.findMany({
+            where: {
+                subjectName: body.subjectName,
+            },
+            include: {
+                students: true,
+            },
+        });
+
+        classes.forEach(cl => {
+            const students = cl.students;
+            students.forEach(st => {
+                if (st.phoneId) {
+                    if (!fullListOfStudents.find(s => s.phoneId === st.phoneId)) {
+                        fullListOfStudents.push(st);
+                    }
+                } else {
+                    if (
+                        !fullListOfStudents.find(
+                            s =>
+                                s.firstName.toLocaleLowerCase() ===
+                                    st.firstName.toLocaleLowerCase() &&
+                                s.secondName.toLowerCase() ===
+                                    st.secondName.toLocaleLowerCase()
+                        )
+                    ) {
+                        fullListOfStudents.push(st);
+                    }
+                }
+            });
+    
+            dateToStudents.push({ [cl.date.toString()]: cl.students });
+        });
+        
+    } catch (err) {
+        console.log(err);
+        res.status(500).send('database error');
+        return;
+    }
+
+    console.log('after first try')
+    console.log(user)
+
+    try {
+        const predefinedClass = await prisma.predefinedClass.findFirst({
+            where: {
+                professorId: user.id,
+                subjectName: body.subjectName,
+            },
+            include: {
+                students: true,
+            },
+        });
+        if (predefinedClass)
+            predefinedClass?.students.forEach(st => {
+                if (
+                    !fullListOfStudents.find(
+                        s =>
+                            s.firstName.toLowerCase() ===
+                                st.firstName.toLowerCase() &&
+                            s.secondName.toLowerCase() ===
+                                st.secondName.toLowerCase()
+                    )
+                ) {
+                    fullListOfStudents.push({ ...st, phoneId: null });
+                }
+            });
+    } catch (err) {
+        console.log(err);
+        res.status(500).send('database error');
+        return;
+    }
+
+    res.json({
+        listOfStudents: fullListOfStudents,
+        dateToStudents: dateToStudents,
+    });
+});
 
 export default router;
