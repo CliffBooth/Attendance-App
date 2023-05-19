@@ -12,10 +12,11 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.room.Room
 import com.vysotsky.attendance.R
 import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.databinding.FragmentProfessorHomeBinding
-import com.vysotsky.attendance.models.Session
+import com.vysotsky.attendance.api.Session
 import com.vysotsky.attendance.util.Resource
 import com.vysotsky.attendance.util.SubjectsAdapter
 import java.io.Serializable
@@ -49,16 +50,20 @@ class ProfessorHomeFragment : Fragment() {
         val email = sharedPreferences.getString(getString(R.string.saved_email), "")
         val token = sharedPreferences.getString(getString(R.string.access_token), "")
         activityViewModel.getSessions(email!!, token=token!!)
-        binding.btnRetryRequest.setOnClickListener {
-            activityViewModel.getSessions(email, token=token, force = true)
-            activityViewModel.btnRetryRequestVisibility.value = false
+//        binding.btnRetryRequest.setOnClickListener {
+//            activityViewModel.getSessions(email, token=token, force = true)
+//            activityViewModel.btnRetryRequestVisibility.value = false
+//        }
+        binding.swipeToRefresh.setOnRefreshListener {
+            Log.d(TAG, "ProfessorHomeFragment onRefresh()")
+            activityViewModel.getSessions(email, token, force=true)
         }
         subscribe()
     }
 
     private fun setUpRecyclerView() = binding.rv.apply {
         subjectsAdapter = SubjectsAdapter { subjectName ->
-            val allSessions = activityViewModel.sessions.value?.data
+            val allSessions = activityViewModel.state.value?.classes
             if (allSessions == null) {
                 Log.e(TAG, "Subject onClick(): sessions list is null!", )
             } else {
@@ -77,36 +82,70 @@ class ProfessorHomeFragment : Fragment() {
         if (sessions.isEmpty()) {
             activityViewModel.tvNoItemsVisibility.value = true
         } else {
+            activityViewModel.tvNoItemsVisibility.value = false
             val subjects = sessions.map { s -> s.subjectName }.toSet().toList()
             subjectsAdapter.subjects = subjects
         }
     }
 
     private fun subscribe() {
-        activityViewModel.sessions.observe(viewLifecycleOwner) {
-            when (it) {
+//        activityViewModel.sessions.observe(viewLifecycleOwner) {
+//            when (it) {
+//                is Resource.Error -> {
+//                    binding.pb.isVisible = false
+//                    Toast.makeText(
+//                        requireContext(),
+//                        it.message,
+//                        Toast.LENGTH_LONG
+//                    ).show()
+//                    activityViewModel.btnRetryRequestVisibility.value = true
+//                }
+//                is Resource.Loading -> {
+//                    binding.pb.isVisible = true
+//                }
+//                is Resource.Success -> {
+//                    binding.pb.isVisible = false
+//                    fillRecyclerView(it.data!!)
+//                }
+//            }
+//        }
+
+        activityViewModel.state.observe(viewLifecycleOwner) {
+            Log.d(TAG, "observer(): state = ${it}")
+            if (it.databaseLoaded) {
+                binding.pb.isVisible = false
+            } else {
+                binding.pb.isVisible = true
+                return@observe
+            }
+
+            when (it.apiResponse) {
+                is Resource.Loading -> {
+                    binding.textView.text = getString(R.string.updating)
+                }
+
                 is Resource.Error -> {
-                    binding.pb.isVisible = false
+                    binding.swipeToRefresh.isRefreshing = false
+                    binding.textView.text = getString(R.string.your_classes)
                     Toast.makeText(
                         requireContext(),
-                        it.message,
+                        it.apiResponse.message,
                         Toast.LENGTH_LONG
                     ).show()
-                    activityViewModel.btnRetryRequestVisibility.value = true
                 }
-                is Resource.Loading -> {
-                    binding.pb.isVisible = true
-                }
-                is Resource.Success -> {
-                    binding.pb.isVisible = false
-                    fillRecyclerView(it.data!!)
+
+                else -> {
+                    binding.swipeToRefresh.isRefreshing = false
+                    binding.textView.text = getString(R.string.your_classes)
                 }
             }
+
+            fillRecyclerView(it.classes)
         }
 
-        activityViewModel.btnRetryRequestVisibility.observe(viewLifecycleOwner) {
-            binding.btnRetryRequest.isVisible = it
-        }
+//        activityViewModel.btnRetryRequestVisibility.observe(viewLifecycleOwner) {
+//            binding.btnRetryRequest.isVisible = it
+//        }
 
         activityViewModel.tvNoItemsVisibility.observe(viewLifecycleOwner) {
             binding.tvNoItems.isVisible = it

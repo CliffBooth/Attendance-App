@@ -4,6 +4,8 @@ import android.content.Intent
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import com.vysotsky.attendance.database.getDatabase
+import kotlinx.coroutines.runBlocking
 
 open class MenuActivity : AppCompatActivity() {
 
@@ -20,6 +22,9 @@ open class MenuActivity : AppCompatActivity() {
                     .edit()
                     .clear()
                     .apply()
+                runBlocking {
+                    getDatabase(this@MenuActivity).dao.clear()
+                }
                 startActivity(Intent(this, MainActivity::class.java))
                 finish()
                 true

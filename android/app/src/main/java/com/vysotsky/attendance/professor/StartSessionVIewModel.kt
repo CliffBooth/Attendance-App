@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.api.RetrofitInstance
-import com.vysotsky.attendance.models.ProfessorData
+import com.vysotsky.attendance.api.ProfessorData
 import com.vysotsky.attendance.util.Resource
 import kotlinx.coroutines.launch
 

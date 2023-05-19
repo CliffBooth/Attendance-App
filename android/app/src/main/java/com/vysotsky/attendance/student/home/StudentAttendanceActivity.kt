@@ -4,7 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.vysotsky.attendance.databinding.ActivityStudentAttendanceBinding
-import com.vysotsky.attendance.models.StudentClass
+import com.vysotsky.attendance.api.StudentClass
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.Date

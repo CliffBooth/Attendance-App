@@ -35,6 +35,7 @@ import com.vysotsky.attendance.student.StudentViewModel
 import com.vysotsky.attendance.util.Endpoint
 import com.vysotsky.attendance.util.checkPermissions
 
+//TODO: doesn't work if android.permission.NEARBY_WIFI_DEVICES not allowed, and there is no question for taht!!
 class StudentProximityFragment : Fragment() {
     private var _binding: FragmentStudentWifiBinding? = null
     private val binding
@@ -57,6 +58,9 @@ class StudentProximityFragment : Fragment() {
         val permissions = arrayOf(
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.NEARBY_WIFI_DEVICES,
+            Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.BLUETOOTH_CONNECT,
         )
         val permissionsGranted = checkPermissions(requireActivity(), this, permissions)
         Log.d(TAG, "StudentProximityFragment onCreate()  permissionsGranted = $permissionsGranted")

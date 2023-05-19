@@ -51,6 +51,8 @@ class ProfessorProximityFragment : Fragment() {
         val permissions = arrayOf(
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.NEARBY_WIFI_DEVICES,
+            Manifest.permission.BLUETOOTH_SCAN,
         )
         val permissionsGranted = checkPermissions(requireActivity(), this, permissions)
         if (!permissionsGranted) {

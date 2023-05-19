@@ -6,9 +6,13 @@ import androidx.activity.viewModels
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.room.Room
 import com.vysotsky.attendance.MenuActivity
 import com.vysotsky.attendance.R
 import com.vysotsky.attendance.TAG
+import com.vysotsky.attendance.database.getDatabase
 import com.vysotsky.attendance.databinding.ActivityProfessorHomeBinding
 
 /**
@@ -20,11 +24,26 @@ class ProfessorHomeActivity : MenuActivity() {
 
     private lateinit var binding: ActivityProfessorHomeBinding
 
-    private val viewModel: ProfessorHomeViewModel by viewModels()
+    private val db by lazy {
+        getDatabase(this)
+    }
+
+//    private val viewModel1 = ViewModelProvider.
+
+    private val viewModel by viewModels<ProfessorHomeViewModel>(
+        factoryProducer = {
+            object: ViewModelProvider.Factory {
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    Log.d(TAG, "ProfessorHomeActivity inside viewModel create()!!")
+                    return ProfessorHomeViewModel(db.dao) as T
+                }
+            }
+        }
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        viewModel //create
         binding = ActivityProfessorHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         Log.d(TAG, "ProfessorHomeActivity onCreate()")

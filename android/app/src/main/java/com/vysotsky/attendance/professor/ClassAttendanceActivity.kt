@@ -13,8 +13,7 @@ import androidx.core.view.setPadding
 import com.vysotsky.attendance.R
 import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.databinding.ActivityClassAttendanceBinding
-import com.vysotsky.attendance.models.Session
-import com.vysotsky.attendance.models.Student
+import com.vysotsky.attendance.api.*
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.Date
@@ -95,7 +94,7 @@ class ClassAttendanceActivity : AppCompatActivity() {
         return res
     }
 
-    private fun setUpFirstRow(dates: List<String>) {
+    private fun setUpFirstRow(dates: List<Long>) {
         val tr = TableRow(this)
         var tv = TextView(this)
 
@@ -106,10 +105,9 @@ class ClassAttendanceActivity : AppCompatActivity() {
         tv.setBackgroundResource(R.drawable.table_cell_border)
         tv.setPadding(10)
         tr.addView(tv)
-        for (dateStr in dates) {
-            val instant = Instant.parse(dateStr)
-            val date = Date.from(instant)
+        for (unixTime in dates) {
             val format = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
+            val date = Date(unixTime)
             val formatted = format.format(date)
             tv = TextView(this)
             tv.setBackgroundResource(R.drawable.table_cell_border)

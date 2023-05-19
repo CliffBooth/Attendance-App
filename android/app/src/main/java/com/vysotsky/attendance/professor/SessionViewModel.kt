@@ -6,10 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vysotsky.attendance.TAG
-import com.vysotsky.attendance.api.RetrofitInstance
-import com.vysotsky.attendance.models.ProfessorData
-import com.vysotsky.attendance.models.Session
-import com.vysotsky.attendance.models.Student
+import com.vysotsky.attendance.api.*
 import com.vysotsky.attendance.professor.attendeeList.AdapterList
 import com.vysotsky.attendance.professor.attendeeList.Attendee
 import com.vysotsky.attendance.professor.attendeeList.GeoLocation
@@ -67,7 +64,7 @@ class SessionViewModel: ViewModel() {
         postSessionStatus.postValue(Resource.Loading())
         //students should be already registered, otherwise result will be: registered session but zero students
         val students = attendeesList.map { a -> Student(a.id, a.firstName, a.secondName) }
-        val session = Session("", students, subjectName)
+        val session = Session(0, students, subjectName)
         if (students.isEmpty())
             return
         viewModelScope.launch {

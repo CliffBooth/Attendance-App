@@ -5,9 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vysotsky.attendance.api.RetrofitInstance
-import com.vysotsky.attendance.models.Student
-//import com.vysotsky.attendance.models.StudentData
-import com.vysotsky.attendance.models.StudentLoginData
+import com.vysotsky.attendance.api.Student
+import com.vysotsky.attendance.api.StudentLoginData
 import com.vysotsky.attendance.util.Resource
 import kotlinx.coroutines.launch
 

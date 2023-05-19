@@ -13,7 +13,7 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.databinding.FragmentStudentHomeBinding
-import com.vysotsky.attendance.models.StudentClass
+import com.vysotsky.attendance.api.StudentClass
 import com.vysotsky.attendance.student.StudentViewModel
 import com.vysotsky.attendance.util.Resource
 import com.vysotsky.attendance.util.SubjectsAdapter
