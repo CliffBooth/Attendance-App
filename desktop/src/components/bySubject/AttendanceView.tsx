@@ -1,7 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Class, Student } from '../../services/ApiService';
 import { Subject } from '../SubjectToEdit';
-import { Square2StackIcon } from '@heroicons/react/20/solid';
 
 interface Props {
     classes: Class[];
@@ -18,65 +17,49 @@ const AttendanceView = () => {
 
     const { state } = useLocation();
 
+    //classes are already of the same subject
     const { classes, predefined }: { classes: Class[]; predefined?: Subject } =
         state;
-    classes.forEach(cl => cl.students.map(s => studentToLowerCase(s)));
-    if (predefined) {
-        predefined.students.map(s => studentToLowerCase(s));
-    }
 
-    console.log('ATTENDANCE VIEW: ', predefined);
+    console.log('flat: ', classes.map(cl => cl.students).flat(1));
+    // console.log('ATTENDANCE VIEW: ', predefined);
 
     const navigate = useNavigate();
 
-    function getTable() {
-        console.log(classes);
-        const set = new Set<string>();
+    function compareByName(s1: { firstName: string; secondName: string }, s2: { firstName: string; secondName: string }) {
+        return s1.firstName.toLowerCase() === s2.firstName.toLowerCase() && s1.secondName.toLowerCase() === s2.secondName.toLowerCase()
+    }
 
-        const newList: { firstName: string; secondName: string }[] = [];
-
-        if (predefined) {
-            for (let i = 0; i < predefined.students.length; i++) {
-                const student = predefined.students[i];
-                classes.forEach(cl =>
-                    cl.students.forEach(st => {
-                        if (
-                            st.firstName === student.firstName &&
-                            st.secondName === student.secondName
-                        ) {
-                        } else {
-                            newList.push({
-                                firstName: student.firstName,
-                                secondName: student.secondName,
-                            });
-                        }
-                    })
-                );
+    function listOfDistinct(list: { firstName: string; secondName: string }[]) {
+        const res: { firstName: string; secondName: string }[] = [];
+        for (const st of list) {
+            if (
+                !res.find(s => compareByName(s, st))
+            ) {
+                console.log('pushing', st)
+                res.push(st);
             }
         }
+        return res;
+    }
 
-        classes.forEach(c => {
-            c.students.forEach(st => {
-                const stringified = JSON.stringify(st);
-                console.log('class = ', stringified);
-                set.add(stringified);
-            });
-        });
+    function getTable() {
+        console.log(classes);
+        // const set = new Set<string>();
 
+        // const newList: { firstName: string; secondName: string }[] = [];
+
+        const fullList: {firstName: string, secondName: string}[] = classes.map(cl => cl.students).flat(1)
         if (predefined) {
-            newList.forEach(s => {
-                if (s !== null) {
-                    const stringified = JSON.stringify(s);
-                    console.log('predefined = ', stringified);
-                    set.add(stringified);
-                }
-            });
+            for (const st of predefined.students) {
+                fullList.push(st)
+            }
         }
+        const students = listOfDistinct(fullList)
+        console.log('allStudents: ', students);
 
-        const allStudents: Student[] = Array.from(set.values()).map(el =>
-            JSON.parse(el)
-        );
-        allStudents.sort((a, b) => {
+
+        students.sort((a, b) => {
             if (a.secondName < b.secondName) {
                 return -1;
             } else if (a.secondName > b.secondName) {
@@ -88,8 +71,7 @@ const AttendanceView = () => {
             }
             return 0;
         });
-
-        console.log('allStudents: ', allStudents);
+        
         const allDates = classes.map(cl => {
             const d = new Date(cl.date);
             const str = d.toLocaleDateString('ru-RU', {
@@ -101,75 +83,75 @@ const AttendanceView = () => {
             return [cl.date, str];
         });
 
-        function equalStudents(s1: Student, s2: Student): boolean {
-            if (s1.phoneId && s2.phoneId)
-                return (
-                    s1.phoneId === s2.phoneId &&
-                    s1.firstName === s2.firstName &&
-                    s1.secondName === s2.secondName
-                );
-            else
-                return (
-                    s1.firstName === s2.firstName &&
-                    s1.secondName === s2.secondName
-                );
-        }
-
         let currentStudentCounter = 0;
 
         //divide by subfunctions!!!
         return (
             <div className="overflow-x-auto">
                 <table>
-                    <tr className="table-row">
-                        <th>#</th>
-                        <th className="border-2 px-2">Студент</th>
-                        {allDates.map(d => (
-                            <th className="border-2 px-2 ">{d[1]}</th>
-                        ))}
-                    </tr>
+                    <thead>
+                        <tr key="tr1" className="table-row">
+                            <th>#</th>
+                            <th className="border-2 px-2">Студент</th>
+                            {allDates.map((d, ind) => (
+                                <th
+                                    key={`date-${ind}`}
+                                    className="border-2 px-2 "
+                                >
+                                    {d[1]}
+                                </th>
+                            ))}
+                        </tr>
+                    </thead>
                     {/* {Array.from(allStudents.values()).map(s => { */}
-                    {allStudents.map((s, ind) => {
-                        currentStudentCounter = 0;
-                        return (
-                            <tr className="table-row">
-                                <td>{ind + 1}</td>
-                                <td className="border-2 p-1">{`${s.secondName} ${s.firstName}`}</td>
-                                {allDates.map(d => {
-                                    const theClass = classes.filter(
-                                        cl => cl.date == d[0]
-                                    )[0];
-                                    const classIncludesStudent =
-                                        theClass.students.some(s1 =>
-                                            equalStudents(s, s1)
+                    <tbody>
+                        {students.map((s, ind) => {
+                            currentStudentCounter = 0;
+                            return (
+                                <tr key={ind} className="table-row">
+                                    <td key={`1-${ind}`}>{ind + 1}</td>
+                                    <td
+                                        key={`2-${ind}`}
+                                        className="border-2 p-1"
+                                    >{`${s.secondName} ${s.firstName}`}</td>
+                                    {allDates.map((d, dInd) => {
+                                        const theClass = classes.filter(
+                                            cl => cl.date == d[0]
+                                        )[0];
+                                        const classIncludesStudent =
+                                            theClass.students.some(s1 =>
+                                                compareByName(s, s1)
+                                            );
+
+                                        let style = 'bg-red-300';
+                                        // let style = ""
+                                        if (classIncludesStudent) {
+                                            currentStudentCounter++;
+                                            style = 'bg-green-500';
+                                        }
+
+                                        return (
+                                            <td
+                                                key={`3-${ind}-${dInd}`}
+                                                className={`${style} border-2 border-gray-600 bg-clip-padding`}
+                                            ></td>
                                         );
-
-                                    let style = 'bg-red-300';
-                                    // let style = ""
-                                    if (classIncludesStudent) {
-                                        currentStudentCounter++;
-                                        style = 'bg-green-500';
-                                    }
-
-                                    return (
-                                        <td
-                                            className={`${style} border-2 border-gray-600 bg-clip-padding`}
-                                        ></td>
-                                    );
-                                })}
-                                <td>
-                                    {currentStudentCounter}/{allDates.length}
-                                </td>
-                            </tr>
-                        );
-                    })}
+                                    })}
+                                    <td key={`4-${ind}`}>
+                                        {currentStudentCounter}/
+                                        {allDates.length}
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
                 </table>
             </div>
         );
     }
 
     return (
-        <div className="container mx-auto">
+        <div className="container mx-auto px-5">
             <div className="relative flex mb-3 justify-center">
                 <button
                     onClick={() => navigate(-1)}

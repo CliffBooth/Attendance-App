@@ -58,9 +58,10 @@ const ClassesScreen = () => {
         console.log(subjectToClasses);
         return (
             <div className='flex space-x-5 flex-wrap space-y-3'>
-                {Object.entries(subjectToClasses).map(value => {
+                {Object.entries(subjectToClasses).map((value, ind) => {
                     return (
                         <SubjectComponent
+                            key={ind}
                             subject_name={value[0]}
                             classes={value[1]}
                         />

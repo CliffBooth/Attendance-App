@@ -58,8 +58,8 @@ const CreatedClasses = () => {
 
     return (
         <div className="min-h-[200px] space-y-3 ">
-            {subjects.map(s => (
-                <div className="flex">
+            {subjects.map((s, ind) => (
+                <div key={`created-${ind}`} className="flex">
                     <SubjectToEdit className="grow" subject={s}/>
                     <button className="p-2 ml-2 rounded-md bg-red-200"
                     onClick={() => onDeleteSubject(s.id)}>

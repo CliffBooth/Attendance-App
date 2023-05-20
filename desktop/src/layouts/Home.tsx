@@ -16,7 +16,7 @@ const Home = () => {
 
     console.log('user = ', user)
     return (
-        <div className="container mx-auto">
+        <div className="container mx-auto p-6">
         {user.email &&
             <>
                 <p className="mb-5">previous classes:</p>
