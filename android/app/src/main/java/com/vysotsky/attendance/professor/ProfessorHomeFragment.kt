@@ -64,12 +64,13 @@ class ProfessorHomeFragment : Fragment() {
     private fun setUpRecyclerView() = binding.rv.apply {
         subjectsAdapter = SubjectsAdapter { subjectName ->
             val allSessions = activityViewModel.state.value?.classes
+
             if (allSessions == null) {
                 Log.e(TAG, "Subject onClick(): sessions list is null!", )
             } else {
                 val sessions = allSessions.filter { it.subjectName == subjectName }
                 val intent = Intent(requireContext(), ClassAttendanceActivity::class.java)
-                intent.putExtra(ClassAttendanceActivity.EXTRA_CLASSES_KEY, sessions as Serializable)
+                intent.putExtra(ClassAttendanceActivity.EXTRA_CLASSES_KEY, sessions as Serializable) //this actually can be fetched from the database
                 startActivity(intent)
             }
         }

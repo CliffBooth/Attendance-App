@@ -9,81 +9,89 @@
     android:padding="15dp"
     tools:context=".professor.StartSessionFragment">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/frameLayout"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_to_refresh"
         android:layout_width="match_parent"
-        android:padding="5dp"
         android:layout_height="wrap_content">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textInputLayout"
-            android:layout_width="409dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/frameLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="15dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            >
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/subject_name"
-                android:layout_margin="10dp"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/subject_name"
-                android:inputType="text" />
+                android:layout_marginVertical="15dp"
+                android:layout_marginHorizontal="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/subject_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="10dp"
+                    android:hint="@string/subject_name"
+                    android:inputType="text" />
 
-        <CheckBox
-            android:id="@+id/location_checkbox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/use_geolocation_data"
-            android:textSize="18sp"
-            app:layout_constraintBottom_toTopOf="@+id/spinner"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <ProgressBar
-            android:id="@+id/spinner"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/start_button"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:visibility="visible" />
+            <CheckBox
+                android:id="@+id/location_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/use_geolocation_data"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toTopOf="@+id/spinner"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
 
-        <Button
-            android:id="@+id/start_button"
-            android:layout_width="201dp"
-            android:layout_height="210dp"
-            android:background="@drawable/round_button"
-            android:text="@string/start_session"
-            android:textSize="20sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="1, 1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintWidth_percent=".60" />
+            <ProgressBar
+                android:id="@+id/spinner"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@+id/start_button"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:visibility="visible" />
 
-        <Button
-            android:id="@+id/go_to_existing_session"
-            android:layout_width="201dp"
-            android:layout_height="210dp"
-            android:background="@drawable/round_button"
-            android:text="go to existing session"
-            android:visibility="gone"
-            android:textSize="20sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="1, 1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintWidth_percent=".60" />
+            <Button
+                android:id="@+id/start_button"
+                android:layout_width="201dp"
+                android:layout_height="210dp"
+                android:background="@drawable/round_button"
+                android:text="@string/start_session"
+                android:textSize="20sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="1, 1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintWidth_percent=".60" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <Button
+                android:id="@+id/go_to_existing_session"
+                android:layout_width="201dp"
+                android:layout_height="210dp"
+                android:background="@drawable/round_button"
+                android:text="go to existing session"
+                android:textSize="20sp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="1, 1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintWidth_percent=".60" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </ScrollView>

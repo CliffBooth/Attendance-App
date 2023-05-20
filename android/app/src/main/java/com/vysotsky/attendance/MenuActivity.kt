@@ -5,6 +5,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.vysotsky.attendance.database.getDatabase
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 open class MenuActivity : AppCompatActivity() {
@@ -23,7 +24,9 @@ open class MenuActivity : AppCompatActivity() {
                     .clear()
                     .apply()
                 runBlocking {
-                    getDatabase(this@MenuActivity).classDao.clear()
+                    val db = getDatabase(this@MenuActivity)
+                    launch { db.classDao.clear() }
+                    launch { db.predefinedClassDao.clear() }
                 }
                 startActivity(Intent(this, MainActivity::class.java))
                 finish()

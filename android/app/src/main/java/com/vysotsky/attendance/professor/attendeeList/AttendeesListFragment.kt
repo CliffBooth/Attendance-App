@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.vysotsky.attendance.R
@@ -49,6 +50,11 @@ class AttendeesListFragment : Fragment() {
                 return@setFragmentResultListener
             }
             val attendee = Attendee(firstName, secondName, null, Status.OK)
+            if (viewModel.attendeesList.contains(attendee)) {
+                if (context != null)
+                    Toast.makeText(context, "This name is already in the list!", Toast.LENGTH_LONG).show()
+                return@setFragmentResultListener
+            }
 
             viewModel.addAttendeeToList(attendee)
             viewModel.saveAttendee(email, attendee)
@@ -76,5 +82,16 @@ class AdapterList<T> : MutableList<T> by mutableListOf() {
     var adapter: ArrayAdapter<T>? = null
     fun notifyDataSetChanged() {
         adapter?.notifyDataSetChanged()
+    }
+
+    override fun toString(): String {
+        val sb = StringBuilder("[")
+        for (a in this) {
+            sb.append(a.toString()).append(", ")
+        }
+        if (sb.length > 2)
+            sb.deleteRange(sb.length - 2, sb.length)
+        sb.append("]")
+        return sb.toString()
     }
 }

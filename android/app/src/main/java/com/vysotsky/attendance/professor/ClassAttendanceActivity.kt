@@ -14,6 +14,9 @@ import com.vysotsky.attendance.R
 import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.databinding.ActivityClassAttendanceBinding
 import com.vysotsky.attendance.api.*
+import com.vysotsky.attendance.database.PredefinedClassDB
+import com.vysotsky.attendance.database.getDatabase
+import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.Date
@@ -24,14 +27,21 @@ import java.util.Locale
  * Displays student's attendance by dates as a table
  */
 
+//students should be distinct only by names!!
 class ClassAttendanceActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityClassAttendanceBinding
     private lateinit var sessions: List<Session>
+    private lateinit var predefined: List<PredefinedClassDB>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sessions = intent.extras?.getSerializable(EXTRA_CLASSES_KEY) as List<Session>
+        runBlocking {
+            predefined = getDatabase(this@ClassAttendanceActivity).predefinedClassDao.getAll()
+                .filter { it.subjectName == sessions[0].subjectName }
+        }
+        Log.d(TAG, "ClassAttendanceActivity: onCreate() predefined = $predefined")
         Log.d(TAG, "ClassAttendanceActivity onCreate() sessions.size = ${sessions.size}")
         binding = ActivityClassAttendanceBinding.inflate(layoutInflater)
         binding.tvSubjectName.text = sessions[0].subjectName
@@ -44,7 +54,7 @@ class ClassAttendanceActivity : AppCompatActivity() {
      */
     private fun setUpTable() {
         val dates = sessions.map { s -> s.date }
-        val students = listOfDistinct(sessions.map {session -> session.students}.flatten()).sortedWith(
+        val students = listOfDistinct(sessions.map {session -> session.students}.flatten() + predefined.map{p -> p.students}.flatten()).sortedWith(
             compareBy {it: Student -> it.secondName }.thenBy { it.firstName }
         )
         val cellSize = resources.getDimensionPixelSize(R.dimen.table_cell_size)
@@ -63,11 +73,11 @@ class ClassAttendanceActivity : AppCompatActivity() {
             for (date in dates) {
                 //check if student was present on that date and change background color of a view accordingly
                 val allClassesThisDate = sessions.filter { s -> s.date == date }
-                Log.d(TAG, "allClasses = ${allClassesThisDate}")
+//                Log.d(TAG, "allClasses = ${allClassesThisDate}")
                 val classThisDate = allClassesThisDate[0]
-                Log.d(TAG, "class = ${classThisDate}")
-                val wasPresent = classThisDate.students.contains(student)
-                Log.d(TAG, "$date) $student wasPresent = $wasPresent")
+//                Log.d(TAG, "class = ${classThisDate}")
+                val wasPresent = classThisDate.students.find {s -> compareByName(s, student)} != null
+//                Log.d(TAG, "$date) $student wasPresent = $wasPresent")
                 val view = View(this)
                 view.layoutParams = TableRow.LayoutParams(cellSize, LayoutParams.MATCH_PARENT)
                 if (wasPresent) {
@@ -81,16 +91,26 @@ class ClassAttendanceActivity : AppCompatActivity() {
         }
     }
 
+    private fun compareByName(s1: Student, s2: Student): Boolean {
+        return s1.firstName.lowercase() == s2.firstName.lowercase() && s1.secondName.lowercase() == s2.secondName.lowercase()
+    }
+
     private fun listOfDistinct(l: List<Student>): List<Student> {
         val res = mutableListOf<Student>()
+        Log.d(TAG, "listOfDistinct() = $l")
         for (st in l) {
-//            if (res.find {s -> st.first_name == s.first_name && st.second_name == s.second_name} == null) {
+            //1) if phoneId not null we just compare by it
+            //2) if phoneId null, then we are looking for student, which has phoneId == null, firstName == s.firstName && secondName == s.secondName
+//            if (st.phoneId != null && res.find { s -> st.phoneId == s.phoneId } == null
+//                || st.phoneId == null && res.find { s -> s.phoneId == null && s.firstName == st.firstName && s.secondName == st.secondName} == null) {
 //                res += st
 //            }
-            if (res.find { s -> st.phoneId == s.phoneId } == null) {
+            //Improved: we should display list only by names !
+            if (res.find { s -> compareByName(s, st)} == null) {
                 res += st
             }
         }
+        Log.d(TAG, "listOfDistinct: $res")
         return res
     }
 

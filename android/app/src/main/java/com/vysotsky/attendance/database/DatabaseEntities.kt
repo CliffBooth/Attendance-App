@@ -17,13 +17,12 @@ data class Class (
 
 @Entity
 data class PredefinedClassDB(
+    @PrimaryKey(autoGenerate = false)
     val subjectName: String,
     val students: ArrayList<Student>,
     val updatedAt: Long,
     @ColumnInfo(defaultValue = "any")
     val method: String = "any",
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
 ) {
     fun asNetworkModel() = PredefinedClassToSend(
         studentList = this.students,

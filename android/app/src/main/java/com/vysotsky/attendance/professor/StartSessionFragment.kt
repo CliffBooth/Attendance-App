@@ -82,6 +82,10 @@ class StartSessionFragment: Fragment() {
             requireActivity().finish()
         }
 
+        binding.swipeToRefresh.setOnRefreshListener {
+            viewModel.checkSession(email)
+        }
+
         subscribe()
         viewModel.checkSession(email)
     }
@@ -108,11 +112,14 @@ class StartSessionFragment: Fragment() {
                 is Resource.Loading -> {
                     viewModel.spinnerVisibility.value = true
                     viewModel.startButtonEnabled.value = false
+                    binding.swipeToRefresh.isRefreshing = true
                 }
 
                 is Resource.Success -> {
                     viewModel.spinnerVisibility.value = false
                     viewModel.startButtonEnabled.value = true
+
+                    binding.swipeToRefresh.isRefreshing = false
 
                     when (it.data) {
                         200 -> {
@@ -136,6 +143,8 @@ class StartSessionFragment: Fragment() {
                 is Resource.Error -> {
                     viewModel.spinnerVisibility.value = false
                     viewModel.startButtonEnabled.value = true
+
+                    binding.swipeToRefresh.isRefreshing = false
 
                     Toast.makeText(
                         requireContext(),

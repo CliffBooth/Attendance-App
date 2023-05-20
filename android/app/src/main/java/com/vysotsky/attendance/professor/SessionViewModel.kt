@@ -35,7 +35,7 @@ class SessionViewModel : ViewModel() {
         return attendeesList.find { student -> (student.id != null && student.id == a.id) } == null
     }
 
-    fun addAttendeeToList(attendee: Attendee) {
+    fun addAttendeeToList(attendee: Attendee) { //maybe put a uniqueness check here?
         attendeesList += attendee
         attendeesList.notifyDataSetChanged()
     }
@@ -156,8 +156,11 @@ class SessionViewModel : ViewModel() {
                                 s.phoneId
                             )
                         }
+                        Log.d(TAG, "runPolling() attendeesList = $attendeesList")
                         list.forEach { a ->
-                            if (attendeesList.none { it.id == a.id }) {
+                            // if has id, comparing by id, if doesn't comparing by name, which should be unique (repeating names won't be saved in the database)
+                            if (a.id != null && attendeesList.none { it.id == a.id }
+                                || a.id == null && attendeesList.none { it.firstName == a.firstName && it.secondName == a.secondName } ) {
                                 addAttendeeToList(a)
                             }
                         }
@@ -172,7 +175,7 @@ class SessionViewModel : ViewModel() {
                 } catch (e: Throwable) {
                     Log.e(TAG, "SessionViewModel: runPolling() ", e)
                 }
-                delay(1000)
+                delay(3000)
             }
         }
     }

@@ -93,7 +93,7 @@ class CameraFragment : CameraFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-//        checkPermission()
+
         if (viewModel.isUsingGeodata && viewModel.ownLocation == null) {
             val permitted = checkLocationPermission()
             if (permitted) {
@@ -102,15 +102,7 @@ class CameraFragment : CameraFragment() {
             }
         }
         _binding = FragmentCameraBinding.inflate(inflater, container, false)
-//        binding.listButton.setOnClickListener {
-//            parentFragmentManager.commit {
-//                val bundle = Bundle()
-//                bundle.putStringArray("list", attendees.toTypedArray())
-//                replace<AttendeesListFragment>(R.id.fragment_container_view, null, bundle)
-//                setReorderingAllowed(true)
-//                addToBackStack("AttendeesList Fragment")
-//            }
-//        }
+
         viewModel.status.observe(viewLifecycleOwner) {
             binding.debugText.text = it
         }
@@ -210,46 +202,6 @@ class CameraFragment : CameraFragment() {
         }
     }
 
-//    private fun checkPermission() {
-//        when {
-//            ContextCompat.checkSelfPermission(
-//                requireContext(),
-//                Manifest.permission.CAMERA
-//            ) == PackageManager.PERMISSION_GRANTED -> startCamera()
-//
-//            shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> {
-//                showRationaleDialog(
-//                    "Camera Access",
-//                    "Allow camera access in order to use camera",
-//                    Manifest.permission.CAMERA,
-//                    REQUEST_CODE_PERMISSIONS
-//                )
-//            }
-//
-//            else -> {
-//                Log.d(TAG, "asking for permission")
-//                val reqPermission =
-//                    registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-//                        if (it) {
-//                            startCamera()
-//                        } else {
-//                            Log.d(TAG, "No permission!")
-//                            Toast.makeText(
-//                                requireContext(),
-//                                getString(R.string.camera_permissions_error),
-//                                Toast.LENGTH_SHORT
-//                            ).show()
-//                            //TODO: don't finish but show activity with error message, or previous activity
-//                            parentFragmentManager.commit {
-//                                remove(this@CameraFragment)
-//                            }
-//                        }
-//                    }
-//                reqPermission.launch(Manifest.permission.CAMERA)
-//            }
-//        }
-//    }
-
     companion object {
         private const val REQUEST_CODE_PERMISSIONS = 10 //??
         private val REQUIRED_PERMISSIONS = listOf(Manifest.permission.CAMERA).toTypedArray()
@@ -258,41 +210,6 @@ class CameraFragment : CameraFragment() {
     override fun getListener(): QRCodeImageAnalyzer.QRCodeListener = listener
 
     override fun getSurfaceProvider(): Preview.SurfaceProvider = binding.viewFinder.surfaceProvider
-
-//    private fun startCamera() {
-//        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
-//        cameraProviderFuture.addListener({
-//            val cameraProvider = cameraProviderFuture.get()
-//            try {
-//                // Unbind use cases before rebinding
-//                cameraProvider.unbindAll()
-//                // Bind use cases to camera
-//                bindCameraPreview(cameraProvider)
-//            } catch (e: Exception) {
-//                //TODO: notify user about error
-//                Log.e(TAG, "Use case binding failed", e)
-//            }
-//        }, ContextCompat.getMainExecutor(requireContext()))
-//    }
-//
-//    private fun bindCameraPreview(cameraProvider: ProcessCameraProvider) {
-//        val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-//        val preview = Preview.Builder()
-//            .build()
-//            .also {
-//                it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
-//            }
-//
-//        //may be there is a bug
-//        val imageAnalysis = ImageAnalysis.Builder()
-//            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-//            .build()
-//        imageAnalysis.setAnalyzer(
-//            ContextCompat.getMainExecutor(requireContext()), //TODO: should this be the main executor?
-//            QRCodeImageAnalyzer(listener)
-//        )
-//        cameraProvider.bindToLifecycle(viewLifecycleOwner, cameraSelector, imageAnalysis, preview)
-//    }
 
     private val listener = object : QRCodeImageAnalyzer.QRCodeListener {
         override fun onQRCodeFound(string: String) {
@@ -401,11 +318,6 @@ class CameraFragment : CameraFragment() {
 
     private fun sendVerify(data: String) {
         viewModel.viewModelScope.launch(Dispatchers.IO) {
-//            val client = OkHttpClient()
-//            val moshi = Moshi.Builder().build()
-//            val adapter = moshi.adapter(Student::class.java)
-
-
             val json = "{\"email\":\"$email\", \"data\":\"$data\"}"
             val body = json.toRequestBody("application/json".toMediaTypeOrNull())
             val request = Request.Builder()
@@ -416,18 +328,6 @@ class CameraFragment : CameraFragment() {
                 httpClient.newCall(request).execute().use { res ->
                     when (res.code) {
                         200 -> {
-//                            val reader = JsonReader(InputStreamReader(res.body!!.byteStream()))
-//                            reader.beginObject()
-//                            reader.nextName()
-//                            val firstName = reader.nextString()
-//                            reader.nextName()
-//                            val secondName = reader.nextString()
-
-//                            viewModel.attendeesList += getAttendee(
-//                                currentStudent.firstName,
-//                                currentStudent.secondName,
-//                                locatonOfCurrentAttendee
-//                            )
                             setStatus(currentAttendee, locationOfCurrentAttendee)
                             viewModel.addAttendeeToList(currentAttendee)
                             viewModel.nameSent = false
@@ -495,50 +395,4 @@ class CameraFragment : CameraFragment() {
             }
         }
     }
-
-
-    //TODO don't request permission here
-    private fun showRationaleDialog(
-        title: String,
-        message: String,
-        permission: String,
-        requestCode: Int
-    ) {
-        val builder: AlertDialog.Builder = AlertDialog.Builder(requireContext())
-        builder.setTitle(title)
-            .setMessage(message)
-            .setPositiveButton("Ok") { _, _ ->
-                requestPermissions(arrayOf(permission), requestCode)
-            }
-        builder.create().show()
-    }
-
-    //TODO: delete this
-//    override fun onRequestPermissionsResult(
-//        requestCode: Int,
-//        permissions: Array<out String>,
-//        grantResults: IntArray
-//    ) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-//        if (requestCode == REQUEST_CODE_PERMISSIONS) {
-//            if (ContextCompat.checkSelfPermission(
-//                    requireContext(),
-//                    Manifest.permission.CAMERA
-//                ) == PackageManager.PERMISSION_GRANTED
-//            ) {
-//                startCamera()
-//            } else {
-//                Toast.makeText(
-//                    requireContext(),
-//                    getString(R.string.camera_permissions_error),
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//                //TODO: don't finish but show activity with error message, or previous activity
-//                parentFragmentManager.commit {
-//                    Log.d(TAG, "REMOVING FRAGMENT!")
-//                    remove(this@CameraFragment)
-//                }
-//            }
-//        }
-//    }
 }

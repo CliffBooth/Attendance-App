@@ -3,6 +3,8 @@ package com.vysotsky.attendance.professor
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
@@ -144,6 +146,17 @@ class SessionActivity : MenuActivity() {
         } else {
             return super.onOptionsItemSelected(item)
         }
+    }
+
+    private var doubleBackToExitPressedOnce = false
+    override fun onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            super.onBackPressed()
+            return
+        }
+        this.doubleBackToExitPressedOnce = true
+        Toast.makeText(this, getString(R.string.double_back), Toast.LENGTH_SHORT).show()
+        Handler(Looper.getMainLooper()).postDelayed({ doubleBackToExitPressedOnce = false }, 1000)
     }
 
     companion object {
