@@ -286,6 +286,10 @@ app.post('/current-students', (req, res) => {
     res.json(result)
 });
 
+/**
+ * shouldn't be able to send the same name twice!
+ * (should be prevented on the frontend!, it won't be saved in the database anyway)
+ */
 app.post('/add-student', (req, res) => {
     const email = req.body.email
     const student = req.body.student

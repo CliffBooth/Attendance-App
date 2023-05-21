@@ -32,7 +32,8 @@ model Student {
 
 model Class {
   id Int @id @default(autoincrement())
-  date DateTime @default(now())
+  // date DateTime @default(now())
+  date BigInt //unix timestamp
   professor Professor @relation(fields: [professorId], references: [id], onDelete: Cascade)
   professorId Int
   subjectName String

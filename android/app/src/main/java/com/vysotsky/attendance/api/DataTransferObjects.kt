@@ -2,6 +2,11 @@ package com.vysotsky.attendance.api
 
 import java.io.Serializable
 
+data class RegisterSessoinBody(
+    val email: String,
+    val subjectName: String
+)
+
 data class AuthResult(
     val token: String,
 )

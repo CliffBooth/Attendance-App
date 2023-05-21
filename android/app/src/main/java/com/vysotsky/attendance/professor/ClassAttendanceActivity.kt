@@ -18,7 +18,6 @@ import com.vysotsky.attendance.database.PredefinedClassDB
 import com.vysotsky.attendance.database.getDatabase
 import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
-import java.time.Instant
 import java.util.Date
 import java.util.Locale
 
@@ -99,13 +98,6 @@ class ClassAttendanceActivity : AppCompatActivity() {
         val res = mutableListOf<Student>()
         Log.d(TAG, "listOfDistinct() = $l")
         for (st in l) {
-            //1) if phoneId not null we just compare by it
-            //2) if phoneId null, then we are looking for student, which has phoneId == null, firstName == s.firstName && secondName == s.secondName
-//            if (st.phoneId != null && res.find { s -> st.phoneId == s.phoneId } == null
-//                || st.phoneId == null && res.find { s -> s.phoneId == null && s.firstName == st.firstName && s.secondName == st.secondName} == null) {
-//                res += st
-//            }
-            //Improved: we should display list only by names !
             if (res.find { s -> compareByName(s, st)} == null) {
                 res += st
             }

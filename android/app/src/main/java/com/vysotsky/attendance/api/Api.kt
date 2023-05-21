@@ -12,6 +12,9 @@ import retrofit2.http.Path
 
 interface Api {
     //professor
+    @POST("start")
+    suspend fun registerSession(@Body body: RegisterSessoinBody): Response<Void>
+
     @GET("api/professor_classes/{email}")
     suspend fun getProfessorSessions(@Path("email") email: String, @Header("Authorization") token: String): Response<List<Session>>
 

@@ -83,7 +83,7 @@ router
             res.sendStatus(404);
             return;
         }
-        const toReturn = result?.classes.map(cl => ({...cl, date: new Date(cl.date).getTime()}))
+        const toReturn = result?.classes.map(cl => ({...cl, date: Number(cl.date.toString())}))
         res.json(toReturn);
 
     })
@@ -182,6 +182,7 @@ router
 
             const result = await prisma.class.create({
                 data: {
+                    date: data.date,
                     subjectName: data.subjectName,
                     professor: {
                         connect: {
@@ -199,7 +200,7 @@ router
 
             const toSend = {
                 ...result,
-                date: new Date(result.date).getTime()
+                date: Number(result.date.toString())
             }
 
             res.json(toSend);
@@ -207,6 +208,7 @@ router
     );
 
 interface RequestClass {
+    date: number,
     subjectName: string;
     students: RequestStudent[];
 }

@@ -177,7 +177,7 @@ class ProfessorHomeViewModel(
             val toSendToApi = allClasses - apiClasses.toSet()
 
             val allPredefined = (dbPredefined + apiPredefined.map { it.asDatabaseModel() })//just a list containing all subject names
-            Log.d(TAG, "DELETE math allPredefined = ${allPredefined.filter{it.subjectName == "math"}}")
+//            Log.d(TAG, "DELETE math allPredefined = ${allPredefined.filter{it.subjectName == "math"}}")
             val predefinedToInsertInDB = mutableListOf<PredefinedClassDB>()
             val predefinedToSend = mutableListOf<PredefinedClassToSend>()
             for (p in allPredefined) {

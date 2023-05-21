@@ -54,6 +54,7 @@ async function populate() {
             id: 1,
         },
         create: {
+            date: new Date().getTime(),
             subjectName: 'math',
             professor: {
                 connect: {
@@ -71,6 +72,7 @@ async function populate() {
             id: 2,
         },
         create: {
+            date: new Date().getTime(),
             subjectName: 'history',
             professorId: professor.id,
             students: {
@@ -85,6 +87,7 @@ async function populate() {
             id: 1,
         },
         create: {
+            date: new Date().getTime(),
             subjectName: 'math',
             professor: {
                 connect: {
@@ -103,6 +106,7 @@ async function populate() {
             id: 1,
         },
         create: {
+            date: new Date().getTime(),
             subjectName: 'math',
             professor: {
                 connect: {
@@ -121,6 +125,7 @@ async function populate() {
             id: 1,
         },
         create: {
+            date: new Date().getTime(),
             subjectName: 'math',
             professor: {
                 connect: {
@@ -157,5 +162,25 @@ async function deleteAll() {
     await prisma.class.deleteMany({})
 }
 
-populate().catch(err => console.error(err));
+// populate().catch(err => console.error(err));
 // deleteAll().catch(err => console.error(err))
+
+async function test() {
+    const classes = await prisma.class.findMany()
+    const example = classes[0]
+    console.log(new Date(example.date.toString()).getTime())
+
+    const str = example.date.toString()
+    console.log('str = ', str)
+    const date = new Date(str)
+    console.log('DATE = ', date)
+    const str1 = Number('1684708483391')
+    const date1 = new Date(str1)
+    console.log('DATE1 = ', date1)
+
+    // const time = new Date().getTime()
+    // console.log('time in js: ', time, ' length: ', time.toString().length)
+    // console.log('time coming from kotlin: ', example.date.toString(), ' length: ', example.date.toString().length)
+}
+
+test()

@@ -205,6 +205,7 @@ export async function stopSession(data: { email: string }): Promise<
 //api call to add session to the database
 export async function addSession(
     data: {
+        date: number,
         subjectName: string;
         students: Student[];
     },

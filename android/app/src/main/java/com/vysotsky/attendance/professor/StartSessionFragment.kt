@@ -62,8 +62,12 @@ class StartSessionFragment: Fragment() {
 
         binding.startButton.setOnClickListener {
             if (binding.subjectName.text?.isNotEmpty() == true) {
-                viewModel.startButtonEnabled.value = false
-                registerSession()
+                if (viewModel.offlineSession.value == false) {
+                    viewModel.startButtonEnabled.value = false
+                    registerSession()
+                } else {
+                    startSessionActivity(offline = true)
+                }
             } else {
                 Toast.makeText(requireContext(), "Please, fill in the subject name!", Toast.LENGTH_SHORT).show()
             }
@@ -110,16 +114,16 @@ class StartSessionFragment: Fragment() {
         viewModel.requestStatus.observe(viewLifecycleOwner) {
             when (it) {
                 is Resource.Loading -> {
-                    viewModel.spinnerVisibility.value = true
-                    viewModel.startButtonEnabled.value = false
+//                    viewModel.spinnerVisibility.value = true
                     binding.swipeToRefresh.isRefreshing = true
+//                    viewModel.startButtonEnabled.value = false
                 }
 
                 is Resource.Success -> {
-                    viewModel.spinnerVisibility.value = false
-                    viewModel.startButtonEnabled.value = true
-
+//                    viewModel.spinnerVisibility.value = false
                     binding.swipeToRefresh.isRefreshing = false
+//                    viewModel.startButtonEnabled.value = true
+
 
                     when (it.data) {
                         200 -> {
@@ -141,10 +145,10 @@ class StartSessionFragment: Fragment() {
                 }
 
                 is Resource.Error -> {
-                    viewModel.spinnerVisibility.value = false
-                    viewModel.startButtonEnabled.value = true
-
+//                    viewModel.spinnerVisibility.value = false
                     binding.swipeToRefresh.isRefreshing = false
+//                    viewModel.startButtonEnabled.value = true
+
 
                     Toast.makeText(
                         requireContext(),
@@ -152,6 +156,14 @@ class StartSessionFragment: Fragment() {
                         Toast.LENGTH_LONG
                     ).show()
                 }
+            }
+        }
+
+        viewModel.offlineSession.observe(viewLifecycleOwner) {
+            if (it) {
+                binding.startButton.text = "start session (offline)"
+            } else {
+                binding.startButton.text = "start session"
             }
         }
     }
@@ -181,21 +193,13 @@ class StartSessionFragment: Fragment() {
 
             try {
                 viewModel.spinnerVisibility.postValue(true)
+                viewModel.startButtonEnabled.postValue(false)
                 httpClient.newCall(request).execute().use { res ->
                     Handler(Looper.getMainLooper()).post {
                         viewModel.spinnerVisibility.value = false
                     }
                     if (res.isSuccessful) {
-                        val usingGeolocation = binding.locationCheckbox.isChecked
-                        val intent = Intent(requireContext(), SessionActivity::class.java).apply {
-                            val bundle = Bundle().apply {
-                                putBoolean(SessionActivity.GEOLOCATION_KEY, usingGeolocation)
-                                putString(SessionActivity.SUBJECT_NAME_KEY, binding.subjectName.text.toString())
-                            }
-                            putExtras(bundle)
-                        }
-                        startActivity(intent)
-                        requireActivity().finish()
+                        startSessionActivity(offline = false)
                     } else {
                         Handler(Looper.getMainLooper()).post {
                             viewModel.startButtonEnabled.value = true
@@ -205,6 +209,7 @@ class StartSessionFragment: Fragment() {
                 }
             } catch (e: IOException) {
                 Handler(Looper.getMainLooper()).post {
+                    viewModel.offlineSession.value = true
                     viewModel.startButtonEnabled.value = true
                     viewModel.spinnerVisibility.value = false
                     errorToast.show()
@@ -212,6 +217,20 @@ class StartSessionFragment: Fragment() {
             }
 
         }
+    }
+
+    private fun startSessionActivity(offline: Boolean) {
+        val usingGeolocation = binding.locationCheckbox.isChecked
+        val intent = Intent(requireContext(), SessionActivity::class.java).apply {
+            val bundle = Bundle().apply {
+                putBoolean(SessionActivity.GEOLOCATION_KEY, usingGeolocation)
+                putString(SessionActivity.SUBJECT_NAME_KEY, binding.subjectName.text.toString())
+                putBoolean(SessionActivity.OFFLINE, offline)
+            }
+            putExtras(bundle)
+        }
+        startActivity(intent)
+        requireActivity().finish()
     }
 
     override fun onDestroyView() {

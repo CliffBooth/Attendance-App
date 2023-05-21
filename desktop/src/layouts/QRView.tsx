@@ -81,6 +81,7 @@ const QRView: React.FC = () => {
             console.log('resp.data = ', resp.data);
             if (resp.data!!.length !== 0) {
                 const data = {
+                    date: new Date().getTime(),
                     subjectName: session.subjectName,
                     students: resp.data!!,
                 };

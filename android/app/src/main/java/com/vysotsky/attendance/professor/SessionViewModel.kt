@@ -1,5 +1,6 @@
 package com.vysotsky.attendance.professor
 
+import android.content.Context
 import android.util.Log
 import android.view.View
 import androidx.lifecycle.MutableLiveData
@@ -7,6 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.api.*
+import com.vysotsky.attendance.database.Class
+import com.vysotsky.attendance.database.getDatabase
 import com.vysotsky.attendance.professor.attendeeList.AdapterList
 import com.vysotsky.attendance.professor.attendeeList.Attendee
 import com.vysotsky.attendance.professor.attendeeList.GeoLocation
@@ -18,6 +21,7 @@ import kotlinx.coroutines.launch
 class SessionViewModel : ViewModel() {
     var intnetErrorMessageVisibility = MutableLiveData(View.GONE)
     var sessionStarted = false
+    var isOffline = false
     var isUsingGeodata = false
     var runningPolling = true
         set(value) {
@@ -44,6 +48,8 @@ class SessionViewModel : ViewModel() {
      * Attempt to save manually added attendee on the backend
      */
     fun saveAttendee(email: String, attendee: Attendee) {
+        if (isOffline)
+            return
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val resp = RetrofitInstance.api.addAttendeeToCurrentSession(
@@ -62,6 +68,8 @@ class SessionViewModel : ViewModel() {
     }
 
     fun deleteAttendee(email: String, attendee: Attendee) {
+        if (isOffline)
+            return
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val resp = RetrofitInstance.api.deleteAttendeeFromCurrentSession(
@@ -95,6 +103,8 @@ class SessionViewModel : ViewModel() {
     val isStopButtonEnabled = MutableLiveData(true)
     val isPBVisible = MutableLiveData(false)
 
+    val databaseStatus = MutableLiveData<Resource<Unit>>()
+
     /**
      * save current session on the backend
      */
@@ -104,7 +114,7 @@ class SessionViewModel : ViewModel() {
         postSessionStatus.postValue(Resource.Loading())
         //students should be already registered, otherwise result will be: registered session but zero students
         val students = attendeesList.map { a -> Student(a.id, a.firstName, a.secondName) }
-        val session = Session(0, students, subjectName)
+        val session = Session(System.currentTimeMillis(), students, subjectName)
         if (students.isEmpty())
             return
         viewModelScope.launch {
@@ -122,7 +132,30 @@ class SessionViewModel : ViewModel() {
         }
     }
 
+    fun saveSessionToDatabase(context: Context) {
+        Log.d(TAG, "SessionViewModel saveSessionToDatabase()")
+        val students = attendeesList.map { a -> Student(a.id, a.firstName, a.secondName) }
+        if (students.isEmpty())
+            return
+        viewModelScope.launch {
+            try {
+                getDatabase(context).classDao.insertClass(Class(
+                    date = System.currentTimeMillis(),
+                    subjectName = subjectName,
+                    ArrayList(students)
+                ))
+                databaseStatus.postValue(Resource.Success(data=Unit))
+            } catch (e: Throwable) {
+                databaseStatus.postValue(Resource.Error("cannot save the session!"))
+            }
+        }
+    }
+
     fun endSession(email: String) {
+        if (isOffline) {
+            endSessionStatus.postValue(Resource.Success(Unit))
+            return
+        }
         Log.d(TAG, "SessionViewModel, endSession() email = $email ")
         endSessionStatus.postValue(Resource.Loading())
         viewModelScope.launch {
@@ -131,7 +164,8 @@ class SessionViewModel : ViewModel() {
                 if (response.code() == 406) { //no email in request
                     endSessionStatus.postValue(Resource.Error("weird stuff"))
                 } else {
-                    endSessionStatus
+                    Log.d(TAG, "SessionViewModel else branch")
+                    endSessionStatus.postValue(Resource.Success(Unit))
                 }
             } catch (e: Throwable) {
                 Log.e(TAG, "SessionViewModel, endSession() ", e)
@@ -142,6 +176,8 @@ class SessionViewModel : ViewModel() {
 
     //polling, constantly updating attendeeList
     fun runPolling(email: String) {
+        if (isOffline)
+            return
         var i = 1
         viewModelScope.launch {
             while (runningPolling) {

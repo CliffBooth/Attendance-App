@@ -6,12 +6,14 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
+import androidx.core.view.forEach
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
@@ -49,6 +51,7 @@ class SessionActivity : MenuActivity() {
 
         viewModel.isUsingGeodata = intent.extras?.getBoolean(GEOLOCATION_KEY) ?: false
         viewModel.subjectName = intent.extras?.getString(SUBJECT_NAME_KEY) ?: "error"
+        viewModel.isOffline = intent.extras?.getBoolean(OFFLINE) ?: false
 
         Log.d(TAG, "Camera activity: using geodata = ${viewModel.isUsingGeodata}")
 
@@ -69,6 +72,13 @@ class SessionActivity : MenuActivity() {
         actionBarDrawerToggle.syncState()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         val navView = binding.navView
+        if (viewModel.isOffline) {
+            val disabledIfOffline = listOf(R.id.nav_scan_qr_code)
+            navView.menu.forEach {
+                if (it.itemId in disabledIfOffline)
+                    it.isEnabled = false
+            }
+        }
         navView.setNavigationItemSelectedListener {
             drawerLayout.close()
             when (it.itemId) {
@@ -118,7 +128,7 @@ class SessionActivity : MenuActivity() {
     private fun subscribe() {
         viewModel.isSessionTerminated.observe(this) {
             if (it) {
-                Toast.makeText(this, "Session has been terminated!", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Session ${viewModel.subjectName} has been terminated!", Toast.LENGTH_LONG).show()
                 val intent = Intent(this, ProfessorHomeActivity::class.java)
                 startActivity(intent)
                 finish()
@@ -129,15 +139,13 @@ class SessionActivity : MenuActivity() {
     override fun onStart() {
         super.onStart()
         viewModel.runningPolling = true
-        viewModel.runPolling(email) //TODO: how to stop polling when closing the
+        viewModel.runPolling(email)
     }
 
     override fun onStop() {
         super.onStop()
         viewModel.runningPolling = false
     }
-
-
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         Log.d(TAG, "ProfessorActivity: item selected: $item")
@@ -162,5 +170,6 @@ class SessionActivity : MenuActivity() {
     companion object {
         const val GEOLOCATION_KEY = "geolocation_key"
         const val SUBJECT_NAME_KEY = "SessionActivity.subject_name"
+        const val OFFLINE = "SessionActivity.offline"
     }
 }
