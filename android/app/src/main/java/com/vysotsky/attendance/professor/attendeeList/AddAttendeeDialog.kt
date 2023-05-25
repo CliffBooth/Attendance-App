@@ -19,7 +19,7 @@ class AddAttendeeDialog : DialogFragment() {
             val builder = AlertDialog.Builder(it)
             val inflater = requireActivity().layoutInflater
             val thisView = inflater.inflate(R.layout.add_attendee_dialog, null)
-            builder.setMessage("Enter student's name")
+            builder.setMessage(getString(R.string.enter_student_s_name))
                 .setView(thisView)
                 .setPositiveButton("Add") { _, _ ->
                     val firstName =
@@ -32,7 +32,7 @@ class AddAttendeeDialog : DialogFragment() {
                     if (firstName.isBlank() || secondName.isBlank()) {
                         Toast.makeText(
                             requireContext(),
-                            "first name and second name fields must not be empty!",
+                            getString(R.string.student_name_error),
                             Toast.LENGTH_SHORT
                         ).show()
 

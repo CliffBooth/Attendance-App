@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.graphics.Color
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -27,6 +28,7 @@ import com.google.android.gms.nearby.connection.Payload
 import com.google.android.gms.nearby.connection.PayloadCallback
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate
 import com.google.android.gms.nearby.connection.Strategy
+import com.vysotsky.attendance.R
 import com.vysotsky.attendance.SERVICE_ID
 import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.databinding.FragmentStudentWifiBinding
@@ -58,11 +60,35 @@ class StudentProximityFragment : Fragment() {
         val permissions = arrayOf(
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.NEARBY_WIFI_DEVICES,
+        )
+        val permissions31 = arrayOf(
             Manifest.permission.BLUETOOTH_SCAN,
             Manifest.permission.BLUETOOTH_CONNECT,
         )
-        val permissionsGranted = checkPermissions(requireActivity(), this, permissions)
+        val permissions33 = arrayOf(
+            Manifest.permission.NEARBY_WIFI_DEVICES,
+        )
+
+        var permissionsGranted = checkPermissions(requireActivity(), this, permissions) {
+            Log.d(
+                TAG,
+                "ProfessorProximityFragment permissions are ot granted!"
+            )}
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            permissionsGranted = permissionsGranted || checkPermissions(requireActivity(), this, permissions31) {
+                Log.d(
+                    TAG,
+                    "ProfessorProximityFragment permissions31 are ot granted!"
+                )}
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissionsGranted =
+                permissionsGranted || checkPermissions(requireActivity(), this, permissions33) {
+                    Log.d(
+                        TAG,
+                        "ProfessorProximityFragment permissions33 are ot granted!"
+                    )}
+        }
         Log.d(TAG, "StudentProximityFragment onCreate()  permissionsGranted = $permissionsGranted")
         if (!permissionsGranted) {
             Toast.makeText(
@@ -133,12 +159,12 @@ class StudentProximityFragment : Fragment() {
         viewModel.pbVisibility.value = true
         connectionsClient.startDiscovery(SERVICE_ID, discoveryCallback, discoveryOptions)
             .addOnSuccessListener {
-                Log.d(TAG, "StudentWifiFragment discovery success")
+                Log.d(TAG, "StudentWifiFragment started discovering...")
             }
             .addOnFailureListener { e ->
                 if (!checkIfGpsEnabled() && context != null)
                     Toast.makeText(context, "Please, enable gps!", Toast.LENGTH_LONG).show()
-                Log.d(TAG, "StudentWifiFragment discovery failure ", e)
+                Log.d(TAG, "StudentWifiFragment start discovery failure ", e)
                 viewModel.pbVisibility.value = false
             }
 
@@ -259,16 +285,16 @@ class StudentProximityFragment : Fragment() {
                     binding.accountedStatus.text = ""
                 }
                 StudentProximityViewModel.AccountedStatus.OK -> {
-                    binding.accountedStatus.text = "Accounted!"
+                    binding.accountedStatus.text = getString(R.string.accounted)
                     binding.accountedStatus.setTextColor(Color.GREEN)
                 }
                 StudentProximityViewModel.AccountedStatus.ALREADY_SCANNED -> {
-                    binding.accountedStatus.setTextColor(Color.YELLOW)
-                    binding.accountedStatus.text = "You have already been scanned!"
+                    binding.accountedStatus.setTextColor(Color.BLACK)
+                    binding.accountedStatus.text = getString(R.string.you_have_already_been_scanned)
                 }
                 StudentProximityViewModel.AccountedStatus.ERROR -> {
                     binding.accountedStatus.setTextColor(Color.RED)
-                    binding.accountedStatus.text = "Error occurred, try again"
+                    binding.accountedStatus.text = getString(R.string.error_occurred_try_again)
                 }
                 else -> Unit //to get rid of warning
             }

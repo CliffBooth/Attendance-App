@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.camera.core.Preview
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import com.vysotsky.attendance.R
 import com.vysotsky.attendance.databinding.FragmentStudentCameraBinding
 import com.vysotsky.attendance.student.StudentViewModel
 import com.vysotsky.attendance.util.CameraFragment
@@ -71,15 +72,15 @@ class StudentCameraFragment : CameraFragment() {
         viewModel.status.observe(viewLifecycleOwner) {
             when (it) {
                 Status.SEARCHING -> {
-                    binding.statusText.text = "Searching for QR code"
+                    binding.statusText.text = getString(R.string.searching_for_qr_code)
                 }
 
                 Status.SENDING -> {
-                    binding.statusText.text = "Sending..."
+                    binding.statusText.text = getString(R.string.sending)
                 }
 
                 Status.SENT -> {
-                    binding.statusText.text = "Sent."
+                    binding.statusText.text = getString(R.string.sent)
                 }
             }
         }
@@ -100,7 +101,7 @@ class StudentCameraFragment : CameraFragment() {
                             viewModel.status.value = Status.SENT
                             Toast.makeText(
                                 requireContext(),
-                                "Already scanned",
+                                getString(R.string.you_have_already_been_scanned),
                                 Toast.LENGTH_LONG
                             ).show()
                         }
@@ -112,7 +113,7 @@ class StudentCameraFragment : CameraFragment() {
                         else -> {
                             Toast.makeText(
                                 requireContext(),
-                                "Something went wrong...",
+                                getString(R.string.something_went_wrong),
                                 Toast.LENGTH_LONG
                             ).show()
                             Handler(Looper.getMainLooper()).postDelayed({
@@ -125,7 +126,8 @@ class StudentCameraFragment : CameraFragment() {
                 is Resource.Error -> {
                     Toast.makeText(
                         requireContext(),
-                        it.message,
+//                        it.message,
+                        getString(R.string.network_error),
                         Toast.LENGTH_LONG
                     ).show()
                     Handler(Looper.getMainLooper()).postDelayed({

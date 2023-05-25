@@ -2,13 +2,13 @@
 
 <!--HAVE TO USE 2 SCROLLVIEWS OTHERWISE IT BREAKS!!!!!!-->
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fillViewport="true"
-    tools:context=".professor.StartSessionFragment">
+<!--<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
+<!--    xmlns:tools="http://schemas.android.com/tools"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="match_parent"-->
+<!--    android:fillViewport="true"-->
+<!--    tools:context=".professor.StartSessionFragment">-->
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -50,16 +50,16 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <CheckBox
-                    android:id="@+id/location_checkbox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/use_geolocation_data"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toTopOf="@+id/spinner"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
+<!--                <CheckBox-->
+<!--                    android:id="@+id/location_checkbox"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="@string/use_geolocation_data"-->
+<!--                    android:textSize="18sp"-->
+<!--                    app:layout_constraintBottom_toTopOf="@+id/spinner"-->
+<!--                    app:layout_constraintEnd_toEndOf="parent"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                    app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />-->
 
                 <ProgressBar
                     android:id="@+id/spinner"
@@ -71,27 +71,30 @@
                     app:layout_constraintBottom_toTopOf="@+id/start_button"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textInputLayout"
                     tools:visibility="visible" />
 
+<!--                    android:background="@drawable/round_button"-->
+<!--                    app:layout_constraintDimensionRatio="1, 1"-->
+<!--                    app:layout_constraintWidth_percent=".60" -->
                 <Button
                     android:id="@+id/start_button"
-                    android:layout_width="201dp"
-                    android:layout_height="210dp"
-                    android:background="@drawable/round_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="20dp"
                     android:text="@string/start_session"
                     android:textSize="20sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintDimensionRatio="1, 1"
+                    app:layout_constraintBottom_toBottomOf="@+id/guideline4"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintWidth_percent=".60" />
+                    />
 
                 <Button
                     android:id="@+id/go_to_existing_session"
                     android:layout_width="201dp"
                     android:layout_height="210dp"
                     android:background="@drawable/round_button"
-                    android:text="go to existing session"
+                    android:text="@string/go_to_existing_session"
                     android:textSize="20sp"
                     android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -100,9 +103,16 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintWidth_percent=".60" />
 
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent=".88" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.core.widget.NestedScrollView>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-</ScrollView>
+<!--</ScrollView>-->

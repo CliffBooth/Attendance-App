@@ -52,11 +52,7 @@ class StopSessionFragment: Fragment() {
             .getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
             .getString(getString(R.string.access_token), "") ?: ""
         binding.stopSessionButton.setOnClickListener {
-            //TODO get rid of the checkboxes!
             Log.d(TAG, "onViewCreated: k")
-            if (binding.sendEmailCheckbox.isChecked) {
-
-            }
             //check if attendee list is empty and don't save the session then
             if (viewModel.isOffline) {
                 viewModel.saveSessionToDatabase(requireContext())
@@ -82,7 +78,8 @@ class StopSessionFragment: Fragment() {
                     viewModel.isStopButtonEnabled.value = false
                     Toast.makeText(
                         requireContext(),
-                        it.message,
+//                        it.message,
+                        getString(R.string.network_error),
                         Toast.LENGTH_LONG
                     ).show()
 
@@ -132,11 +129,14 @@ class StopSessionFragment: Fragment() {
                 }
                 is Resource.Error -> {
                     if (context != null)
-                        Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, /*it.message,*/ getString(R.string.network_error), Toast.LENGTH_LONG).show()
                     viewModel.endSession(email) //TODO: maybe add a "retry" button instead of losing all data?
                 }
                 else -> Unit
             }
+        }
+        viewModel.attendeesListSize.observe(viewLifecycleOwner) {
+            binding.studentCount.text = getString(R.string.attendees_number, it)
         }
     }
 

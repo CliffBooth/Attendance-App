@@ -1,7 +1,6 @@
 package com.vysotsky.attendance.professor.camera
 
 import android.Manifest
-import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationRequest
@@ -15,14 +14,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
-import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.commit
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.CancellationToken
@@ -32,7 +26,7 @@ import com.vysotsky.attendance.API_URL
 import com.vysotsky.attendance.R
 import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.databinding.FragmentCameraBinding
-import com.vysotsky.attendance.englishQRRegex
+import com.vysotsky.attendance.en_ru_QRRegex
 import com.vysotsky.attendance.httpClient
 import com.vysotsky.attendance.professor.attendeeList.Attendee
 import com.vysotsky.attendance.professor.attendeeList.GeoLocation
@@ -221,7 +215,7 @@ class CameraFragment : CameraFragment() {
 
             if (!viewModel.nameSent) {
                 // trying to send anything camera sees, sending only if it matches expected pattern
-                if (string.matches(englishQRRegex)) {
+                if (string.matches(en_ru_QRRegex)) {
                     if (viewModel.isUsingGeodata) {
                         val subStr = string.substringAfterLast(":")
                         if (subStr != "null") {
@@ -241,12 +235,14 @@ class CameraFragment : CameraFragment() {
                         }
                         else {
                             requireActivity().runOnUiThread {
-                                viewModel.status.value = "This phone has already been scanned!"
+                                viewModel.status.value =
+                                    getString(R.string.this_phone_has_already_been_scanned)
                             }
                         }
                     }
                 } else {
-                    viewModel.status.value = "QR Code doesn't look like student's name"
+                    viewModel.status.value =
+                        getString(R.string.qr_code_doesn_t_look_like_student_s_name)
                 }
             } else {
                 // looking at the token
@@ -276,13 +272,13 @@ class CameraFragment : CameraFragment() {
                         201 -> {
                             requireActivity().runOnUiThread {
                                 viewModel.nameSent = true
-                                viewModel.status.value = "student name sent"
+                                viewModel.status.value = getString(R.string.student_name_sent)
                             }
                         }
 
                         202 -> {
                             requireActivity().runOnUiThread {
-                                viewModel.status.value = "This phone has already been scanned!"
+                                viewModel.status.value = getString(R.string.this_phone_has_already_been_scanned)
                             }
                         }
 
@@ -290,7 +286,7 @@ class CameraFragment : CameraFragment() {
                             requireActivity().runOnUiThread {
                                 Toast.makeText(
                                     requireContext(),
-                                    "wrong QR Code format or wrong request body",
+                                    getString(R.string.something_went_wrong),
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -300,7 +296,7 @@ class CameraFragment : CameraFragment() {
                             requireActivity().runOnUiThread {
                                 Toast.makeText(
                                     requireContext(),
-                                    "The session has not been found on the server",
+                                    getString(R.string.something_went_wrong),
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -332,13 +328,13 @@ class CameraFragment : CameraFragment() {
                             viewModel.addAttendeeToList(currentAttendee)
                             viewModel.nameSent = false
                             requireActivity().runOnUiThread {
-                                viewModel.status.value = "Student accounted"
+                                viewModel.status.value = getString(R.string.student_accounted)
                             }
                         }
 
                         401 -> {
                             requireActivity().runOnUiThread {
-                                viewModel.status.value = "wrong token!"
+                                viewModel.status.value = getString(R.string.wrong_token)
                             }
                         }
                     }

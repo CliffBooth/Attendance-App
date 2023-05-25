@@ -29,7 +29,6 @@ class AttendeeAdapter(
 
         val deleteImage = result.findViewById<ImageView>(R.id.delete_image)
         deleteImage.setOnClickListener {
-            //TODO: launch dialog
             val dialogBuilder = AlertDialog.Builder(context).apply {
                 setTitle(context.getString(R.string.are_you_sure))
                 setPositiveButton(context.getString(R.string.yes)) {dialog, id ->
@@ -42,11 +41,7 @@ class AttendeeAdapter(
             dialogBuilder.create().show()
         }
 
-        if (attendee.id != null) {
-            deleteImage.isVisible = false
-        } else {
-            deleteImage.isVisible = true
-        }
+        deleteImage.isVisible = attendee.id == null
 
         result.findViewById<TextView>(R.id.first_name).text = attendee.firstName
         result.findViewById<TextView>(R.id.second_name).text = attendee.secondName

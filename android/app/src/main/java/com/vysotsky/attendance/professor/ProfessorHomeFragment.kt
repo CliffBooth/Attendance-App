@@ -110,7 +110,8 @@ class ProfessorHomeFragment : Fragment() {
                     binding.textView.text = getString(R.string.your_classes)
                     Toast.makeText(
                         requireContext(),
-                        it.apiResponse.message,
+//                        it.apiResponse.message,
+                        getString(R.string.network_error),
                         Toast.LENGTH_LONG
                     ).show()
                 }

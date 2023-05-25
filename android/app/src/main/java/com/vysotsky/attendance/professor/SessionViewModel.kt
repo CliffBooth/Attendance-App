@@ -6,6 +6,7 @@ import android.view.View
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.nearby.Nearby
 import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.api.*
 import com.vysotsky.attendance.database.Class
@@ -13,6 +14,7 @@ import com.vysotsky.attendance.database.getDatabase
 import com.vysotsky.attendance.professor.attendeeList.AdapterList
 import com.vysotsky.attendance.professor.attendeeList.Attendee
 import com.vysotsky.attendance.professor.attendeeList.GeoLocation
+import com.vysotsky.attendance.student.proximity.NearbyConnectionModule
 import com.vysotsky.attendance.util.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -31,8 +33,9 @@ class SessionViewModel : ViewModel() {
     var subjectName = "error"
     var ownLocation: GeoLocation? = null
     val attendeesList =
-        AdapterList<Attendee>() //TODO: AdapterList holds adapter reference, adapter holds context reference which is not allowed in ViewModel (view AttendeesListFragment class)
+        AdapterList<Attendee>()
     val isSessionTerminated = MutableLiveData(false)
+    val attendeesListSize = MutableLiveData(0)
 
 
     fun notInTheList(a: Attendee): Boolean {
@@ -42,6 +45,7 @@ class SessionViewModel : ViewModel() {
     fun addAttendeeToList(attendee: Attendee) { //maybe put a uniqueness check here?
         attendeesList += attendee
         attendeesList.notifyDataSetChanged()
+        attendeesListSize.postValue(attendeesListSize.value?.plus(1))
     }
 
     /**
@@ -68,6 +72,7 @@ class SessionViewModel : ViewModel() {
     }
 
     fun deleteAttendee(email: String, attendee: Attendee) {
+        attendeesListSize.postValue(attendeesListSize.value?.minus(1))
         if (isOffline)
             return
         viewModelScope.launch(Dispatchers.IO) {
@@ -93,11 +98,22 @@ class SessionViewModel : ViewModel() {
 
     @Volatile
     var nameSent = false
-    val status = MutableLiveData("Nothing")
+    val status = MutableLiveData(" ")
 
     //move to bluetooth! (or delete)
     val studentsNumber = MutableLiveData(0)
+    val isAdvertising = MutableLiveData(AdvertisingStatus.FALSE)
 
+
+    fun startAdvertising(context: Context) {
+//        NearbyConnectionModule.start(context)
+    }
+
+    fun stopAdvertising() {
+//        NearbyConnectionModule.stop()
+    }
+
+    ///
     val postSessionStatus = MutableLiveData<Resource<Unit>>()
     val endSessionStatus = MutableLiveData<Resource<Unit>>()
     val isStopButtonEnabled = MutableLiveData(true)
@@ -135,8 +151,10 @@ class SessionViewModel : ViewModel() {
     fun saveSessionToDatabase(context: Context) {
         Log.d(TAG, "SessionViewModel saveSessionToDatabase()")
         val students = attendeesList.map { a -> Student(a.id, a.firstName, a.secondName) }
-        if (students.isEmpty())
+        if (students.isEmpty()) {
+            databaseStatus.postValue(Resource.Success(Unit))
             return
+        }
         viewModelScope.launch {
             try {
                 getDatabase(context).classDao.insertClass(Class(
@@ -215,4 +233,8 @@ class SessionViewModel : ViewModel() {
             }
         }
     }
+}
+
+enum class AdvertisingStatus {
+    TRUE, FALSE, LOADING
 }

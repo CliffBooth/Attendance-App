@@ -30,10 +30,22 @@
     <Button
         android:id="@+id/scan_button"
         android:layout_width="wrap_content"
-        android:text="turn on wifi"
+        android:text="@string/start_advertising"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/stop_scan_button"
+        android:layout_width="wrap_content"
+        android:visibility="gone"
+        android:text="@string/stop_advertising"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

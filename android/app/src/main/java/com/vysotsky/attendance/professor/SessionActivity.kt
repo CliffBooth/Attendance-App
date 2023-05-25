@@ -18,6 +18,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
+import com.google.android.gms.nearby.connection.ConnectionsClient
 import com.vysotsky.attendance.MenuActivity
 import com.vysotsky.attendance.R
 import com.vysotsky.attendance.TAG
@@ -38,6 +39,8 @@ class SessionActivity : MenuActivity() {
     private val viewModel: SessionViewModel by viewModels()
 
     private lateinit var email: String
+
+    var connectionsClient: ConnectionsClient? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -128,7 +131,8 @@ class SessionActivity : MenuActivity() {
     private fun subscribe() {
         viewModel.isSessionTerminated.observe(this) {
             if (it) {
-                Toast.makeText(this, "Session ${viewModel.subjectName} has been terminated!", Toast.LENGTH_LONG).show()
+                Toast.makeText(this,
+                    getString(R.string.session_has_been_terminated, viewModel.subjectName), Toast.LENGTH_LONG).show()
                 val intent = Intent(this, ProfessorHomeActivity::class.java)
                 startActivity(intent)
                 finish()
@@ -145,6 +149,13 @@ class SessionActivity : MenuActivity() {
     override fun onStop() {
         super.onStop()
         viewModel.runningPolling = false
+//        viewModel.isAdvertising.value = AdvertisingStatus.FALSE //should stop through the viewModel function!!!!
+        connectionsClient?.run {
+            stopAdvertising()
+            stopDiscovery()
+            stopAllEndpoints()
+        }
+        viewModel.isAdvertising.value = AdvertisingStatus.FALSE
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

@@ -7,19 +7,19 @@
         <item
             android:id="@+id/student_home"
             android:icon="@drawable/ic_home"
-            android:title="home" />
+            android:title="@string/title_home" />
         <item
             android:id="@+id/nav_display_qr_code"
             android:icon="@drawable/ic_scan"
-            android:title="Display QR Code" />
+            android:title="@string/display_qr_code" />
         <item
             android:id="@+id/nav_wifi_student"
             android:icon="@drawable/ic_wifi"
-            android:title="WIFI" />
+            android:title="@string/proximity_name" />
         <item
             android:id="@+id/nav_student_camera"
             android:icon="@drawable/ic_menu_camera"
-            android:title="Camera" />
+            android:title="@string/camera" />
     </group>
 
 </menu>

@@ -1,0 +1,78 @@
+<resources>
+    <string name="app_name">Attendance</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="log_in_as_a_professor">Войти как преподователь</string>
+    <string name="log_in_as_a_student">Войти как студент</string>
+    <string name="enter_your_name">Введите ваше имя</string>
+    <string name="first_name_hint">Имя</string>
+    <string name="second_name_hint">Фамилия</string>
+    <string name="log_in">Войти</string>
+    <string name="name_should_not_be_empty">Имя не должно быть пустым!</string>
+    <string name="check_string">Получить токен</string>
+    <string name="professor_log_in">Введите email и пароль</string>
+    <string name="email_hint">email</string>
+    <string name="email_error_text">Пожалуйста, введите корректный email</string>
+<!--    <string name="camera_permissions_error">Camera permission is not granted by the user!</string>-->
+    <string name="location_permissions_error">Нет разрешения использовать геолокацию!</string>
+    <string name="start_session">Начать сессию</string>
+    <string name="logout_menu">Выйти</string>
+    <string name="can_t_create_session">Ошибка</string>
+    <string name="attendees_list">Список посещения:</string>
+    <string name="nav_open">Открыть</string>
+    <string name="nav_close">Закрыть</string>
+    <string name="use_geolocation_data">Использовать данные геолокации</string>
+
+    <!--no data location string in -->
+    <string name="no_location_data"><u>Нет данных о геолокации</u></string>
+    <string name="location_out_of_range"><u>Дальше чем 100 метров</u></string>
+    <string name="stop_session">Закончить сессию</string>
+    <string name="send_email">Отправить на email</string>
+
+    <string name="network_error">Ошибка сети</string>
+    <string name="subject_name">Название предмета</string>
+    <string name="title_home">Главная</string>
+    <string name="sign_up">зарегестрироваться</string>
+    <string name="password_hint">пароль</string>
+    <string name="your_classes">Ваши занятия:</string>
+    <string name="updating">Обновление…</string>
+    <string name="are_you_sure">Вы уверены?</string>
+    <string name="yes">Да</string>
+    <string name="cancel">Отмена</string>
+    <string name="double_back">Нажмите НАЗАД еще раз чтобы выйти</string>
+    <string name="start_advertising">Стать видимым</string>
+    <string name="stop_advertising">Перестать быть видимым</string>
+
+    <string name="empty_subject_name_error">Пожалуйста, укажите название занятия!</string>
+    <string name="go_to_existing_session">Перейти к идущей сессии</string>
+    <string name="start_session_offline">Начать сессию (без интернета)</string>
+    <string name="enter_student_s_name">Введите имя студента</string>
+    <string name="student_name_error">Поля фамилия и имя должны быть заполнены!</string>
+    <string name="display_qr_code">Отобразить QR код</string>
+    <string name="proximity_name">WIFI</string>
+    <string name="camera">Камера</string>
+    <string name="attendees_list_menu">Список студентов</string>
+    <string name="scan_qr_code_menu">Отсканировать QR код</string>
+    <string name="session_has_been_terminated">Сессия %1$s закончена</string>
+    <string name="retry">Повтор</string>
+    <string name="discard">Не сохранять</string>
+    <string name="attendees_number">Количество студентов на занятии: %1$d</string>
+    <string name="start_discovering">Начать поиск</string>
+    <string name="accounted">Засчитано!</string>
+    <string name="you_have_already_been_scanned">Вас уже отметили!</string>
+    <string name="error_occurred_try_again">Произошла ошибка, попробуйте еще раз</string>
+    <string name="searching_for_qr_code">Поиск QR кода</string>
+    <string name="sending">Отправление…</string>
+    <string name="sent">Отправлено</string>
+    <string name="something_went_wrong">что то пошло не так</string>
+    <string name="students">Студенты</string>
+    <string name="this_phone_has_already_been_scanned">Этот телефон уже был зарегестрирован!</string>
+    <string name="qr_code_doesn_t_look_like_student_s_name">QR код не является именем студента</string>
+    <string name="student_name_sent">имя отправлено</string>
+    <string name="wrong_token">неверный токен!</string>
+    <string name="student_accounted">Студент засчитан</string>
+    <string name="nothing"> </string>
+</resources>

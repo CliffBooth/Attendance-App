@@ -69,7 +69,8 @@ class StartSessionFragment: Fragment() {
                     startSessionActivity(offline = true)
                 }
             } else {
-                Toast.makeText(requireContext(), "Please, fill in the subject name!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(),
+                    getString(R.string.empty_subject_name_error), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -108,14 +109,14 @@ class StartSessionFragment: Fragment() {
             binding.startButton.isVisible = it
             binding.goToExistingSession.isVisible = !it
             binding.subjectName.isVisible = it
-            binding.locationCheckbox.isVisible = it
+//            binding.locationCheckbox.isVisible = it
         }
 
         viewModel.requestStatus.observe(viewLifecycleOwner) {
             when (it) {
                 is Resource.Loading -> {
 //                    viewModel.spinnerVisibility.value = true
-                    binding.swipeToRefresh.isRefreshing = true
+//                    binding.swipeToRefresh.isRefreshing = true
 //                    viewModel.startButtonEnabled.value = false
                 }
 
@@ -152,7 +153,8 @@ class StartSessionFragment: Fragment() {
 
                     Toast.makeText(
                         requireContext(),
-                        it.message,
+//                        it.message,
+                        getString(R.string.network_error),
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -161,9 +163,9 @@ class StartSessionFragment: Fragment() {
 
         viewModel.offlineSession.observe(viewLifecycleOwner) {
             if (it) {
-                binding.startButton.text = "start session (offline)"
+                binding.startButton.text = getString(R.string.start_session_offline)
             } else {
-                binding.startButton.text = "start session"
+                binding.startButton.text = getString(R.string.start_session)
             }
         }
     }
@@ -174,7 +176,7 @@ class StartSessionFragment: Fragment() {
     private fun registerSession() {
         val errorToast = Toast.makeText(
             requireContext(),
-            "Internet error",
+            getString(R.string.network_error),
             Toast.LENGTH_SHORT
         )
         val cantCrateSessionToast = Toast.makeText(
@@ -220,7 +222,8 @@ class StartSessionFragment: Fragment() {
     }
 
     private fun startSessionActivity(offline: Boolean) {
-        val usingGeolocation = binding.locationCheckbox.isChecked
+//        val usingGeolocation = binding.locationCheckbox.isChecked //TODO not using geolocation yet
+        val usingGeolocation = false
         val intent = Intent(requireContext(), SessionActivity::class.java).apply {
             val bundle = Bundle().apply {
                 putBoolean(SessionActivity.GEOLOCATION_KEY, usingGeolocation)

@@ -78,7 +78,8 @@ class ProfessorLogInActivity : AppCompatActivity() {
                     viewModel.isPBVisible.value = false
                     Toast.makeText(
                         this,
-                        it.message,
+//                        it.message,
+                        getString(R.string.network_error),
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -97,7 +98,8 @@ class ProfessorLogInActivity : AppCompatActivity() {
                     viewModel.isPBVisible.value = false
                     Toast.makeText(
                         this,
-                        it.message,
+//                        it.message,
+                        getString(R.string.network_error),
                         Toast.LENGTH_LONG
                     ).show()
                 }

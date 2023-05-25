@@ -10,11 +10,11 @@ var randomLocation = false
 const val TAG = "myTag"
 var debug = false
 var polling = true
-val englishQRRegex = Regex("^[A-Za-z]+:[A-Za-z]+:\\w+:((-?[\\w\\.]+---?[\\w\\.]+)|null)\$")
+val en_ru_QRRegex = Regex("^[A-Za-zА-Яа-я]+:[A-Za-zА-Яа-я]+:\\w+:((-?[\\w\\.]+---?[\\w\\.]+)|null)\$")
 val httpClient = OkHttpClient()
 
 //for connections api
-val SERVICE_ID = "com.vysotsky.attendance.SERVICE_ID"
+val SERVICE_ID = "ATTENDANCE"
 //val userName = "attendance" //name might need to be random
 fun getName(): String {
     var result = ""

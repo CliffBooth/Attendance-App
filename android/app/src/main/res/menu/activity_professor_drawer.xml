@@ -7,18 +7,18 @@
         <item
             android:id="@+id/nav_scan_qr_code"
             android:icon="@drawable/ic_scan"
-            android:title="Scan QR Code" />
+            android:title="@string/scan_qr_code_menu" />
         <item
             android:id="@+id/nav_prof_wifi"
             android:icon="@drawable/ic_wifi"
-            android:title="Wifi" />
+            android:title="@string/proximity_name" />
         <item
             android:id="@+id/nav_attendees_list"
             android:icon="@drawable/ic_list"
-            android:title="Attendees list" />
+            android:title="@string/attendees_list_menu" />
         <item
             android:id="@+id/nav_stop_session"
             android:icon="@drawable/ic_exit"
-            android:title="Stop session" />
+            android:title="@string/stop_session" />
     </group>
 </menu>

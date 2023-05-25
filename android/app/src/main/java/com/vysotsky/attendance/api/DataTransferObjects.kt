@@ -33,7 +33,7 @@ data class Student(
 ) : Serializable
 
 data class StudentClass(
-    val date: String,
+    val date: Long,
     val subjectName: String
 ) : Serializable
 

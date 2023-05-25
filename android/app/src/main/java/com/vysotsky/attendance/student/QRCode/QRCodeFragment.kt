@@ -209,7 +209,7 @@ class QRCodeFragment : Fragment() {
                     if (context != null) {
                         Toast.makeText(
                             context,
-                            getString(R.string.internet_error),
+                            getString(R.string.network_error),
                             Toast.LENGTH_LONG
                         ).show()
                     }
@@ -281,7 +281,7 @@ class QRCodeFragment : Fragment() {
                     fragmentViewModel.spinnerVisibility.value = false
                     Toast.makeText(
                         requireContext(),
-                        getString(R.string.internet_error),
+                        getString(R.string.network_error),
                         Toast.LENGTH_LONG
                     ).show()
                 }

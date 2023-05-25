@@ -112,7 +112,7 @@ class ClassAttendanceActivity : AppCompatActivity() {
 
         val cellSize = resources.getDimensionPixelSize(R.dimen.table_cell_size)
         tv.layoutParams = TableRow.LayoutParams(LayoutParams.WRAP_CONTENT, /*cellSize*/)
-        tv.text = "Students"
+        tv.text = getString(R.string.students)
         tv.setTypeface(tv.typeface, Typeface.BOLD)
         tv.setBackgroundResource(R.drawable.table_cell_border)
         tv.setPadding(10)

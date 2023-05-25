@@ -6,7 +6,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.vysotsky.attendance.databinding.ActivityStudentAttendanceBinding
 import com.vysotsky.attendance.api.StudentClass
 import java.text.SimpleDateFormat
-import java.time.Instant
 import java.util.Date
 import java.util.Locale
 
@@ -34,10 +33,9 @@ class StudentAttendanceActivity : AppCompatActivity() {
         layoutManager = LinearLayoutManager(this@StudentAttendanceActivity)
     }
 
-    private fun formatDate(dateStr: String): String {
-        val instant = Instant.parse(dateStr)
-        val date = Date.from(instant)
+    private fun formatDate(unixTime: Long): String {
         val format = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
+        val date = Date(unixTime)
         return format.format(date)
     }
 

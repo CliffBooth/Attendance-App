@@ -52,6 +52,7 @@ class StudentHomeFragment : Fragment() {
             viewModel.btnRetryRequestVisibility.value = false
             viewModel.getClasses(activityViewModel.deviceID, true)
         }
+        binding.name.text = "${activityViewModel.firstName} ${activityViewModel.secondName}"
         setUpRecyclerView()
         subscribe()
     }
