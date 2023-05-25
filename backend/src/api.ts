@@ -400,8 +400,12 @@ router.get('/student_classes/:phoneId', async (req, res) => {
             },
         },
     });
-    if (result === null) res.sendStatus(404);
-    else res.json(result.classes || []);
+    if (result === null) {
+        res.sendStatus(404);
+        return;
+    }
+    const toSend = result.classes.map(cl => ({...cl, date: Number(cl.date.toString())}))
+    res.json(toSend || []);
 });
 
 /**
