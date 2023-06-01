@@ -282,17 +282,7 @@ class CameraFragment : CameraFragment() {
                             }
                         }
 
-                        406 -> {
-                            requireActivity().runOnUiThread {
-                                Toast.makeText(
-                                    requireContext(),
-                                    getString(R.string.something_went_wrong),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
-
-                        401 -> {
+                        406, 401 -> {
                             requireActivity().runOnUiThread {
                                 Toast.makeText(
                                     requireContext(),

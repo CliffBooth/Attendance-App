@@ -21,7 +21,7 @@ class AddAttendeeDialog : DialogFragment() {
             val thisView = inflater.inflate(R.layout.add_attendee_dialog, null)
             builder.setMessage(getString(R.string.enter_student_s_name))
                 .setView(thisView)
-                .setPositiveButton("Add") { _, _ ->
+                .setPositiveButton(getString(R.string.add)) { _, _ ->
                     val firstName =
                         thisView?.findViewById<EditText>(R.id.first_name_edit_text1)?.text?.toString()
                             ?: ""
@@ -46,7 +46,7 @@ class AddAttendeeDialog : DialogFragment() {
                         )
                     )
                 }
-                .setNegativeButton("Cancel") { _, _ -> Unit }
+                .setNegativeButton(getString(R.string.cancel)) { _, _ -> Unit }
 
             builder.create()
         } ?: throw IllegalStateException("Activity cannot be null")

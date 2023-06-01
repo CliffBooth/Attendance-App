@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import DateComponent from './components/byDate/DateComponent';
 import NavComponent from './components/NavComponent';
 import Router from './components/Router';
 import SessionContext, { Session } from './context/SessionContext';

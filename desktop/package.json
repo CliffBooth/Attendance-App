@@ -2,7 +2,13 @@
   "name": "desktop",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "main": "electron/main.js",
+  "jest": {
+    "moduleNameMapper": {
+      "axios": "axios/dist/node/axios.cjs"
+    }
+  },
   "dependencies": {
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
@@ -10,7 +16,7 @@
     "@heroicons/react": "^2.0.18",
     "@mui/material": "^5.11.14",
     "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^13.4.0",
+    "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.12",

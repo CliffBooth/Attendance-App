@@ -93,7 +93,7 @@ class StudentProximityFragment : Fragment() {
         if (!permissionsGranted) {
             Toast.makeText(
                 requireContext(),
-                "Can't use wifi because no location permission!",
+                getString(R.string.no_permissions),
                 Toast.LENGTH_LONG
             ).show()
         }
@@ -163,7 +163,7 @@ class StudentProximityFragment : Fragment() {
             }
             .addOnFailureListener { e ->
                 if (!checkIfGpsEnabled() && context != null)
-                    Toast.makeText(context, "Please, enable gps!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, getString(R.string.please_enable_gps), Toast.LENGTH_LONG).show()
                 Log.d(TAG, "StudentWifiFragment start discovery failure ", e)
                 viewModel.pbVisibility.value = false
             }
@@ -296,7 +296,7 @@ class StudentProximityFragment : Fragment() {
                     binding.accountedStatus.setTextColor(Color.RED)
                     binding.accountedStatus.text = getString(R.string.error_occurred_try_again)
                 }
-                else -> Unit //to get rid of warning
+//                else -> Unit
             }
         }
 

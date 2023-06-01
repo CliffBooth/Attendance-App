@@ -39,7 +39,8 @@ class ProfessorLogInActivity : AppCompatActivity() {
                     .show()
             } else {
                 if (password.isBlank()) {
-                    Toast.makeText(this, "Please enter password", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this,
+                        getString(R.string.please_enter_password), Toast.LENGTH_LONG).show()
 
                 } else {
                     viewModel.enteredEmail = email
@@ -66,7 +67,8 @@ class ProfessorLogInActivity : AppCompatActivity() {
                         }
                         401 -> {
                             //display signup dialog
-                            Toast.makeText(this, "wrong password!", Toast.LENGTH_LONG).show()
+                            Toast.makeText(this,
+                                getString(R.string.wrong_password), Toast.LENGTH_LONG).show()
                         }
                         409 -> {
                             //display signup dialog
@@ -112,7 +114,7 @@ class ProfessorLogInActivity : AppCompatActivity() {
 
     private fun displayDialog() {
         val dialogBuilder = AlertDialog.Builder(this).apply {
-            setTitle("Non existent email! Do you want to register with this email?")
+            setTitle(getString(R.string.register_question))
             setPositiveButton(getString(R.string.yes)) { dialog, id ->
                 viewModel.signup(viewModel.enteredEmail, viewModel.enteredPassword)
             }

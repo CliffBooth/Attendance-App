@@ -22,6 +22,7 @@ import com.google.android.gms.nearby.connection.Payload
 import com.google.android.gms.nearby.connection.PayloadCallback
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate
 import com.google.android.gms.nearby.connection.Strategy
+import com.vysotsky.attendance.R
 import com.vysotsky.attendance.SERVICE_ID
 import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.databinding.FragmentProfessorProximityBinding
@@ -118,7 +119,7 @@ class ProfessorProximityFragment : Fragment() {
         binding.scanButton.setOnClickListener {
             //TODO: make a util function to check if gps is enabled - open dialog like in google maps.
             if (!checkIfGpsEnabled() && context != null) {
-                Toast.makeText(context, "Please, enable gps!", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, getString(R.string.please_enable_gps), Toast.LENGTH_LONG).show()
                 activityViewModel.isAdvertising.value = AdvertisingStatus.FALSE
             } else {
                 startAdvertising()

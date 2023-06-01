@@ -124,12 +124,13 @@ class StopSessionFragment: Fragment() {
         viewModel.databaseStatus.observe(viewLifecycleOwner) {
             when (it) {
                 is Resource.Success -> {
-                    Toast.makeText(context, "Session has been saved locally", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context,
+                        getString(R.string.session_has_been_saved_locally), Toast.LENGTH_SHORT).show()
                     viewModel.endSession(email)
                 }
                 is Resource.Error -> {
                     if (context != null)
-                        Toast.makeText(context, /*it.message,*/ getString(R.string.network_error), Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, getString(R.string.something_went_wrong), Toast.LENGTH_LONG).show()
                     viewModel.endSession(email) //TODO: maybe add a "retry" button instead of losing all data?
                 }
                 else -> Unit

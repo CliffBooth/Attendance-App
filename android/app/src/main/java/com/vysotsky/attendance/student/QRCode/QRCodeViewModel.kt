@@ -33,7 +33,7 @@ class QRCodeViewModel : ViewModel() {
      * this is needed for polling not be run every time screen is rotated (Activity recreated)
      * when created first time, QRCodeActivity runs polling and sets this to true.
      */
-    var isRunningPolling = false //TODO crate separate viewModel for that?
+    var isRunningPolling = false
 
     var isPollingActive = false
 

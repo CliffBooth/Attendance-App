@@ -16,6 +16,9 @@ import com.vysotsky.attendance.databinding.ActivityClassAttendanceBinding
 import com.vysotsky.attendance.api.*
 import com.vysotsky.attendance.database.PredefinedClassDB
 import com.vysotsky.attendance.database.getDatabase
+import com.vysotsky.attendance.util.compareByName
+import com.vysotsky.attendance.util.formatDate
+import com.vysotsky.attendance.util.listOfDistinct
 import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -90,22 +93,6 @@ class ClassAttendanceActivity : AppCompatActivity() {
         }
     }
 
-    private fun compareByName(s1: Student, s2: Student): Boolean {
-        return s1.firstName.lowercase() == s2.firstName.lowercase() && s1.secondName.lowercase() == s2.secondName.lowercase()
-    }
-
-    private fun listOfDistinct(l: List<Student>): List<Student> {
-        val res = mutableListOf<Student>()
-        Log.d(TAG, "listOfDistinct() = $l")
-        for (st in l) {
-            if (res.find { s -> compareByName(s, st)} == null) {
-                res += st
-            }
-        }
-        Log.d(TAG, "listOfDistinct: $res")
-        return res
-    }
-
     private fun setUpFirstRow(dates: List<Long>) {
         val tr = TableRow(this)
         var tv = TextView(this)
@@ -118,9 +105,7 @@ class ClassAttendanceActivity : AppCompatActivity() {
         tv.setPadding(10)
         tr.addView(tv)
         for (unixTime in dates) {
-            val format = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
-            val date = Date(unixTime)
-            val formatted = format.format(date)
+            val formatted = formatDate(unixTime)
             tv = TextView(this)
             tv.setBackgroundResource(R.drawable.table_cell_border)
             tv.text = formatted

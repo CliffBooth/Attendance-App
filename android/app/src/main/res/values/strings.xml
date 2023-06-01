@@ -80,5 +80,14 @@
     <string name="wrong_token">wrong token!</string>
     <string name="student_accounted">Student accounted</string>
     <string name="nothing"> </string>
+    <string name="please_enter_password">Please enter password</string>
+    <string name="please_enable_gps">Please, enable gps!</string>
+    <string name="register_question">Non existent email! Do you want to register with this email?</string>
+    <string name="session_has_been_saved_locally">Session has been saved locally</string>
+    <string name="you_can_t_open_a_clone_of_the_app">You can\'t open a clone of the app!</string>
+    <string name="wrong_password">wrong password</string>
+    <string name="no_permissions">Cannot make connection because permissions are not granted!</string>
+    <string name="can_t_get_token">can\'t get token</string>
+    <string name="add">Add</string>
 
 </resources>

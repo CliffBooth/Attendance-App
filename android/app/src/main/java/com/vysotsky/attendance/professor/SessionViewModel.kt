@@ -14,7 +14,6 @@ import com.vysotsky.attendance.database.getDatabase
 import com.vysotsky.attendance.professor.attendeeList.AdapterList
 import com.vysotsky.attendance.professor.attendeeList.Attendee
 import com.vysotsky.attendance.professor.attendeeList.GeoLocation
-import com.vysotsky.attendance.student.proximity.NearbyConnectionModule
 import com.vysotsky.attendance.util.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

@@ -3,10 +3,12 @@ import { PrismaClient, Professor, Student } from '@prisma/client';
 import { Request } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { encrypt, compare } from './encrypt';
+import * as dotenv from 'dotenv'
 
+export default function router(prisma: PrismaClient) {
 const router = express.Router();
-const prisma = new PrismaClient();
-
+    
+dotenv.config()
 const SECRET = process.env.SECRET;
 if (!SECRET) {
     throw new Error('secret key is undefined!');
@@ -254,6 +256,8 @@ router.post('/signup_professor', async (req, res) => {
         },
     });
 
+    console.log(`=====DELETE==== IN SIGNUP prof = `, prof)
+
     const token = jwt.sign(prof, SECRET);
     res.json({
         token,
@@ -461,7 +465,6 @@ router.post(
 
 router.get('/predefinedClasses', verifyToken, async (req, res) => {
     const user = (req as any).jwtData.user as Professor;
-
     try {
         const result = await prisma.predefinedClass.findMany({
             where: {
@@ -621,92 +624,94 @@ interface PostAttendanceBody {
     }[]
  * }
  */
-router.post('/attendance', verifyToken, async (req, res) => {
-    const body = req.body as PostAttendanceBody;
+// router.post('/attendance', verifyToken, async (req, res) => {
+//     const body = req.body as PostAttendanceBody;
 
-    const user = (req as any).jwtData.user as Professor;
+//     const user = (req as any).jwtData.user as Professor;
 
-    const fullListOfStudents: Student[] = [];
-    const dateToStudents: { [date: string]: Student[] }[] = [];
+//     const fullListOfStudents: Student[] = [];
+//     const dateToStudents: { [date: string]: Student[] }[] = [];
 
-    try {
-        const classes = await prisma.class.findMany({
-            where: {
-                subjectName: body.subjectName,
-            },
-            include: {
-                students: true,
-            },
-        });
+//     try {
+//         const classes = await prisma.class.findMany({
+//             where: {
+//                 subjectName: body.subjectName,
+//             },
+//             include: {
+//                 students: true,
+//             },
+//         });
 
-        classes.forEach(cl => {
-            const students = cl.students;
-            students.forEach(st => {
-                if (st.phoneId) {
-                    if (!fullListOfStudents.find(s => s.phoneId === st.phoneId)) {
-                        fullListOfStudents.push(st);
-                    }
-                } else {
-                    if (
-                        !fullListOfStudents.find(
-                            s =>
-                                s.firstName.toLocaleLowerCase() ===
-                                    st.firstName.toLocaleLowerCase() &&
-                                s.secondName.toLowerCase() ===
-                                    st.secondName.toLocaleLowerCase()
-                        )
-                    ) {
-                        fullListOfStudents.push(st);
-                    }
-                }
-            });
+//         classes.forEach(cl => {
+//             const students = cl.students;
+//             students.forEach(st => {
+//                 if (st.phoneId) {
+//                     if (!fullListOfStudents.find(s => s.phoneId === st.phoneId)) {
+//                         fullListOfStudents.push(st);
+//                     }
+//                 } else {
+//                     if (
+//                         !fullListOfStudents.find(
+//                             s =>
+//                                 s.firstName.toLocaleLowerCase() ===
+//                                     st.firstName.toLocaleLowerCase() &&
+//                                 s.secondName.toLowerCase() ===
+//                                     st.secondName.toLocaleLowerCase()
+//                         )
+//                     ) {
+//                         fullListOfStudents.push(st);
+//                     }
+//                 }
+//             });
     
-            dateToStudents.push({ [cl.date.toString()]: cl.students });
-        });
+//             dateToStudents.push({ [cl.date.toString()]: cl.students });
+//         });
         
-    } catch (err) {
-        console.log(err);
-        res.status(500).send('database error');
-        return;
-    }
+//     } catch (err) {
+//         console.log(err);
+//         res.status(500).send('database error');
+//         return;
+//     }
 
-    console.log('after first try')
-    console.log(user)
+//     console.log('after first try')
+//     console.log(user)
 
-    try {
-        const predefinedClass = await prisma.predefinedClass.findFirst({
-            where: {
-                professorId: user.id,
-                subjectName: body.subjectName,
-            },
-            include: {
-                students: true,
-            },
-        });
-        if (predefinedClass)
-            predefinedClass?.students.forEach(st => {
-                if (
-                    !fullListOfStudents.find(
-                        s =>
-                            s.firstName.toLowerCase() ===
-                                st.firstName.toLowerCase() &&
-                            s.secondName.toLowerCase() ===
-                                st.secondName.toLowerCase()
-                    )
-                ) {
-                    fullListOfStudents.push({ ...st, phoneId: null });
-                }
-            });
-    } catch (err) {
-        console.log(err);
-        res.status(500).send('database error');
-        return;
-    }
+//     try {
+//         const predefinedClass = await prisma.predefinedClass.findFirst({
+//             where: {
+//                 professorId: user.id,
+//                 subjectName: body.subjectName,
+//             },
+//             include: {
+//                 students: true,
+//             },
+//         });
+//         if (predefinedClass)
+//             predefinedClass?.students.forEach(st => {
+//                 if (
+//                     !fullListOfStudents.find(
+//                         s =>
+//                             s.firstName.toLowerCase() ===
+//                                 st.firstName.toLowerCase() &&
+//                             s.secondName.toLowerCase() ===
+//                                 st.secondName.toLowerCase()
+//                     )
+//                 ) {
+//                     fullListOfStudents.push({ ...st, phoneId: null });
+//                 }
+//             });
+//     } catch (err) {
+//         console.log(err);
+//         res.status(500).send('database error');
+//         return;
+//     }
 
-    res.json({
-        listOfStudents: fullListOfStudents,
-        dateToStudents: dateToStudents,
-    });
-});
+//     res.json({
+//         listOfStudents: fullListOfStudents,
+//         dateToStudents: dateToStudents,
+//     });
+// });
 
-export default router;
+    return router;
+}
+

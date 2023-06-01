@@ -75,4 +75,13 @@
     <string name="wrong_token">неверный токен!</string>
     <string name="student_accounted">Студент засчитан</string>
     <string name="nothing"> </string>
+    <string name="please_enter_password">Пожалуйста, введите пароль</string>
+    <string name="please_enable_gps">Пожалуйста, включите gps!</string>
+    <string name="register_question">Не существующий email! Вы хотите зарегестрироваться с этим email?</string>
+    <string name="session_has_been_saved_locally">Занятие сохранено локально</string>
+    <string name="you_can_t_open_a_clone_of_the_app">Нельзя открыть клон приложения!</string>
+    <string name="wrong_password">неверный пароль</string>
+    <string name="no_permissions">Невозможно установить соединение, так как нет требуемых разрешений!</string>
+    <string name="can_t_get_token">Не удалось получить токен</string>
+    <string name="add">Добавить</string>
 </resources>

@@ -27,7 +27,8 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
 
     private val APP_PACKAGE_DOT_COUNT = 2
-    private val DUAL_APP_ID_999 = "999" //will not work in dual space
+//    private val DUAL_APP_ID_999 = "/999/" //will not work in dual space
+    private val defaultUserId = "/0/"
     private val DOT = '.'
 
 
@@ -37,10 +38,11 @@ class MainActivity : AppCompatActivity() {
         val dataDir = applicationInfo.dataDir
         val sourceDir = applicationInfo.sourceDir
         binding = ActivityMainBinding.inflate(layoutInflater)
-        binding.infoText.text = "dataDir = $dataDir, sourceDir = $sourceDir"
+        binding.infoText.text = "dataDir = $dataDir, sourceDir = $sourceDir, contains /0/ = ${dataDir.contains(defaultUserId)}"
         Log.d(TAG, "dataDir = $dataDir, sourceDir = $sourceDir")
-        if (dataDir.contains(DUAL_APP_ID_999) || dataDir.count { c -> c == DOT } != APP_PACKAGE_DOT_COUNT) {
-            Toast.makeText(this, "You can't open a clone of the app!", Toast.LENGTH_LONG).show()
+        if (!dataDir.contains(defaultUserId) || dataDir.count { c -> c == DOT } != APP_PACKAGE_DOT_COUNT) {
+            Toast.makeText(this,
+                getString(R.string.you_can_t_open_a_clone_of_the_app), Toast.LENGTH_LONG).show()
             Log.d(TAG, "toast made, finishing...")
             finish()
             //android.os.Process.killProcess(android.os.Process.myPid())

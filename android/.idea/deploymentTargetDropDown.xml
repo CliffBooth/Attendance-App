@@ -1,17 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="deploymentTargetDropDown">
-    <runningDeviceTargetSelectedWithDropDown>
-      <Target>
-        <type value="RUNNING_DEVICE_TARGET" />
-        <deviceKey>
-          <Key>
-            <type value="SERIAL_NUMBER" />
-            <value value="adb-XWTCJFZHZ5JBFIQ8-JThmg9._adb-tls-connect._tcp" />
-          </Key>
-        </deviceKey>
-      </Target>
-    </runningDeviceTargetSelectedWithDropDown>
-    <timeTargetWasSelectedWithDropDown value="2023-05-25T12:39:36.410732300Z" />
+    <value>
+      <entry key="app">
+        <State />
+      </entry>
+      <entry key="navigationTest()">
+        <State />
+      </entry>
+      <entry key="test empty subjectName inputText()">
+        <State />
+      </entry>
+      <entry key="testAttendeesList()">
+        <State />
+      </entry>
+      <entry key="testEmptySubjectName()">
+        <State>
+          <runningDeviceTargetSelectedWithDropDown>
+            <Target>
+              <type value="RUNNING_DEVICE_TARGET" />
+              <deviceKey>
+                <Key>
+                  <type value="SERIAL_NUMBER" />
+                  <value value="CQ30003F8J" />
+                </Key>
+              </deviceKey>
+            </Target>
+          </runningDeviceTargetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2023-05-31T17:57:28.915125600Z" />
+        </State>
+      </entry>
+      <entry key="testNavigation() (1)">
+        <State />
+      </entry>
+    </value>
   </component>
 </project>

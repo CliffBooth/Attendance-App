@@ -10,8 +10,12 @@ import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.vysotsky.attendance.TAG
+import com.vysotsky.attendance.api.Student
 import java.io.IOException
 import java.nio.charset.Charset
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /**
  * check if granted and require if not granted.
@@ -54,97 +58,27 @@ fun checkPermissions(
     return res
 }
 
-const val MESSAGE_READ: Int = 0
-const val MESSAGE_WRITE: Int = 1
-const val MESSAGE_TOAST: Int = 2
-const val MESSAGE_CLOSE: Int = 3
-
-/**
- * Thread, used by both professor and student when sending and receiving data over bluetooth
- */
-//add handler to send messages back to the fragment
-class ConnectedThread(
-    private val socket: BluetoothSocket,
-    private val handler: ThreadHandler
-) : Thread() {
-    private val buffer: ByteArray = ByteArray(1024)
-    @Volatile
-    private var running = true
-
-    init {
-        handler.thisThread = this
-    }
-
-    override fun run() {
-        var bytesRead = 0
-        while (running) {
-            try {
-                bytesRead = socket.inputStream.read(buffer)
-                val readMsg = handler.obtainMessage(
-                    MESSAGE_READ, bytesRead, -1, buffer
-                )
-                readMsg.sendToTarget()
-            } catch (e: IOException) {
-                running = false
-                val closeMsg = handler.obtainMessage(MESSAGE_CLOSE)
-                closeMsg.sendToTarget()
-                Log.d(TAG, "ConnectedThread: error reading data; bytesRead = ${bytesRead}", e)
-            }
-        }
-    }
-
-    fun write(bytes: ByteArray) {
-        try {
-            socket.outputStream.write(bytes)
-        } catch (e: IOException) {
-            Log.d(TAG, "ConnectedThread: error writing data", e)
-            //TODO make toast in activity or something
-            /*
-            Log.e(TAG, "Error occurred when sending data", e)
-
-               // Send a failure message back to the activity.
-               val writeErrorMsg = handler.obtainMessage(MESSAGE_TOAST)
-               val bundle = Bundle().apply {
-                   putString("toast", "Couldn't send data to the other device")
-               }
-               writeErrorMsg.data = bundle
-               handler.sendMessage(writeErrorMsg)
-               return
-             */
-        }
-        val writtenMsg = handler.obtainMessage(
-            MESSAGE_WRITE, -1, -1, buffer
-        )
-        writtenMsg.sendToTarget()
-    }
-
-    fun cancel() {
-        try {
-            running = false
-            socket.close()
-        } catch (e: IOException) {
-            Log.d(TAG, "ConnectedThread: error closing socket", e)
-        }
-    }
+fun formatDate(unixTime: Long): String {
+    val format = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
+    val date = Date(unixTime)
+    return format.format(date)
 }
 
-/**
- * Activity or Fragment that uses ConnectedThread should create a handler class
- * inherited from ThreadHandler
- */
-open class ThreadHandler : Handler(Looper.getMainLooper()) {
-    lateinit var thisThread: ConnectedThread
+fun compareByName(s1: Student, s2: Student): Boolean {
+    return s1.firstName.lowercase() == s2.firstName.lowercase() && s1.secondName.lowercase() == s2.secondName.lowercase()
 }
 
-fun String.Companion.fromByteArray(byteArray: ByteArray, n: Int): String {
-    return String(byteArray.copyOfRange(0, n), Charset.defaultCharset())
+fun listOfDistinct(l: List<Student>): List<Student> {
+    val res = mutableListOf<Student>()
+//    Log.d(TAG, "listOfDistinct() = $l")
+    for (st in l) {
+        if (res.find { s -> compareByName(s, st)} == null) {
+            res += Student(null, st.firstName, st.secondName)
+        }
+    }
+//    Log.d(TAG, "listOfDistinct: $res")
+    return res
 }
 
 //class for connections api
 data class Endpoint(val id: String, val name: String)
-
-//data class Student(
-//    val firstName: String,
-//    val secondName: String,
-//    val id: String,
-//)

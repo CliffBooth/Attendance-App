@@ -2,19 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Class, Student } from '../../services/ApiService';
 import { Subject } from '../SubjectToEdit';
 
-interface Props {
-    classes: Class[];
-}
-
 const AttendanceView = () => {
-    function studentToLowerCase(st: { firstName: string; secondName: string }) {
-        return {
-            ...st,
-            firstName: st.firstName.toLowerCase(),
-            secondName: st.secondName.toLowerCase(),
-        };
-    }
-
     const { state } = useLocation();
 
     //classes are already of the same subject

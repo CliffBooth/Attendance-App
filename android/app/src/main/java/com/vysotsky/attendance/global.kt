@@ -2,6 +2,9 @@ package com.vysotsky.attendance
 
 import okhttp3.OkHttpClient
 import java.io.InputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.random.Random
 
 var PORT = 7000
@@ -15,7 +18,7 @@ val httpClient = OkHttpClient()
 
 //for connections api
 val SERVICE_ID = "ATTENDANCE"
-//val userName = "attendance" //name might need to be random
+
 fun getName(): String {
     var result = ""
     repeat(5) {
@@ -23,7 +26,6 @@ fun getName(): String {
     }
     return result
 }
-
 fun getResponse(inputStream: InputStream): String {
     val br = inputStream.bufferedReader()
     val sb = StringBuilder()

@@ -1,7 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+// import { PrismaClient } from '@prisma/client';
+import prisma from './client';
 import {encrypt} from './encrypt';
-
-const prisma = new PrismaClient();
 
 async function populate() {
     const professor = await prisma.professor.upsert({

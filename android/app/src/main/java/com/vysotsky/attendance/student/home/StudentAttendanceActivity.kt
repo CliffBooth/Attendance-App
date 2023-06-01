@@ -5,9 +5,7 @@ import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.vysotsky.attendance.databinding.ActivityStudentAttendanceBinding
 import com.vysotsky.attendance.api.StudentClass
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import com.vysotsky.attendance.util.formatDate
 
 class StudentAttendanceActivity : AppCompatActivity() {
 
@@ -33,13 +31,7 @@ class StudentAttendanceActivity : AppCompatActivity() {
         layoutManager = LinearLayoutManager(this@StudentAttendanceActivity)
     }
 
-    private fun formatDate(unixTime: Long): String {
-        val format = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
-        val date = Date(unixTime)
-        return format.format(date)
-    }
-
-    companion object {
+       companion object {
         const val EXTRA_CLASSES_KEY = "com.vysotsky.attendance.student.StudentAttendanceActivity.classes"
     }
 }

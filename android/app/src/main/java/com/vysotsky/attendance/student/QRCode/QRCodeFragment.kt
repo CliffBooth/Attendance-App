@@ -161,10 +161,7 @@ class QRCodeFragment : Fragment() {
     //TODO how to stop coroutine when close the app?
     private fun runPolling() {
         pollingJob = fragmentViewModel.viewModelScope.launch(Dispatchers.IO) {
-//        viewLifecycleOwner.lifecycleScope.launch {
-//            viewLifecycleOwner.whenStarted {
-//                Log.d(T, "QRCodeFragment inside whenStarted{")
-//                withContext(Dispatchers.IO) {
+
             try {
                 var i = 0
                 var gotResult = false
@@ -254,7 +251,7 @@ class QRCodeFragment : Fragment() {
                             Handler(Looper.getMainLooper()).post {
                                 Toast.makeText(
                                     requireContext(),
-                                    "can't get token",
+                                    getString(R.string.can_t_get_token),
                                     Toast.LENGTH_LONG
                                 ).show()
                             }
@@ -265,7 +262,7 @@ class QRCodeFragment : Fragment() {
                             Handler(Looper.getMainLooper()).post {
                                 Toast.makeText(
                                     requireContext(),
-                                    "ERROR SENDING REQUEST",
+                                    getString(R.string.network_error),
                                     Toast.LENGTH_LONG
                                 ).show()
                             }
