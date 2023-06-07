@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Class, Student } from '../../services/ApiService';
 import { Subject } from '../SubjectToEdit';
+import { useTranslation } from 'react-i18next';
 
 const AttendanceView = () => {
     const { state } = useLocation();
@@ -17,6 +18,8 @@ const AttendanceView = () => {
     function compareByName(s1: { firstName: string; secondName: string }, s2: { firstName: string; secondName: string }) {
         return s1.firstName.toLowerCase() === s2.firstName.toLowerCase() && s1.secondName.toLowerCase() === s2.secondName.toLowerCase()
     }
+
+    const {t} = useTranslation();
 
     function listOfDistinct(list: { firstName: string; secondName: string }[]) {
         const res: { firstName: string; secondName: string }[] = [];
@@ -80,7 +83,7 @@ const AttendanceView = () => {
                     <thead>
                         <tr key="tr1" className="table-row">
                             <th>#</th>
-                            <th className="border-2 px-2">Студент</th>
+                            <th className="border-2 px-2"><>{t('Student')}</></th>
                             {allDates.map((d, ind) => (
                                 <th
                                     key={`date-${ind}`}
@@ -145,7 +148,7 @@ const AttendanceView = () => {
                     onClick={() => navigate(-1)}
                     className="absolute left-0 border-2 p-2"
                 >
-                    back
+                    <>{t('back')}</>
                 </button>
                 <h1 className="font-bold text-3xl text-center">
                     {classes[0].subjectName}

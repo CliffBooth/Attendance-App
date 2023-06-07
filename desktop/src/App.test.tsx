@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import Home from './layouts/Home';
 import App from './App'
 import UserContext from './context/UserContext';
+import { useTranslation } from 'react-i18next';
 
 const user = {
     email: 'test',
@@ -16,7 +17,20 @@ afterAll(() => {
     localStorage.removeItem('user')
 })
 
+jest.mock('react-i18next', () => ({
+    useTranslation: jest.fn(),
+}));
+
 test('test display', async () => {
+    const useTranslationSpy = useTranslation;
+    const tSpy = jest.fn((str) => str);
+    (useTranslationSpy as any).mockReturnValue({
+        t: tSpy,
+        i18n: {
+        changeLanguage: () => new Promise(() => {}),
+        },
+    });
+    
     const user = {
         loggedIn: true,
         email: 'test',
@@ -37,6 +51,6 @@ test('test display', async () => {
     
     fireEvent.click(screen.getByText("Start class"), {button: 0}) 
 
-    const text3 = screen.getByText('Class name:')
+    const text3 = screen.getByText('Subject name:')
     expect(text3).toBeInTheDocument();
 })

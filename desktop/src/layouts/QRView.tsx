@@ -11,29 +11,32 @@ import QRCodeAndList from './QRCodeAndList';
 import { Combobox, Listbox } from '@headlessui/react';
 import CheckIcon from '@heroicons/react/20/solid/CheckIcon';
 import ChevronUpDownIcon from '@heroicons/react/20/solid/ChevronUpDownIcon';
+import { useTranslation } from 'react-i18next';
 
 const maxSize = 750;
 
 let i = 1;
 
 // const tempArray = ['one', 'two', 'three'];
-const initialOption = 'select the subject'
 
 const QRView: React.FC = () => {
     /**
      * display loading while loading
-     *
-     * press button -> start session and then get qr_code or, if session already started, get qr_code
-     */
-
-    // const [qrCode, setQrCode] = useState<string>('');
-    const [inputValue, setInputValue] = useState<string>('');
-    const [query, setQuery] = useState('');
-    const [subjects, setSubjects] = useState<string[]>([]);
-    const [selected, setSelected] = useState(initialOption);
-
-    const { session, setSession } = useContext(SessionContext);
-    const user = JSON.parse(localStorage.getItem('user')!!);
+    *
+    * press button -> start session and then get qr_code or, if session already started, get qr_code
+    */
+   
+   // const [qrCode, setQrCode] = useState<string>('');
+   const [inputValue, setInputValue] = useState<string>('');
+   const [query, setQuery] = useState('');
+   const [subjects, setSubjects] = useState<string[]>([]);
+   
+   const { session, setSession } = useContext(SessionContext);
+   const user = JSON.parse(localStorage.getItem('user')!!);
+   
+   const {t} = useTranslation();
+   const initialOption = t('select the subject');
+   const [selected, setSelected] = useState(initialOption);
 
     useEffect(() => {
         async function fetchSubjects() {
@@ -111,7 +114,7 @@ const QRView: React.FC = () => {
             )}
             {session.qrCode.length === 0 && (
                 <div className="my-2">
-                    <h1>Class name:</h1>
+                    <h1><>{t('Subject name')}</>:</h1>
                     <div className="fle flex-col space-x-3 space-y-3">
                         <input
                             type="text"
@@ -185,14 +188,14 @@ const QRView: React.FC = () => {
                     className="bg-gray-700 text-xl text-white p-2 rounded-md hover:bg-gray-600"
                     onClick={handleStart}
                 >
-                    Start session
+                    <>{t('Start session')}</>
                 </button>
             ) : (
                 <button
                     className="bg-gray-700 text-xl text-white p-2 rounded-md hover:bg-gray-600"
                     onClick={endSession}
                 >
-                    End Session
+                    <>{t('End session')}</>
                 </button>
             )}
         </div>

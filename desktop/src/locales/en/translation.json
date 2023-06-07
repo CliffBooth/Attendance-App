@@ -1,0 +1,37 @@
+{
+    "Authentication": "Authentication",
+    "Email": "Email",
+    "Password": "Password",
+    "Log in": "Log in",
+    
+    "Home": "Home",
+    "Start class": "Start Class",
+    "log out": "log out",
+    "previous classes": "previous classes",
+    "Your predefined classes": "Your predefined classes",
+    "Enter the subject name": "Enter the subject name",
+    "save": "save",
+    "cancel": "cancel",
+
+    "Student": "Student",
+
+    "Settings": "Settings",
+    "Language": "Language",
+
+    "Subject name": "Subject name",
+    "Attendance check method": "Attendance check method",
+    "Student list": "Student list",
+    "any": "any",
+    "phone qr code": "phone qr code",
+    "screen qr code": "screen qr code",
+    "bluetooth": "bluetooth",
+    "back": "back",
+    "add": "add",
+    "surname": "surname",
+    "name": "name",
+
+    "select the subject": "select the subject",
+    "Start session": "Start session",
+    "Accounted": "Accounted",
+    "End session": "End session"
+}

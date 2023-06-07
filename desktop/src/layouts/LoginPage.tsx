@@ -2,6 +2,7 @@ import { Formik } from 'formik';
 import useTimeOutMessage from '../hooks/useTimeOutMessage';
 import useAuth from '../services/ApiService';
 import Alert from '../components/Alert';
+import { useTranslation } from 'react-i18next';
 
 const LoginPage = () => {
 
@@ -25,11 +26,13 @@ const LoginPage = () => {
 
     const { signIn } = useAuth()
 
+    const {t} = useTranslation();
+
     return (
         <div className="flex flex-col">
              {message && <Alert className="w-1/2 m-auto mb-5" message={message}/>}
             <div className="mx-auto bg-gray-200 shadow-lg p-5 space-y-7 text-lg">
-                <h1 className="text-center font-bold">Authentication</h1>
+                <h1 className="text-center font-bold"><>{t('Authentication')}</></h1>
                 <Formik
                     initialValues={{
                         email: '',
@@ -44,14 +47,14 @@ const LoginPage = () => {
                             className="flex flex-col text-center p-3 space-y-5"
                             onSubmit={formik.handleSubmit}
                         >
-                            <label htmlFor="email">Email</label>
+                            <label htmlFor="email"><>{t('Email')}</></label>
                             <input
                                 id="email"
                                 className="input-login"
                                 type="text"
                                 {...formik.getFieldProps('email')}
                             />
-                            <label htmlFor="password">Password</label>
+                            <label htmlFor="password"><>{t('Password')}</></label>
                             <input
                                 id="password"
                                 className="input-login"
@@ -66,7 +69,7 @@ const LoginPage = () => {
                                 className="bg-gray-700 text-xl text-white p-2 rounded-md hover:bg-gray-600"
                                 type="submit"
                             >
-                                Submit
+                                <>{t('Log in')}</>
                             </button>
                         </form>
                     )}

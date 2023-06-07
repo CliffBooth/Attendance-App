@@ -3,6 +3,7 @@ import { Dialog } from '@headlessui/react';
 import {TrashIcon} from '@heroicons/react/24/outline'
 import SubjectToEdit, { Subject, checkMethods } from '../components/SubjectToEdit';
 import { addPredefinedClass, deletePredefinedClass, getPredefinedClasses } from '../services/ApiService';
+import { useTranslation } from 'react-i18next';
 
 type AuthMethod = 'any' | 'phone qr code' | 'screen qr code' | 'bluetooth'
 
@@ -10,6 +11,8 @@ const CreatedClasses = () => {
     const [subjects, setSubjects] = useState<Subject[]>([]);
     const [dialogOpened, setOpened] = useState(false);
     const [dialogSubjectName, setSubjectName] = useState('')
+
+    const {t} = useTranslation();
 
     function handleCloseDialog() {
         setOpened(false);
@@ -87,7 +90,7 @@ const CreatedClasses = () => {
                 <div className="fixed inset-0 bg-black/30">
                     <div className="fixed inset-0 flex items-center justify-center p-4">
                         <Dialog.Panel className="p-5 flex flex-col w-full max-w-sm rounded bg-white">
-                            <Dialog.Title className="text-center mb-4">Enter the subject name:</Dialog.Title>
+                            <Dialog.Title className="text-center mb-4"><>{t('Enter the subject name')}</>:</Dialog.Title>
                             <input
                                 type="text"
                                 value={dialogSubjectName}
@@ -99,13 +102,13 @@ const CreatedClasses = () => {
                             onClick={onSaveSubject}
                             className="px-5 py-2 w-fit rounded-md bg-blue-200 hover:bg-blue-300"
                             >
-                                Save
+                                <>{t('save')}</>
                             </button>
                             <button
                             onClick={handleCloseDialog}
                             className="px-5 py-2 w-fit rounded-md bg-red-200 hover:bg-red-300"
                             >
-                                Cancel
+                                <>{t('cancel')}</>
                             </button>
                             </div>
                         </Dialog.Panel>

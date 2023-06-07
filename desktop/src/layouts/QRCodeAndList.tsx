@@ -3,6 +3,7 @@ import useInterval from '../hooks/useInterval';
 import SessionContext from '../context/SessionContext';
 import QRCodeComponent from '../components/QRCodeComponent';
 import { Student, getQrCode, getStudentsList } from '../services/ApiService';
+import { useTranslation } from 'react-i18next';
 
 const delay = 250
 
@@ -13,6 +14,8 @@ const QRCodeAndList = () => {
     const [studentList, setStudentList] = useState<
         Student[]
     >([]);
+
+    const {t} = useTranslation();
 
     const stop = useInterval(() => {
         let terminated = false
@@ -54,7 +57,7 @@ const QRCodeAndList = () => {
     return (
         <div className="flex justify-around">
             <div className="text-center">
-                <p className="text-xl font-bold underline mb-3">Accounted:</p>
+                <p className="text-xl font-bold underline mb-3"><>{t('Accounted')}</>:</p>
                 <ol className="text-center list-decimal text-lg">
                     {studentList.map(s => {
                         return <li key={studentList.indexOf(s)}>{`${s.secondName} ${s.firstName}`}</li>;

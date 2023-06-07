@@ -1,0 +1,37 @@
+{
+    "Authentication": "Аутентификация",
+    "Email": "Email",
+    "Password": "Пароль",
+    "Log in": "Войти",
+    
+    "Home": "Главная",
+    "Start class": "Начать занятие",
+    "log out": "выйти",
+    "previous classes": "Проведенные занятия",
+    "Your predefined classes": "Ваши занятия",
+    "Enter the subject name": "Введите название занятия",
+    "save": "сохранить",
+    "cancel": "отмена",
+
+    "Student": "Студент",
+
+    "Settings": "Настройки",
+    "Language": "Язык",
+
+    "Subject name": "Название занятия",
+    "Attendance check method": "Способ проверки посещаемости",
+    "Student list": "Список студентов",
+    "any": "любой",
+    "phone qr code": "qr код на телефоне",
+    "screen qr code": "qr код на экране",
+    "bluetooth": "беспроводное соединение",
+    "back": "назад",
+    "add": "добавить",
+    "surname": "фамилия",
+    "name": "имя",
+
+    "select the subject": "выберете предмет",
+    "Start session": "начать занятие",
+    "Accounted": "Засчитаны",
+    "End session": "Закончить занятие"
+}

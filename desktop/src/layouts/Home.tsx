@@ -3,6 +3,7 @@ import { Navigate } from "react-router-dom";
 import UserContext from "../context/UserContext";
 import ClassesScreen from "./ClassesScreen";
 import CreatedClasses from "./CreatedClasses";
+import { useTranslation } from "react-i18next";
 
 const Home = () => {
 
@@ -14,14 +15,16 @@ const Home = () => {
     if (data)
         user = JSON.parse(data)
 
+    const {t} = useTranslation();
+
     console.log('user = ', user)
     return (
         <div className="container mx-auto p-6">
         {user.email &&
             <>
-                <p className="mb-5">previous classes:</p>
+                <p className="mb-5"><>{t('previous classes')}</>:</p>
                 <ClassesScreen />
-                <p className="mt-10 mb-5">Your predefined classes:</p>
+                <p className="mt-10 mb-5"><>{t('Your predefined classes')}</>:</p>
                 <CreatedClasses />
             </>
         }

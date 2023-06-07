@@ -5,6 +5,7 @@ import { Listbox } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon,} from '@heroicons/react/20/solid'
 import {TrashIcon} from '@heroicons/react/24/outline'
 import { updatePredefinedClass } from '../services/ApiService';
+import { useTranslation } from 'react-i18next';
 
 
 const EditClass = () => {
@@ -15,6 +16,8 @@ const EditClass = () => {
     const [name, setName] = useState(subject.subjectName);
     const [method, setMethod] = useState<CheckMethod>(checkMethods[0]);
     const [students, setStudents] = useState<string[]>(subject.students.map(s => `${s.secondName} ${s.firstName}`))
+
+    const {t} = useTranslation();
 
     async function handleSave() {
         const studentList = students.filter(s => s).map(s => {
@@ -47,13 +50,13 @@ const EditClass = () => {
                         className="border-2 p-2"
                         onClick={() => navigate(-1)}
                     >
-                        back
+                        <>{t('back')}</>
                     </button>
                 </div>
                 <div className="border-4 border-gray-100 p-5">
                     <div className="flex space-x-5">
                         <div>
-                            <p className="mb-3">Subject name:</p>
+                            <p className="mb-3"><>{t('Subject name')}</>:</p>
                             <input
                                 type="text"
                                 value={name}
@@ -62,13 +65,13 @@ const EditClass = () => {
                             />
                         </div>
                         <div>
-                            <p className="mb-3">Attendance check method:</p>
+                            <p className="mb-3"><>{t('Attendance check method')}</>:</p>
 
                             <Listbox value={method} onChange={setMethod}>
                                 <div className="relative mt-1">
                                     <Listbox.Button className="relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
                                         <span className="block truncate">
-                                            {method}
+                                            <>{t(method)}</>
                                         </span>
                                         <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                                             <ChevronUpDownIcon
@@ -88,7 +91,7 @@ const EditClass = () => {
                                                                 : 'text-gray-900'
                                                         }`
                                                     }
-                                                    value={m}
+                                                    value={t(m)}
                                                 >
                                                     {({ selected }) => (
                                                         <>
@@ -99,7 +102,7 @@ const EditClass = () => {
                                                                         : 'font-normal'
                                                                 }`}
                                                             >
-                                                                {m}
+                                                                <>{t(m)}</>
                                                             </span>
                                                             {selected ? (
                                                                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-600">
@@ -119,7 +122,7 @@ const EditClass = () => {
                         </div>
                     </div>
 
-                    <p className="mb-3">Student List:</p>
+                    <p className="mb-3"><>{t('Student list')}</>:</p>
                     <ol className="list-decimal">
                         {students.map((s, studentIndex) => (
                             <li key={studentIndex}>
@@ -155,14 +158,14 @@ const EditClass = () => {
                     <div>
                         <button className="p-2 rounded-md bg-green-200"
                         onClick={() => setStudents([...students, ''])}>
-                            add
+                            <>{t('add')}</>
                         </button>
                     </div>
 
                     <button className="mt-5 px-5 py-2 w-fit rounded-md bg-blue-200 hover:bg-blue-300"
                     onClick={handleSave}
                     >
-                        Save
+                        <>{t('save')}</>
                     </button>
                 </div>
             </div>
