@@ -36,7 +36,7 @@ class StudentCameraFragment : CameraFragment() {
         if (!permissionsGranted) {
             Toast.makeText(
                 requireContext(),
-                "Can't use camera without permission!",
+                getString(R.string.camera_permissions_error),
                 Toast.LENGTH_LONG
             ).show()
         }

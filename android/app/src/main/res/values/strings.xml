@@ -21,7 +21,7 @@
     <string name="email_error_text">Please, enter valid email address</string>
     <string name="saved_email" translatable="false">email</string>
     <string name="access_token" translatable="false">token</string>
-<!--    <string name="camera_permissions_error">Camera permission is not granted by the user!</string>-->
+    <string name="camera_permissions_error">Camera permission is not granted by the user!</string>
     <string name="location_permissions_error">Location permission is not granted by the user!</string>
     <string name="start_session">start session</string>
     <string name="logout_menu">log out</string>

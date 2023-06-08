@@ -16,7 +16,7 @@
     <string name="professor_log_in">Введите email и пароль</string>
     <string name="email_hint">email</string>
     <string name="email_error_text">Пожалуйста, введите корректный email</string>
-<!--    <string name="camera_permissions_error">Camera permission is not granted by the user!</string>-->
+    <string name="camera_permissions_error">Нет разрешения использовать камеру!</string>
     <string name="location_permissions_error">Нет разрешения использовать геолокацию!</string>
     <string name="start_session">Начать сессию</string>
     <string name="logout_menu">Выйти</string>

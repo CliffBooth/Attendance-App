@@ -144,6 +144,11 @@ class QRCodeFragment : Fragment() {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        activity?.window?.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
+    }
+
     override fun onStart() {
         super.onStart()
         Log.d(TAG, "QRCodeFragment: onStart()")
@@ -341,6 +346,7 @@ class QRCodeFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
         _binding = null
     }
 }

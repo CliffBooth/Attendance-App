@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.Database
 import com.vysotsky.attendance.TAG
 import com.vysotsky.attendance.api.PredefinedClass
 import com.vysotsky.attendance.api.PredefinedClassToSend
@@ -12,7 +11,6 @@ import com.vysotsky.attendance.api.RetrofitInstance
 import com.vysotsky.attendance.api.Session
 import com.vysotsky.attendance.database.AttendanceDatabase
 import com.vysotsky.attendance.database.Class
-import com.vysotsky.attendance.database.ClassDao
 import com.vysotsky.attendance.database.PredefinedClassDB
 import com.vysotsky.attendance.util.Resource
 import kotlinx.coroutines.Dispatchers
@@ -38,7 +36,7 @@ class ProfessorHomeViewModel(
         if (!force && searchedOnStartUp)
             return
         searchedOnStartUp = true
-        test(email, token)
+        synchronize(email, token)
         return
     }
 
@@ -89,7 +87,7 @@ class ProfessorHomeViewModel(
         return result
     }
 
-    private fun test(email: String, token: String) {
+    private fun synchronize(email: String, token: String) {
         var databaseClasses: List<Session> = listOf()
         var apiClasses: List<Session> = listOf()
         var apiPredefined: List<PredefinedClass> = listOf()
